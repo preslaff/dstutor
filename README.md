@@ -951,10 +951,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 
-- **Documentation**: [Read the Docs](https://ds-tutor.readthedocs.io)
+- **Documentation**: [Read the Docs](https://dstutor.readthedocs.io)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/ds-tutor/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ds-tutor/discussions)
-- **Email**: support@dstutor.dev
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/dstutor/discussions)
+- **Email**: support@cdsv.dev
 
 ---
 
@@ -970,8 +970,8 @@ Your support helps us continue developing free educational resources.
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/ds-tutor.git
-cd ds-tutor
+git clone https://github.com/preslaff/dstutor.git
+cd dstutor
 pip install -e .
 
 # Start Jupyter
@@ -986,7 +986,3 @@ Then in your notebook:
 ```
 
 **Ready to become a Data Scientist? Start your journey today! 🎓📊🤖**
-
----
-
-Made with ❤️ for Data Science learners everywhere
