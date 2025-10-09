@@ -1,0 +1,275 @@
+lesson:
+  id: "numpy_09"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Random Number Generation"
+  order: 9
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: ["numpy_02"]
+    learning_objectives:
+      - "Generate random numbers with various distributions"
+      - "Create random arrays for testing and simulation"
+      - "Set random seeds for reproducibility"
+      - "Sample from arrays randomly"
+
+  content:
+    introduction: |
+      # Random Number Generation with NumPy
+
+      Random numbers are essential in data science - for simulations, testing,
+      initializing models, and creating sample data. NumPy makes it easy!
+
+      **What you'll learn:**
+      - Generate random integers and floats
+      - Use different probability distributions
+      - Set seeds for reproducible results
+      - Random sampling and shuffling
+
+    concept: |
+      ## NumPy Random Module
+
+      **Modern API (NumPy 1.17+):**
+      ```python
+      rng = np.random.default_rng(seed=42)  # Create generator
+      rng.random()  # Generate random numbers
+      ```
+
+      **Legacy API (still widely used):**
+      ```python
+      np.random.seed(42)  # Set seed
+      np.random.rand()    # Generate random numbers
+      ```
+
+      **Common Functions:**
+      - `rand()` - Uniform [0, 1)
+      - `randint(low, high, size)` - Random integers
+      - `randn()` - Standard normal (mean=0, std=1)
+      - `normal(mean, std, size)` - Normal distribution
+      - `uniform(low, high, size)` - Uniform distribution
+      - `choice(array, size)` - Random sample from array
+      - `shuffle(array)` - Shuffle in-place
+
+      **Reproducibility:**
+      Setting a seed ensures you get the same "random" numbers each time.
+      Essential for debugging and sharing results!
+
+    examples:
+      - title: "Basic Random Generation"
+        code: |
+          import numpy as np
+
+          # Set seed for reproducibility
+          np.random.seed(42)
+
+          # Random float in [0, 1)
+          print("Single random float:", np.random.rand())
+          print()
+
+          # Array of random floats
+          print("Array of 5 random floats:")
+          print(np.random.rand(5))
+          print()
+
+          # 2D array of random floats
+          print("2x3 array of random floats:")
+          print(np.random.rand(2, 3))
+
+        output: |
+          Single random float: 0.3745401188473625
+
+          Array of 5 random floats:
+          [0.95071431 0.73199394 0.59865848 0.15601864 0.15599452]
+
+          2x3 array of random floats:
+          [[0.05808361 0.86617615 0.60111501]
+           [0.70807258 0.02058449 0.96990985]]
+
+      - title: "Random Integers"
+        code: |
+          import numpy as np
+
+          np.random.seed(42)
+
+          # Single random integer [0, 10)
+          print("Random int [0, 10):", np.random.randint(0, 10))
+          print()
+
+          # Array of random integers
+          print("5 random integers [1, 7):")
+          print(np.random.randint(1, 7, size=5))
+          print()
+
+          # 2D array of random integers
+          print("3x4 array of random integers [0, 100):")
+          print(np.random.randint(0, 100, size=(3, 4)))
+
+        output: |
+          Random int [0, 10): 6
+
+          5 random integers [1, 7):
+          [6 3 7 4 6]
+
+          3x4 array of random integers [0, 100):
+          [[95 11 81 70]
+           [63 87 75  9]
+           [77 40  4 63]]
+
+      - title: "Normal Distribution"
+        code: |
+          import numpy as np
+
+          np.random.seed(42)
+
+          # Standard normal (mean=0, std=1)
+          print("Standard normal (5 values):")
+          print(np.random.randn(5))
+          print()
+
+          # Custom normal distribution
+          mean = 100
+          std = 15
+          scores = np.random.normal(mean, std, size=10)
+          print(f"Test scores (mean={mean}, std={std}):")
+          print(scores.astype(int))
+          print()
+
+          # Verify
+          print(f"Actual mean: {scores.mean():.2f}")
+          print(f"Actual std: {scores.std():.2f}")
+
+        output: |
+          Standard normal (5 values):
+          [ 0.49671415 -0.1382643   0.64768854  1.52302986 -0.23415337]
+
+          Test scores (mean=100, std=15):
+          [107  97  109  122  96  114  95  103  97  90]
+
+          Actual mean: 103.14
+          Actual std: 9.34
+
+      - title: "Random Sampling and Shuffling"
+        code: |
+          import numpy as np
+
+          np.random.seed(42)
+
+          # Random choice from array
+          fruits = np.array(['apple', 'banana', 'cherry', 'date'])
+          print("Random fruit:", np.random.choice(fruits))
+          print()
+
+          # Multiple random choices (with replacement)
+          print("5 random fruits:")
+          print(np.random.choice(fruits, size=5))
+          print()
+
+          # Without replacement (no duplicates)
+          print("3 random fruits (no duplicates):")
+          print(np.random.choice(fruits, size=3, replace=False))
+          print()
+
+          # Shuffle array in-place
+          numbers = np.array([1, 2, 3, 4, 5])
+          print("Original:", numbers)
+          np.random.shuffle(numbers)
+          print("Shuffled:", numbers)
+
+        output: |
+          Random fruit: cherry
+
+          5 random fruits:
+          ['date' 'banana' 'date' 'cherry' 'date']
+
+          3 random fruits (no duplicates):
+          ['cherry' 'banana' 'apple']
+
+          Original: [1 2 3 4 5]
+          Shuffled: [3 1 4 5 2]
+
+      - title: "Uniform Distribution"
+        code: |
+          import numpy as np
+
+          np.random.seed(42)
+
+          # Uniform distribution [low, high)
+          print("10 random floats between 5 and 10:")
+          print(np.random.uniform(5, 10, size=10))
+          print()
+
+          # Generate random prices
+          prices = np.random.uniform(9.99, 99.99, size=5)
+          print("Random prices:")
+          print(prices.round(2))
+
+        output: |
+          10 random floats between 5 and 10:
+          [8.71935207 8.66023501 7.99308789 7.78037251 7.77994068
+           5.29041805 9.33088078 8.00555504 8.54040354 5.10292922]
+
+          Random prices:
+          [94.87 97.07 73.50 59.87 15.60]
+
+  exercise:
+    title: "Generate Random Test Data"
+
+    instruction: |
+      Create a dataset of 100 random exam scores from a normal distribution.
+
+      **Requirements:**
+      - Mean: 75
+      - Standard deviation: 10
+      - Size: 100
+      - Set random seed to 42 for reproducibility
+      - Store in variable `result`
+
+    setup_code: |
+      import numpy as np
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      np.random.seed(42)
+      result = np.random.normal(75, 10, size=100)
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [100]
+
+    hints:
+      - level: 1
+        text: |
+          Use np.random.normal(mean, std, size) to generate normally distributed numbers.
+          Don't forget to set the seed first!
+
+      - level: 2
+        text: |
+          np.random.seed(42)
+          result = np.random.normal(75, 10, size=100)
+
+      - level: 3
+        code: |
+          np.random.seed(42)
+          result = np.random.normal(75, 10, size=100)
+
+  follow_up:
+    challenges:
+      - "Generate 50 random integers between 1 and 100"
+      - "Create a 10x10 array of random floats [0, 1)"
+      - "Randomly sample 20 items from an array without replacement"
+      - "Generate data from a binomial distribution"
+
+    next_lesson: "numpy_10"
+
+    additional_resources:
+      - title: "NumPy Random Documentation"
+        url: "https://numpy.org/doc/stable/reference/random/index.html"
+      - title: "Random Generator Guide"
+        url: "https://numpy.org/doc/stable/reference/random/generator.html"

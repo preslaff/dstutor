@@ -1,0 +1,351 @@
+lesson:
+  id: "python_02"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Strings and String Methods"
+  order: 2
+
+  metadata:
+    duration: "25 min"
+    difficulty: "easy"
+    prerequisites: ["python_01"]
+    learning_objectives:
+      - "Create and manipulate strings"
+      - "Use string methods for formatting"
+      - "Perform string concatenation and repetition"
+      - "Access string characters and slicing"
+
+  content:
+    introduction: |
+      # Strings and String Methods
+
+      Text is everywhere in programming! Learn to work with strings - one of the
+      most commonly used data types in Python and Data Science.
+
+      **What you'll learn:**
+      - Creating and combining strings
+      - String methods (upper, lower, split, etc.)
+      - String slicing and indexing
+      - String formatting
+
+    concept: |
+      ## Working with Text Data
+
+      **1. Creating Strings**
+
+      Use single or double quotes:
+      ```python
+      name = "Alice"
+      message = 'Hello, World!'
+      quote = "She said, 'Hello!'"
+      ```
+
+      **Multi-line strings** use triple quotes:
+      ```python
+      text = """This is
+      a multi-line
+      string"""
+      ```
+
+      **2. String Operations**
+
+      **Concatenation** (joining):
+      ```python
+      first = "Hello"
+      last = "World"
+      message = first + " " + last  # "Hello World"
+      ```
+
+      **Repetition**:
+      ```python
+      laugh = "ha" * 3  # "hahaha"
+      ```
+
+      **Length**:
+      ```python
+      text = "Python"
+      length = len(text)  # 6
+      ```
+
+      **3. String Indexing and Slicing**
+
+      Access characters by position (0-indexed):
+      ```python
+      text = "Python"
+      print(text[0])     # 'P' (first character)
+      print(text[-1])    # 'n' (last character)
+      print(text[2:5])   # 'tho' (slice from index 2 to 4)
+      print(text[:3])    # 'Pyt' (first 3 characters)
+      print(text[3:])    # 'hon' (from index 3 to end)
+      ```
+
+      **4. Common String Methods**
+
+      **Case conversion:**
+      ```python
+      text.upper()       # "PYTHON"
+      text.lower()       # "python"
+      text.capitalize()  # "Python"
+      text.title()       # "Hello World" (capitalize each word)
+      ```
+
+      **Cleaning:**
+      ```python
+      text.strip()       # Remove leading/trailing whitespace
+      text.replace(old, new)  # Replace substring
+      ```
+
+      **Splitting and joining:**
+      ```python
+      text.split()       # Split into list of words
+      ", ".join(list)    # Join list into string
+      ```
+
+      **Checking:**
+      ```python
+      text.startswith("Py")  # True/False
+      text.endswith("on")    # True/False
+      text.isdigit()         # True if all digits
+      "x" in text            # True if 'x' in string
+      ```
+
+      **5. String Formatting**
+
+      **F-strings** (Python 3.6+, recommended):
+      ```python
+      name = "Alice"
+      age = 25
+      message = f"My name is {name} and I am {age} years old"
+      ```
+
+      **format() method:**
+      ```python
+      message = "My name is {} and I am {} years old".format(name, age)
+      ```
+
+      **Strings are immutable!** Methods return new strings, they don't modify the original.
+
+    examples:
+      - title: "String Basics"
+        code: |
+          # Creating strings
+          greeting = "Hello"
+          name = "Alice"
+
+          # Concatenation
+          message = greeting + ", " + name + "!"
+          print(message)
+
+          # Repetition
+          separator = "-" * 20
+          print(separator)
+
+          # Length
+          print("Length of message:", len(message))
+
+        output: |
+          Hello, Alice!
+          --------------------
+          Length of message: 13
+
+      - title: "String Indexing and Slicing"
+        code: |
+          text = "Python Programming"
+
+          # Indexing
+          print("First character:", text[0])
+          print("Last character:", text[-1])
+          print("Fifth character:", text[4])
+
+          # Slicing
+          print("First 6 chars:", text[:6])
+          print("From index 7:", text[7:])
+          print("Middle section:", text[7:18])
+          print("Every 2nd char:", text[::2])
+
+        output: |
+          First character: P
+          Last character: g
+          Fifth character: n
+          First 6 chars: Python
+          From index 7: Programming
+          Middle section: Programming
+          Every 2nd char: Pto rgamn
+
+      - title: "String Methods - Case"
+        code: |
+          text = "Hello World"
+
+          print("Original:", text)
+          print("Upper:", text.upper())
+          print("Lower:", text.lower())
+          print("Title:", text.title())
+          print("Swapcase:", text.swapcase())
+
+          # Original string unchanged!
+          print("Still original:", text)
+
+        output: |
+          Original: Hello World
+          Upper: HELLO WORLD
+          Lower: hello world
+          Title: Hello World
+          Swapcase: hELLO wORLD
+          Still original: Hello World
+
+      - title: "String Methods - Split and Join"
+        code: |
+          # Splitting
+          sentence = "Python is awesome"
+          words = sentence.split()
+          print("Words:", words)
+
+          # Split by custom delimiter
+          csv = "apple,banana,cherry"
+          fruits = csv.split(",")
+          print("Fruits:", fruits)
+
+          # Joining
+          words = ["Python", "is", "great"]
+          sentence = " ".join(words)
+          print("Joined:", sentence)
+
+          # Join with custom delimiter
+          items = ["apple", "banana", "cherry"]
+          csv_string = ", ".join(items)
+          print("CSV:", csv_string)
+
+        output: |
+          Words: ['Python', 'is', 'awesome']
+          Fruits: ['apple', 'banana', 'cherry']
+          Joined: Python is great
+          CSV: apple, banana, cherry
+
+      - title: "String Methods - Cleaning and Checking"
+        code: |
+          # Strip whitespace
+          text = "   Hello World   "
+          print("Original: '" + text + "'")
+          print("Stripped: '" + text.strip() + "'")
+
+          # Replace
+          message = "Hello World"
+          new_message = message.replace("World", "Python")
+          print("Replaced:", new_message)
+
+          # Checking
+          print("Starts with 'Hello':", message.startswith("Hello"))
+          print("Ends with 'World':", message.endswith("World"))
+          print("'o' in message:", "o" in message)
+
+          # Type checking
+          print("'123'.isdigit():", "123".isdigit())
+          print("'abc'.isalpha():", "abc".isalpha())
+
+        output: |
+          Original: '   Hello World   '
+          Stripped: 'Hello World'
+          Replaced: Hello Python
+          Starts with 'Hello': True
+          Ends with 'World': True
+          'o' in message: True
+          '123'.isdigit(): True
+          'abc'.isalpha(): True
+
+      - title: "F-Strings (Modern Formatting)"
+        code: |
+          # Basic f-strings
+          name = "Alice"
+          age = 25
+          height = 5.7
+
+          message = f"My name is {name}, I am {age} years old"
+          print(message)
+
+          # Expressions in f-strings
+          print(f"{name} will be {age + 1} next year")
+
+          # Formatting numbers
+          pi = 3.14159
+          print(f"Pi rounded: {pi:.2f}")
+
+          # Multiple variables
+          print(f"{name} is {height} feet tall and {age} years old")
+
+        output: |
+          My name is Alice, I am 25 years old
+          Alice will be 26 next year
+          Pi rounded: 3.14
+          Alice is 5.7 feet tall and 25 years old
+
+  exercise:
+    title: "String Manipulation Practice"
+
+    instruction: |
+      Manipulate strings using various string methods.
+
+      **Given:** name = "  ALICE SMITH  "
+
+      **Tasks:**
+      1. Remove whitespace and convert to lowercase, store in `clean_name`
+      2. Split the clean name into first and last name, store first name in `first_name`
+      3. Create a greeting message: "Hello, Alice!" using f-string, store in `greeting`
+
+    setup_code: |
+      name = "  ALICE SMITH  "
+
+    starter_code: |
+      # Your code here
+      clean_name =
+      first_name =
+      greeting =
+
+    solution: |
+      clean_name = name.strip().lower()
+      first_name = clean_name.split()[0]
+      greeting = f"Hello, {first_name.capitalize()}!"
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "clean_name"
+          expected: "alice smith"
+          type: "str"
+        - variable: "first_name"
+          expected: "alice"
+          type: "str"
+        - variable: "greeting"
+          expected: "Hello, Alice!"
+          type: "str"
+
+    hints:
+      - level: 1
+        text: |
+          Use .strip() to remove whitespace, then .lower() to convert to lowercase.
+          Use .split() to break the string into words, then access the first element [0].
+          Use an f-string with .capitalize() to create the greeting.
+
+      - level: 2
+        text: |
+          clean_name = name.strip().lower()
+          first_name = clean_name.split()[0]
+          greeting = f"Hello, {first_name.capitalize()}!"
+
+      - level: 3
+        code: |
+          clean_name = name.strip().lower()
+          first_name = clean_name.split()[0]
+          greeting = f"Hello, {first_name.capitalize()}!"
+
+  follow_up:
+    challenges:
+      - "Reverse a string using slicing [::-1]"
+      - "Count how many times 'o' appears in 'Hello World'"
+      - "Replace all spaces in a string with underscores"
+      - "Extract email domain from 'user@example.com'"
+
+    next_lesson: "python_03"
+
+    additional_resources:
+      - title: "Python String Methods"
+        url: "https://docs.python.org/3/library/stdtypes.html#string-methods"

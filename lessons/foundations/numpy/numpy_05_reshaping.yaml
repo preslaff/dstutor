@@ -1,0 +1,144 @@
+lesson:
+  id: "numpy_05"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Reshaping Arrays"
+  order: 5
+
+  metadata:
+    duration: "15 min"
+    difficulty: "medium"
+    prerequisites: ["numpy_04"]
+    learning_objectives:
+      - "Reshape arrays to different dimensions"
+      - "Flatten multi-dimensional arrays"
+      - "Stack and concatenate arrays"
+
+  content:
+    introduction: |
+      # Reshaping NumPy Arrays
+
+      Learn to reorganize array data without changing its content - essential for
+      preparing data for machine learning models.
+
+    concept: |
+      ## Reshape Operations
+
+      **reshape()** - Change array dimensions
+      - Must preserve total number of elements
+      - Use -1 for automatic dimension calculation
+
+      **flatten() / ravel()** - Convert to 1D
+      - `flatten()` returns a copy
+      - `ravel()` returns a view (faster)
+
+      **Stacking:**
+      - `np.vstack()` - Stack arrays vertically (row-wise)
+      - `np.hstack()` - Stack arrays horizontally (column-wise)
+      - `np.concatenate()` - General concatenation
+
+    examples:
+      - title: "Reshaping Arrays"
+        code: |
+          import numpy as np
+
+          arr = np.arange(12)  # [0, 1, 2, ..., 11]
+          print("Original (12,):", arr)
+
+          # Reshape to 2D
+          arr_2d = arr.reshape(3, 4)
+          print("\nReshaped to (3, 4):")
+          print(arr_2d)
+
+          # Reshape to 3D
+          arr_3d = arr.reshape(2, 2, 3)
+          print("\nReshaped to (2, 2, 3):")
+          print(arr_3d)
+
+          # Auto-calculate dimension with -1
+          arr_auto = arr.reshape(4, -1)  # 4 rows, auto cols
+          print("\nReshaped to (4, -1) → (4, 3):")
+          print(arr_auto)
+
+        output: |
+          Original (12,): [ 0  1  2  3  4  5  6  7  8  9 10 11]
+
+          Reshaped to (3, 4):
+          [[ 0  1  2  3]
+           [ 4  5  6  7]
+           [ 8  9 10 11]]
+
+          Reshaped to (2, 2, 3):
+          [[[ 0  1  2]
+            [ 3  4  5]]
+
+           [[ 6  7  8]
+            [ 9 10 11]]]
+
+          Reshaped to (4, -1) → (4, 3):
+          [[ 0  1  2]
+           [ 3  4  5]
+           [ 6  7  8]
+           [ 9 10 11]]
+
+      - title: "Flattening and Stacking"
+        code: |
+          import numpy as np
+
+          arr_2d = np.array([[1, 2, 3],
+                             [4, 5, 6]])
+          print("2D array:")
+          print(arr_2d)
+
+          # Flatten
+          flat = arr_2d.flatten()
+          print("\nFlattened:", flat)
+
+          # Stack vertically
+          arr1 = np.array([[1, 2], [3, 4]])
+          arr2 = np.array([[5, 6], [7, 8]])
+          vstacked = np.vstack([arr1, arr2])
+          print("\nVertically stacked:")
+          print(vstacked)
+
+          # Stack horizontally
+          hstacked = np.hstack([arr1, arr2])
+          print("\nHorizontally stacked:")
+          print(hstacked)
+
+  exercise:
+    title: "Reshape a 1D Array"
+
+    instruction: |
+      Given a 1D array of 20 elements, reshape it to a 2D array with **5 rows and 4 columns**.
+
+    setup_code: |
+      import numpy as np
+
+      arr = np.arange(20)  # [0, 1, 2, ..., 19]
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = arr.reshape(5, 4)
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [5, 4]
+
+    hints:
+      - level: 1
+        text: "Use the reshape() method. The array has 20 elements, and 5 × 4 = 20."
+
+      - level: 2
+        text: "result = arr.reshape(5, 4)"
+
+      - level: 3
+        code: "result = arr.reshape(5, 4)"
+
+  follow_up:
+    next_lesson: "numpy_06"

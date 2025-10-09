@@ -1,0 +1,264 @@
+lesson:
+  id: "pandas_05"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "GroupBy Operations"
+  order: 5
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_03", "pandas_04"]
+    learning_objectives:
+      - "Understand split-apply-combine pattern"
+      - "Group data by categories"
+      - "Aggregate grouped data"
+      - "Apply multiple aggregations"
+
+  content:
+    introduction: |
+      # GroupBy - Split, Apply, Combine
+
+      One of Pandas' most powerful features - group data by categories and compute
+      statistics. Essential for data analysis!
+
+      **What you'll learn:**
+      - The split-apply-combine pattern
+      - Group by single and multiple columns
+      - Common aggregations (mean, sum, count, etc.)
+      - Custom aggregations
+
+    concept: |
+      ## The GroupBy Pattern
+
+      **Split-Apply-Combine:**
+      1. **Split** - Divide data into groups based on criteria
+      2. **Apply** - Compute a function on each group
+      3. **Combine** - Merge results into a new structure
+
+      **Basic Syntax:**
+      ```python
+      df.groupby('column').agg_function()
+      ```
+
+      **Common Aggregations:**
+      - `sum()` - Total
+      - `mean()` - Average
+      - `count()` - Number of items
+      - `min()`, `max()` - Range
+      - `std()` - Standard deviation
+      - `agg()` - Custom/multiple aggregations
+
+      **Real-world Examples:**
+      - Sales by region
+      - Average salary by department
+      - Student scores by class
+      - Revenue by product category
+
+    examples:
+      - title: "Basic GroupBy"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Department': ['Sales', 'Sales', 'Engineering', 'Engineering', 'Marketing'],
+              'Employee': ['Alice', 'Bob', 'Charlie', 'David', 'Eve'],
+              'Salary': [70000, 65000, 90000, 85000, 60000]
+          })
+
+          print("Original Data:")
+          print(df)
+          print()
+
+          # Average salary by department
+          avg_salary = df.groupby('Department')['Salary'].mean()
+          print("Average Salary by Department:")
+          print(avg_salary)
+          print()
+
+          # Count employees by department
+          counts = df.groupby('Department').size()
+          print("Employees per Department:")
+          print(counts)
+
+        output: |
+          Original Data:
+             Department Employee  Salary
+          0       Sales    Alice   70000
+          1       Sales      Bob   65000
+          2 Engineering  Charlie   90000
+          3 Engineering    David   85000
+          4   Marketing      Eve   60000
+
+          Average Salary by Department:
+          Department
+          Engineering    87500.0
+          Marketing      60000.0
+          Sales          67500.0
+          Name: Salary, dtype: float64
+
+          Employees per Department:
+          Department
+          Engineering    2
+          Marketing      1
+          Sales          2
+          dtype: int64
+
+      - title: "Multiple Aggregations"
+        code: |
+          import pandas as pd
+
+          sales_data = pd.DataFrame({
+              'Region': ['East', 'East', 'West', 'West', 'East'],
+              'Product': ['A', 'B', 'A', 'B', 'A'],
+              'Sales': [100, 150, 120, 180, 110],
+              'Units': [10, 15, 12, 18, 11]
+          })
+
+          print("Sales Data:")
+          print(sales_data)
+          print()
+
+          # Multiple aggregations
+          summary = sales_data.groupby('Region').agg({
+              'Sales': ['sum', 'mean'],
+              'Units': ['sum', 'max']
+          })
+
+          print("Summary by Region:")
+          print(summary)
+          print()
+
+          # Rename columns
+          summary_clean = sales_data.groupby('Region').agg({
+              'Sales': 'sum',
+              'Units': 'sum'
+          }).rename(columns={'Sales': 'Total_Sales', 'Units': 'Total_Units'})
+
+          print("Clean Summary:")
+          print(summary_clean)
+
+        output: |
+          Sales Data:
+            Region Product  Sales  Units
+          0   East       A    100     10
+          1   East       B    150     15
+          2   West       A    120     12
+          3   West       B    180     18
+          4   East       A    110     11
+
+          Summary by Region:
+                 Sales        Units
+                   sum  mean   sum max
+          Region
+          East      360 120.0    36  15
+          West      300 150.0    30  18
+
+          Clean Summary:
+                 Sales  Units
+          Region
+          East     360     36
+          West     300     30
+
+      - title: "Group by Multiple Columns"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'City': ['NYC', 'NYC', 'LA', 'LA', 'NYC'],
+              'Category': ['Food', 'Tech', 'Food', 'Tech', 'Food'],
+              'Revenue': [1000, 2000, 1200, 2500, 1100]
+          })
+
+          print("Data:")
+          print(df)
+          print()
+
+          # Group by multiple columns
+          grouped = df.groupby(['City', 'Category'])['Revenue'].sum()
+          print("Revenue by City and Category:")
+          print(grouped)
+          print()
+
+          # Unstack for better view
+          print("Unstacked view:")
+          print(grouped.unstack(fill_value=0))
+
+        output: |
+          Data:
+            City Category  Revenue
+          0  NYC     Food     1000
+          1  NYC     Tech     2000
+          2   LA     Food     1200
+          3   LA     Tech     2500
+          4  NYC     Food     1100
+
+          Revenue by City and Category:
+          City  Category
+          LA    Food        1200
+                Tech        2500
+          NYC   Food        2100
+                Tech        2000
+          Name: Revenue, dtype: int64
+
+          Unstacked view:
+          Category  Food  Tech
+          City
+          LA        1200  2500
+          NYC       2100  2000
+
+  exercise:
+    title: "Calculate Department Statistics"
+
+    instruction: |
+      Given employee data, calculate the **total salary** for each department.
+
+      Data contains: Department, Name, Salary
+
+      Return a Series with Department as index and total salary as values.
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'Department': ['HR', 'IT', 'HR', 'IT', 'Sales', 'Sales'],
+          'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank'],
+          'Salary': [60000, 90000, 65000, 95000, 70000, 75000]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.groupby('Department')['Salary'].sum()
+
+    validation:
+      type: "type_check"
+      expected_type: "Series"
+
+    hints:
+      - level: 1
+        text: |
+          Use groupby() to group by Department, then select the Salary column and use sum().
+
+      - level: 2
+        text: |
+          result = df.groupby('Department')['Salary'].sum()
+
+      - level: 3
+        code: |
+          result = df.groupby('Department')['Salary'].sum()
+
+  follow_up:
+    challenges:
+      - "Calculate average salary by department"
+      - "Count employees per department"
+      - "Find max salary in each department"
+      - "Group by multiple columns"
+
+    next_lesson: "pandas_06"
+
+    additional_resources:
+      - title: "Pandas GroupBy Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/groupby.html"

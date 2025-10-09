@@ -1,0 +1,240 @@
+lesson:
+  id: "pandas_07"
+  level: "beginner"
+  topic: "pandas"
+  subtopic: "Data Cleaning Operations"
+  order: 7
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: ["pandas_02", "pandas_06"]
+    learning_objectives:
+      - "Remove duplicate rows"
+      - "Rename columns efficiently"
+      - "Replace values in DataFrames"
+      - "Convert data types"
+
+  content:
+    introduction: |
+      # Data Cleaning Operations
+
+      Clean data is the foundation of good analysis. Learn essential cleaning operations
+      that you'll use in every data science project!
+
+    concept: |
+      ## Essential Cleaning Operations
+
+      **Remove Duplicates:**
+      - `.drop_duplicates()` - Remove duplicate rows
+      - `.duplicated()` - Identify duplicates
+
+      **Rename Columns:**
+      - `.rename(columns={old: new})` - Rename specific columns
+      - `.columns = [list]` - Replace all column names
+
+      **Replace Values:**
+      - `.replace(old, new)` - Replace specific values
+      - `.str.replace()` - String replacements
+
+      **Convert Types:**
+      - `.astype(dtype)` - Convert column data type
+      - `pd.to_numeric()`, `pd.to_datetime()` - Specific conversions
+
+    examples:
+      - title: "Removing Duplicates"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Alice', 'Charlie', 'Bob'],
+              'Age': [25, 30, 25, 35, 30],
+              'City': ['NYC', 'LA', 'NYC', 'Chicago', 'LA']
+          })
+
+          print("Original DataFrame:")
+          print(df)
+          print()
+
+          # Identify duplicates
+          print("Duplicate rows:", df.duplicated().sum())
+          print()
+
+          # Remove duplicates
+          df_clean = df.drop_duplicates()
+          print("After removing duplicates:")
+          print(df_clean)
+
+        output: |
+          Original DataFrame:
+                Name  Age     City
+          0   Alice   25      NYC
+          1     Bob   30       LA
+          2   Alice   25      NYC
+          3 Charlie   35  Chicago
+          4     Bob   30       LA
+
+          Duplicate rows: 2
+
+          After removing duplicates:
+                Name  Age     City
+          0   Alice   25      NYC
+          1     Bob   30       LA
+          3 Charlie   35  Chicago
+
+      - title: "Renaming Columns"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'old_name1': [1, 2, 3],
+              'old_name2': [4, 5, 6],
+              'keep_this': [7, 8, 9]
+          })
+
+          print("Original columns:", df.columns.tolist())
+          print()
+
+          # Rename specific columns
+          df_renamed = df.rename(columns={
+              'old_name1': 'new_name1',
+              'old_name2': 'new_name2'
+          })
+
+          print("After renaming:")
+          print(df_renamed.columns.tolist())
+          print(df_renamed)
+
+        output: |
+          Original columns: ['old_name1', 'old_name2', 'keep_this']
+
+          After renaming:
+          ['new_name1', 'new_name2', 'keep_this']
+             new_name1  new_name2  keep_this
+          0          1          4          7
+          1          2          5          8
+          2          3          6          9
+
+      - title: "Replacing Values"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Status': ['active', 'inactive', 'active', 'pending'],
+              'Score': [85, -999, 90, -999]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Replace specific value
+          df_clean = df.replace(-999, pd.NA)
+          print("After replacing -999 with NA:")
+          print(df_clean)
+
+        output: |
+          Original:
+               Status  Score
+          0    active     85
+          1  inactive   -999
+          2    active     90
+          3   pending   -999
+
+          After replacing -999 with NA:
+               Status  Score
+          0    active     85
+          1  inactive   <NA>
+          2    active     90
+          3   pending   <NA>
+
+      - title: "Converting Data Types"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Numbers': ['1', '2', '3', '4'],
+              'Prices': ['10.5', '20.0', '15.75', '30.25']
+          })
+
+          print("Original types:")
+          print(df.dtypes)
+          print()
+
+          # Convert to numeric
+          df['Numbers'] = df['Numbers'].astype(int)
+          df['Prices'] = df['Prices'].astype(float)
+
+          print("After conversion:")
+          print(df.dtypes)
+          print()
+          print(df)
+
+        output: |
+          Original types:
+          Numbers    object
+          Prices     object
+          dtype: object
+
+          After conversion:
+          Numbers     int64
+          Prices    float64
+          dtype: object
+
+             Numbers  Prices
+          0        1   10.50
+          1        2   20.00
+          2        3   15.75
+          3        4   30.25
+
+  exercise:
+    title: "Clean Survey Data"
+
+    instruction: |
+      Clean this survey dataset:
+      1. Remove duplicate rows
+      2. Rename 'resp_id' to 'respondent_id'
+      3. Replace 'N/A' strings with actual NA values
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'resp_id': [1, 2, 1, 3, 2],
+          'answer': ['Yes', 'No', 'Yes', 'N/A', 'No'],
+          'score': [5, 3, 5, 'N/A', 3]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.drop_duplicates()
+      result = result.rename(columns={'resp_id': 'respondent_id'})
+      result = result.replace('N/A', pd.NA)
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "columns"
+          expected: ['respondent_id', 'answer', 'score']
+
+    hints:
+      - level: 1
+        text: "Use drop_duplicates(), rename(), and replace() in sequence"
+
+      - level: 2
+        text: |
+          result = df.drop_duplicates()
+          result = result.rename(columns={'resp_id': 'respondent_id'})
+          result = result.replace('N/A', pd.NA)
+
+      - level: 3
+        code: |
+          result = df.drop_duplicates()
+          result = result.rename(columns={'resp_id': 'respondent_id'})
+          result = result.replace('N/A', pd.NA)
+
+  follow_up:
+    next_lesson: "pandas_08"

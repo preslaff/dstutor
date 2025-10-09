@@ -1,0 +1,147 @@
+lesson:
+  id: "numpy_06"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Statistical Functions"
+  order: 6
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["numpy_05"]
+    learning_objectives:
+      - "Calculate descriptive statistics"
+      - "Aggregate along specific axes"
+      - "Find min, max, and argmin/argmax"
+
+  content:
+    introduction: |
+      # NumPy Statistical Functions
+
+      NumPy provides powerful functions for statistical analysis - essential for
+      understanding your data.
+
+    concept: |
+      ## Statistical Operations
+
+      **Basic Statistics:**
+      - `np.mean()`, `np.median()` - Central tendency
+      - `np.std()`, `np.var()` - Spread/dispersion
+      - `np.min()`, `np.max()` - Range
+      - `np.sum()`, `np.prod()` - Aggregations
+
+      **Index Functions:**
+      - `np.argmin()`, `np.argmax()` - Return indices
+      - `np.argsort()` - Return sorted indices
+
+      **Axis Parameter:**
+      - `axis=None` - Operate on entire array (default)
+      - `axis=0` - Operate along rows (column-wise)
+      - `axis=1` - Operate along columns (row-wise)
+
+    examples:
+      - title: "Basic Statistics"
+        code: |
+          import numpy as np
+
+          data = np.array([10, 20, 30, 40, 50])
+
+          print("Data:", data)
+          print("Mean:", np.mean(data))
+          print("Median:", np.median(data))
+          print("Std:", np.std(data))
+          print("Min:", np.min(data))
+          print("Max:", np.max(data))
+          print("Sum:", np.sum(data))
+
+        output: |
+          Data: [10 20 30 40 50]
+          Mean: 30.0
+          Median: 30.0
+          Std: 14.142135623730951
+          Min: 10
+          Max: 50
+          Sum: 150
+
+      - title: "Operations Along Axes"
+        code: |
+          import numpy as np
+
+          arr = np.array([[1, 2, 3],
+                          [4, 5, 6],
+                          [7, 8, 9]])
+
+          print("Array:")
+          print(arr)
+
+          # Mean of entire array
+          print("\nMean (all):", np.mean(arr))
+
+          # Mean along axis 0 (column means)
+          print("Mean (axis=0):", np.mean(arr, axis=0))
+
+          # Mean along axis 1 (row means)
+          print("Mean (axis=1):", np.mean(arr, axis=1))
+
+          # Sum along columns
+          print("\nSum (axis=0):", np.sum(arr, axis=0))
+
+        output: |
+          Array:
+          [[1 2 3]
+           [4 5 6]
+           [7 8 9]]
+
+          Mean (all): 5.0
+          Mean (axis=0): [4. 5. 6.]
+          Mean (axis=1): [2. 5. 8.]
+
+          Sum (axis=0): [12 15 18]
+
+  exercise:
+    title: "Calculate Column Sums"
+
+    instruction: |
+      Given a 2D array, calculate the **sum of each column**.
+
+      For this array:
+      ```
+      [[1, 2, 3],
+       [4, 5, 6],
+       [7, 8, 9]]
+      ```
+
+      Expected result: `[12, 15, 18]`
+
+    setup_code: |
+      import numpy as np
+
+      arr = np.array([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = np.sum(arr, axis=0)
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "values"
+          expected: [12, 15, 18]
+
+    hints:
+      - level: 1
+        text: "Use np.sum() with the axis parameter. Think about which axis gives you column sums."
+
+      - level: 2
+        text: "axis=0 operates along rows, giving column sums. Try np.sum(arr, axis=0)"
+
+      - level: 3
+        code: "result = np.sum(arr, axis=0)"
+
+  follow_up:
+    next_lesson: "numpy_07"

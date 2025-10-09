@@ -1,0 +1,322 @@
+lesson:
+  id: "pandas_11"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Pivot Tables"
+  order: 11
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_05"]
+    learning_objectives:
+      - "Create pivot tables to reshape data"
+      - "Understand rows, columns, and values in pivots"
+      - "Apply aggregation functions in pivots"
+      - "Use pivot tables for data analysis"
+
+  content:
+    introduction: |
+      # Pivot Tables - Reshaping Data
+
+      Pivot tables transform data from long to wide format, making it easier to analyze
+      and understand patterns. Excel users, this will feel familiar!
+
+    concept: |
+      ## What are Pivot Tables?
+
+      **Purpose:**
+      Reshape data to summarize and analyze by different dimensions.
+
+      **Components:**
+      - **Index** - Rows of the pivot table
+      - **Columns** - Columns of the pivot table
+      - **Values** - What to aggregate
+      - **Aggfunc** - How to aggregate (mean, sum, count, etc.)
+
+      **Syntax:**
+      ```python
+      df.pivot_table(values='what_to_aggregate',
+                     index='row_grouper',
+                     columns='column_grouper',
+                     aggfunc='mean')
+      ```
+
+      **Common Use Cases:**
+      - Sales by region and product
+      - Average scores by student and subject
+      - Revenue by month and category
+      - Count of events by day and type
+
+      **pivot() vs pivot_table():**
+      - `pivot()` - Simple reshape, no aggregation
+      - `pivot_table()` - Reshape with aggregation
+
+    examples:
+      - title: "Simple Pivot Table"
+        code: |
+          import pandas as pd
+
+          # Sales data
+          sales = pd.DataFrame({
+              'Region': ['East', 'East', 'West', 'West', 'East', 'West'],
+              'Product': ['A', 'B', 'A', 'B', 'A', 'B'],
+              'Sales': [100, 150, 120, 180, 110, 170]
+          })
+
+          print("Original data:")
+          print(sales)
+          print()
+
+          # Pivot: Region as rows, Product as columns, sum of Sales
+          pivot = sales.pivot_table(values='Sales',
+                                    index='Region',
+                                    columns='Product',
+                                    aggfunc='sum')
+
+          print("Pivot table (Sales by Region and Product):")
+          print(pivot)
+
+        output: |
+          Original data:
+            Region Product  Sales
+          0   East       A    100
+          1   East       B    150
+          2   West       A    120
+          3   West       B    180
+          4   East       A    110
+          5   West       B    170
+
+          Pivot table (Sales by Region and Product):
+          Product    A    B
+          Region
+          East     210  150
+          West     120  350
+
+      - title: "Multiple Aggregations"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          sales = pd.DataFrame({
+              'Region': ['East', 'East', 'West', 'West', 'East', 'West'],
+              'Product': ['A', 'B', 'A', 'B', 'A', 'B'],
+              'Sales': [100, 150, 120, 180, 110, 170],
+              'Quantity': [10, 15, 12, 18, 11, 17]
+          })
+
+          print("Original data:")
+          print(sales)
+          print()
+
+          # Multiple aggregation functions
+          pivot = sales.pivot_table(values='Sales',
+                                    index='Region',
+                                    columns='Product',
+                                    aggfunc=['sum', 'mean', 'count'])
+
+          print("Pivot with multiple aggregations:")
+          print(pivot)
+
+        output: |
+          Original data:
+            Region Product  Sales  Quantity
+          0   East       A    100        10
+          1   East       B    150        15
+          2   West       A    120        12
+          3   West       B    180        18
+          4   East       A    110        11
+          5   West       B    170        17
+
+          Pivot with multiple aggregations:
+                   sum       mean     count
+          Product    A    B    A    B  A  B
+          Region
+          East     210  150  105  150  2  1
+          West     120  350  120  175  1  2
+
+      - title: "Pivot with Margins (Totals)"
+        code: |
+          import pandas as pd
+
+          sales = pd.DataFrame({
+              'Region': ['East', 'East', 'West', 'West'],
+              'Product': ['A', 'B', 'A', 'B'],
+              'Sales': [100, 150, 120, 180]
+          })
+
+          print("Original data:")
+          print(sales)
+          print()
+
+          # Pivot with row and column totals
+          pivot = sales.pivot_table(values='Sales',
+                                    index='Region',
+                                    columns='Product',
+                                    aggfunc='sum',
+                                    margins=True,
+                                    margins_name='Total')
+
+          print("Pivot with totals:")
+          print(pivot)
+
+        output: |
+          Original data:
+            Region Product  Sales
+          0   East       A    100
+          1   East       B    150
+          2   West       A    120
+          3   West       B    180
+
+          Pivot with totals:
+          Product      A      B  Total
+          Region
+          East     100.0  150.0  250.0
+          West     120.0  180.0  300.0
+          Total    220.0  330.0  550.0
+
+      - title: "Multi-Index Pivot"
+        code: |
+          import pandas as pd
+
+          data = pd.DataFrame({
+              'Date': ['2024-01', '2024-01', '2024-02', '2024-02'],
+              'Region': ['East', 'West', 'East', 'West'],
+              'Product': ['A', 'A', 'A', 'A'],
+              'Sales': [100, 120, 110, 130]
+          })
+
+          print("Original data:")
+          print(data)
+          print()
+
+          # Pivot with multiple index levels
+          pivot = data.pivot_table(values='Sales',
+                                   index=['Date', 'Region'],
+                                   aggfunc='sum')
+
+          print("Pivot with multi-index:")
+          print(pivot)
+
+        output: |
+          Original data:
+              Date Region Product  Sales
+          0  2024-01   East       A    100
+          1  2024-01   West       A    120
+          2  2024-02   East       A    110
+          3  2024-02   West       A    130
+
+          Pivot with multi-index:
+                         Sales
+          Date    Region
+          2024-01 East     100
+                  West     120
+          2024-02 East     110
+                  West     130
+
+      - title: "Fill Missing Values in Pivot"
+        code: |
+          import pandas as pd
+
+          sales = pd.DataFrame({
+              'Region': ['East', 'West', 'East'],
+              'Product': ['A', 'B', 'B'],
+              'Sales': [100, 180, 150]
+          })
+
+          print("Original data:")
+          print(sales)
+          print()
+
+          # Pivot (will have NaN for East-B combination)
+          pivot = sales.pivot_table(values='Sales',
+                                    index='Region',
+                                    columns='Product',
+                                    aggfunc='sum',
+                                    fill_value=0)
+
+          print("Pivot (NaN filled with 0):")
+          print(pivot)
+
+        output: |
+          Original data:
+            Region Product  Sales
+          0   East       A    100
+          1   West       B    180
+          2   East       B    150
+
+          Pivot (NaN filled with 0):
+          Product    A    B
+          Region
+          East     100  150
+          West       0  180
+
+  exercise:
+    title: "Create Sales Summary Pivot"
+
+    instruction: |
+      Create a pivot table that shows total sales by Store and Product.
+
+      **Data columns:** Store, Product, Sales
+
+      **Requirements:**
+      - Index: 'Store'
+      - Columns: 'Product'
+      - Values: 'Sales'
+      - Aggregation: 'sum'
+      - Store result in `result`
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'Store': ['A', 'A', 'B', 'B', 'A', 'B'],
+          'Product': ['X', 'Y', 'X', 'Y', 'X', 'Y'],
+          'Sales': [100, 150, 120, 180, 110, 170]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.pivot_table(values='Sales',
+                              index='Store',
+                              columns='Product',
+                              aggfunc='sum')
+
+    validation:
+      type: "type_check"
+      expected_type: "DataFrame"
+
+    hints:
+      - level: 1
+        text: |
+          Use df.pivot_table() with values='Sales', index='Store',
+          columns='Product', and aggfunc='sum'
+
+      - level: 2
+        text: |
+          result = df.pivot_table(values='Sales',
+                                  index='Store',
+                                  columns='Product',
+                                  aggfunc='sum')
+
+      - level: 3
+        code: |
+          result = df.pivot_table(values='Sales',
+                                  index='Store',
+                                  columns='Product',
+                                  aggfunc='sum')
+
+  follow_up:
+    challenges:
+      - "Add margins to show totals"
+      - "Use multiple aggregation functions"
+      - "Create pivot with multi-level index"
+
+    next_lesson: "pandas_12"
+
+    additional_resources:
+      - title: "Pandas Pivot Table Guide"
+        url: "https://pandas.pydata.org/docs/user_guide/reshaping.html"

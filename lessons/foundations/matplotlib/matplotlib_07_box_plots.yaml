@@ -1,0 +1,341 @@
+lesson:
+  id: "matplotlib_07"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Box Plots and Statistical Visualization"
+  order: 7
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["matplotlib_01", "numpy_06"]
+    learning_objectives:
+      - "Create box plots to visualize statistical distributions"
+      - "Interpret quartiles, median, and outliers"
+      - "Compare distributions across groups"
+      - "Create violin plots for detailed distribution shapes"
+
+  content:
+    introduction: |
+      # Box Plots and Statistical Visualization
+
+      Understand your data's spread and outliers at a glance! Box plots reveal the
+      statistical story behind your data - quartiles, median, range, and outliers.
+
+      **What you'll learn:**
+      - Creating and reading box plots
+      - Identifying outliers
+      - Comparing multiple groups
+      - Violin plots for richer distributions
+
+    concept: |
+      ## Understanding Box Plots
+
+      **1. Box Plot Anatomy**
+
+      ```
+          *  <- Outlier
+          ┬  <- Upper whisker (max within 1.5×IQR from Q3)
+          ├──┐
+          │  │ <- Q3 (75th percentile)
+          ├──┤ <- Median (Q2, 50th percentile)
+          │  │ <- Q1 (25th percentile)
+          └──┘
+          ┴  <- Lower whisker (min within 1.5×IQR from Q1)
+          *  <- Outlier
+      ```
+
+      **Components:**
+      - **Box**: Interquartile Range (IQR = Q3 - Q1), contains middle 50% of data
+      - **Line in box**: Median (Q2)
+      - **Whiskers**: Extend to 1.5 × IQR from quartiles
+      - **Dots**: Outliers beyond whiskers
+
+      **2. Creating Box Plots**
+
+      ```python
+      plt.boxplot(data)
+      plt.boxplot([data1, data2, data3], labels=['Group 1', 'Group 2', 'Group 3'])
+      ```
+
+      **Key Parameters:**
+      - `vert=True` - Vertical (default) or horizontal boxes
+      - `showmeans=True` - Display mean as separate marker
+      - `patch_artist=True` - Fill boxes with color
+      - `notch=True` - Add notch for confidence interval around median
+
+      **3. Seaborn Box Plots**
+
+      More aesthetic alternative:
+      ```python
+      sns.boxplot(data=df, x='category', y='value')
+      ```
+
+      **4. Violin Plots**
+
+      Combination of box plot and density plot:
+      ```python
+      sns.violinplot(data=df, x='category', y='value')
+      ```
+
+      **What Box Plots Tell You:**
+      - **Spread**: Width of box shows variability
+      - **Skewness**: Asymmetric box indicates skewed distribution
+      - **Outliers**: Points outside whiskers
+      - **Comparison**: Easy to compare multiple groups side-by-side
+
+      **When to Use:**
+      - Comparing distributions across groups
+      - Identifying outliers
+      - Understanding data spread and central tendency
+      - Showing statistical summaries compactly
+
+    examples:
+      - title: "Basic Box Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(100, 20, 200)
+
+          plt.figure(figsize=(8, 6))
+          plt.boxplot(data)
+          plt.ylabel('Value')
+          plt.title('Basic Box Plot')
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [A single box plot showing median, quartiles, whiskers, and outliers]
+
+      - title: "Comparing Multiple Groups"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          group1 = np.random.normal(100, 15, 200)
+          group2 = np.random.normal(110, 20, 200)
+          group3 = np.random.normal(95, 10, 200)
+
+          plt.figure(figsize=(10, 6))
+          plt.boxplot([group1, group2, group3],
+                      labels=['Group A', 'Group B', 'Group C'],
+                      patch_artist=True)
+          plt.ylabel('Score')
+          plt.title('Score Distribution by Group')
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Three side-by-side box plots comparing different groups]
+
+      - title: "Customized Box Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = [np.random.normal(100, 20, 100) for _ in range(4)]
+
+          fig, ax = plt.subplots(figsize=(10, 6))
+
+          bp = ax.boxplot(data,
+                          labels=['Q1', 'Q2', 'Q3', 'Q4'],
+                          patch_artist=True,
+                          showmeans=True,
+                          meanprops={'marker': 'D', 'markerfacecolor': 'red',
+                                    'markersize': 8})
+
+          # Color boxes
+          colors = ['lightblue', 'lightgreen', 'lightyellow', 'lightcoral']
+          for patch, color in zip(bp['boxes'], colors):
+              patch.set_facecolor(color)
+
+          ax.set_ylabel('Sales ($1000s)')
+          ax.set_xlabel('Quarter')
+          ax.set_title('Quarterly Sales Distribution')
+          ax.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Colorful box plots with means shown for each quarter]
+
+      - title: "Horizontal Box Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          departments = ['Sales', 'Engineering', 'Marketing', 'HR']
+          salaries = [
+              np.random.normal(50, 10, 50),
+              np.random.normal(80, 15, 50),
+              np.random.normal(60, 12, 50),
+              np.random.normal(45, 8, 50)
+          ]
+
+          plt.figure(figsize=(10, 6))
+          plt.boxplot(salaries, labels=departments, vert=False)
+          plt.xlabel('Salary ($1000s)')
+          plt.title('Salary Distribution by Department')
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Horizontal box plots showing salary distributions]
+
+      - title: "Seaborn Box Plot with Categories"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+
+          # Create sample data
+          data = []
+          for city in ['NYC', 'LA', 'Chicago']:
+              for month in ['Jan', 'Feb', 'Mar']:
+                  temps = np.random.normal(
+                      {'NYC': 32, 'LA': 68, 'Chicago': 28}[city],
+                      5, 30
+                  )
+                  for temp in temps:
+                      data.append({'City': city, 'Month': month, 'Temp': temp})
+
+          df = pd.DataFrame(data)
+
+          plt.figure(figsize=(12, 6))
+          sns.boxplot(data=df, x='City', y='Temp', hue='Month')
+          plt.ylabel('Temperature (°F)')
+          plt.title('Temperature Distribution by City and Month')
+          plt.legend(title='Month')
+          plt.show()
+
+        output: |
+          [Grouped box plots showing temperatures by city with month as hue]
+
+      - title: "Violin Plot vs Box Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import numpy as np
+          import pandas as pd
+
+          np.random.seed(42)
+
+          # Create bimodal distribution
+          data1 = np.concatenate([
+              np.random.normal(60, 5, 100),
+              np.random.normal(80, 5, 100)
+          ])
+
+          # Create normal distribution
+          data2 = np.random.normal(70, 10, 200)
+
+          df = pd.DataFrame({
+              'Group': ['Bimodal']*200 + ['Normal']*200,
+              'Value': np.concatenate([data1, data2])
+          })
+
+          fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+          # Box plot
+          sns.boxplot(data=df, x='Group', y='Value', ax=axes[0])
+          axes[0].set_title('Box Plot')
+
+          # Violin plot
+          sns.violinplot(data=df, x='Group', y='Value', ax=axes[1])
+          axes[1].set_title('Violin Plot (shows distribution shape)')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Side-by-side comparison showing box plot vs violin plot,
+           where violin plot reveals the bimodal distribution]
+
+  exercise:
+    title: "Compare Test Scores Across Classes"
+
+    instruction: |
+      Create a box plot comparing test scores across three classes.
+
+      **Requirements:**
+      1. Use plt.boxplot() with all three score lists
+      2. Set labels to ['Class A', 'Class B', 'Class C']
+      3. Set patch_artist=True to fill boxes
+      4. Add ylabel 'Test Score'
+      5. Add title 'Test Score Distribution by Class'
+      6. Enable grid with alpha=0.3
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      np.random.seed(42)
+      class_a = np.random.normal(75, 10, 50)
+      class_b = np.random.normal(82, 12, 50)
+      class_c = np.random.normal(70, 8, 50)
+
+    starter_code: |
+      # Your code here
+      plt.figure(figsize=(10, 6))
+
+    solution: |
+      plt.figure(figsize=(10, 6))
+      plt.boxplot([class_a, class_b, class_c],
+                  labels=['Class A', 'Class B', 'Class C'],
+                  patch_artist=True)
+      plt.ylabel('Test Score')
+      plt.title('Test Score Distribution by Class')
+      plt.grid(True, alpha=0.3)
+
+    validation:
+      type: "plot_check"
+      checks:
+        - type: "has_boxplot"
+          expected: true
+
+    hints:
+      - level: 1
+        text: |
+          Pass a list of data arrays to plt.boxplot().
+          Use labels parameter for x-axis labels.
+          Set patch_artist=True to color the boxes.
+
+      - level: 2
+        text: |
+          plt.boxplot([class_a, class_b, class_c],
+                      labels=['Class A', 'Class B', 'Class C'],
+                      patch_artist=True)
+          plt.ylabel('Test Score')
+          plt.title('Test Score Distribution by Class')
+
+      - level: 3
+        code: |
+          plt.figure(figsize=(10, 6))
+          plt.boxplot([class_a, class_b, class_c],
+                      labels=['Class A', 'Class B', 'Class C'],
+                      patch_artist=True)
+          plt.ylabel('Test Score')
+          plt.title('Test Score Distribution by Class')
+          plt.grid(True, alpha=0.3)
+
+  follow_up:
+    challenges:
+      - "Create horizontal box plot"
+      - "Add means to box plot with showmeans=True"
+      - "Create violin plot instead"
+      - "Color each box differently"
+
+    next_lesson: "matplotlib_08"
+
+    additional_resources:
+      - title: "Matplotlib Boxplot Documentation"
+        url: "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.boxplot.html"
+      - title: "Seaborn Boxplot Documentation"
+        url: "https://seaborn.pydata.org/generated/seaborn.boxplot.html"

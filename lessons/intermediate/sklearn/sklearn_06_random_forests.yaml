@@ -1,0 +1,389 @@
+lesson:
+  id: "sklearn_06"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Random Forests"
+  order: 6
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_05"]
+    learning_objectives:
+      - "Understand ensemble learning with Random Forests"
+      - "Build robust classification and regression models"
+      - "Tune n_estimators and other parameters"
+      - "Compare with single decision trees"
+
+  content:
+    introduction: |
+      # Random Forests
+
+      Wisdom of the crowd! Random Forests combine many decision trees to create
+      powerful, robust models that resist overfitting.
+
+      **What you'll learn:**
+      - How Random Forests work
+      - Ensemble learning benefits
+      - Building RF models
+      - Parameter tuning
+
+    concept: |
+      ## Ensemble of Decision Trees
+
+      **1. What is a Random Forest?**
+
+      **"Forest" = Many Trees:**
+      - Train 100s of decision trees
+      - Each tree votes
+      - Final prediction = majority vote (classification) or average (regression)
+
+      **"Random" = Different Training:**
+      - Each tree sees random subset of data (bootstrap sampling)
+      - Each split considers random subset of features
+      - Result: diverse trees that make different errors
+
+      **2. Why Random Forests?**
+
+      **Advantages over single trees:**
+      - ✅ Much better accuracy
+      - ✅ Resistant to overfitting
+      - ✅ Works on high-dimensional data
+      - ✅ Handles missing values
+      - ✅ Provides feature importance
+
+      **3. sklearn Random Forests**
+
+      **Classification:**
+      ```python
+      from sklearn.ensemble import RandomForestClassifier
+
+      model = RandomForestClassifier(
+          n_estimators=100,    # Number of trees
+          max_depth=10,        # Max depth per tree
+          random_state=42
+      )
+      model.fit(X_train, y_train)
+      ```
+
+      **Regression:**
+      ```python
+      from sklearn.ensemble import RandomForestRegressor
+
+      model = RandomForestRegressor(
+          n_estimators=100,
+          max_depth=10,
+          random_state=42
+      )
+      model.fit(X_train, y_train)
+      ```
+
+      **4. Key Parameters**
+
+      **n_estimators**: Number of trees
+      - More trees = better performance (up to a point)
+      - More trees = slower training
+      - Typical: 100-500
+      - Default: 100
+
+      **max_depth**: Maximum tree depth
+      - Controls individual tree complexity
+      - None = trees grow until pure (can overfit)
+      - Typical: 5-20
+
+      **max_features**: Features to consider per split
+      - 'sqrt': √(total features) - good default
+      - 'log2': log₂(total features)
+      - int: specific number
+
+      **min_samples_split**: Minimum samples to split
+      - Higher = simpler trees
+      - Default: 2
+
+      **5. Feature Importance**
+
+      Averaged across all trees:
+      ```python
+      importances = model.feature_importances_
+      ```
+
+      More reliable than single tree!
+
+      **6. Out-of-Bag (OOB) Score**
+
+      Built-in validation:
+      ```python
+      model = RandomForestClassifier(oob_score=True)
+      model.fit(X_train, y_train)
+      print(model.oob_score_)
+      ```
+
+      Each tree is tested on data it didn't see during training.
+
+      **When to Use Random Forests:**
+      - ✅ Default choice for tabular data
+      - ✅ Need robust, accurate model
+      - ✅ High-dimensional features
+      - ✅ Non-linear relationships
+      - ❌ Need interpretability (use single tree)
+      - ❌ Very large datasets (slower than linear models)
+
+    examples:
+      - title: "Random Forest vs Single Tree"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.model_selection import train_test_split
+
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          # Single Decision Tree
+          dt = DecisionTreeClassifier(random_state=42)
+          dt.fit(X_train, y_train)
+          dt_acc = dt.score(X_test, y_test)
+
+          # Random Forest
+          rf = RandomForestClassifier(n_estimators=100, random_state=42)
+          rf.fit(X_train, y_train)
+          rf_acc = rf.score(X_test, y_test)
+
+          print("Model Comparison:")
+          print(f"  Decision Tree:  {dt_acc:.2%}")
+          print(f"  Random Forest:  {rf_acc:.2%}")
+          print(f"  Improvement:    {(rf_acc - dt_acc):.2%}")
+
+        output: |
+          Model Comparison:
+            Decision Tree:  100.00%
+            Random Forest:  100.00%
+            Improvement:    0.00%
+
+      - title: "Effect of n_estimators"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.model_selection import train_test_split
+
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          print("Effect of number of trees:")
+          print("Trees | Train Acc | Test Acc")
+          print("------|-----------|----------")
+
+          for n_trees in [10, 50, 100, 200]:
+              model = RandomForestClassifier(
+                  n_estimators=n_trees,
+                  random_state=42
+              )
+              model.fit(X_train, y_train)
+
+              train_acc = model.score(X_train, y_train)
+              test_acc = model.score(X_test, y_test)
+
+              print(f"{n_trees:>5} | {train_acc:>8.2%} | {test_acc:>8.2%}")
+
+        output: |
+          Effect of number of trees:
+          Trees | Train Acc | Test Acc
+          ------|-----------|----------
+             10 |   100.00% |    96.49%
+             50 |   100.00% |    97.37%
+            100 |   100.00% |    96.49%
+            200 |   100.00% |    96.49%
+
+      - title: "Feature Importance with Random Forest"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.ensemble import RandomForestClassifier
+          import pandas as pd
+
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Train Random Forest
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+          model.fit(X, y)
+
+          # Get feature importance
+          importances = model.feature_importances_
+
+          # Create DataFrame
+          feature_imp = pd.DataFrame({
+              'Feature': iris.feature_names,
+              'Importance': importances
+          }).sort_values('Importance', ascending=False)
+
+          print("Feature Importance (Random Forest):")
+          for idx, row in feature_imp.iterrows():
+              bar = '█' * int(row['Importance'] * 50)
+              print(f"  {row['Feature']:20s} {row['Importance']:.3f} {bar}")
+
+        output: |
+          Feature Importance (Random Forest):
+            petal width (cm)      0.445 ██████████████████████
+            petal length (cm)     0.424 █████████████████████
+            sepal length (cm)     0.103 █████
+            sepal width (cm)      0.028 █
+
+      - title: "Random Forest Regression"
+        code: |
+          import numpy as np
+          from sklearn.ensemble import RandomForestRegressor
+          from sklearn.tree import DecisionTreeRegressor
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import mean_squared_error, r2_score
+
+          # Create non-linear data
+          np.random.seed(42)
+          X = np.sort(np.random.rand(100, 1) * 10, axis=0)
+          y = np.sin(X).ravel() + np.random.randn(100) * 0.1
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Decision Tree
+          dt = DecisionTreeRegressor(max_depth=5, random_state=42)
+          dt.fit(X_train, y_train)
+          dt_pred = dt.predict(X_test)
+
+          # Random Forest
+          rf = RandomForestRegressor(
+              n_estimators=100,
+              max_depth=5,
+              random_state=42
+          )
+          rf.fit(X_train, y_train)
+          rf_pred = rf.predict(X_test)
+
+          print("Regression Comparison:")
+          print(f"Decision Tree R²:  {r2_score(y_test, dt_pred):.3f}")
+          print(f"Random Forest R²:  {r2_score(y_test, rf_pred):.3f}")
+
+        output: |
+          Regression Comparison:
+          Decision Tree R²:  0.826
+          Random Forest R²:  0.911
+
+      - title: "Out-of-Bag Score"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.model_selection import train_test_split
+
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Enable OOB scoring
+          model = RandomForestClassifier(
+              n_estimators=100,
+              oob_score=True,
+              random_state=42
+          )
+          model.fit(X_train, y_train)
+
+          # Compare scores
+          oob_score = model.oob_score_
+          test_score = model.score(X_test, y_test)
+
+          print("Model Evaluation:")
+          print(f"  OOB Score:  {oob_score:.3f}")
+          print(f"  Test Score: {test_score:.3f}")
+          print()
+          print("OOB score provides validation without separate test set!")
+
+        output: |
+          Model Evaluation:
+            OOB Score:  0.967
+            Test Score: 0.965
+
+          OOB score provides validation without separate test set!
+
+  exercise:
+    title: "Build a Random Forest Classifier"
+
+    instruction: |
+      Create a Random Forest classifier for the iris dataset.
+
+      **Tasks:**
+      1. Create RandomForestClassifier with n_estimators=100 and random_state=42
+      2. Train on X_train and y_train
+      3. Calculate accuracy on X_test
+      4. Store accuracy in `accuracy`
+
+    setup_code: |
+      from sklearn.datasets import load_iris
+      from sklearn.ensemble import RandomForestClassifier
+      from sklearn.model_selection import train_test_split
+
+      iris = load_iris()
+      X, y = iris.data, iris.target
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.3, random_state=42
+      )
+
+    starter_code: |
+      # Your code here
+      model = RandomForestClassifier(...)
+      # Train and evaluate
+      accuracy =
+
+    solution: |
+      model = RandomForestClassifier(n_estimators=100, random_state=42)
+      model.fit(X_train, y_train)
+      accuracy = model.score(X_test, y_test)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "accuracy"
+          expected: 1.0
+          type: "float"
+
+    hints:
+      - level: 1
+        text: |
+          Create RandomForestClassifier with n_estimators=100 and random_state=42.
+          Use model.fit(X_train, y_train) to train.
+          Use model.score(X_test, y_test) to get accuracy.
+
+      - level: 2
+        text: |
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+          model.fit(X_train, y_train)
+          accuracy = model.score(X_test, y_test)
+
+      - level: 3
+        code: |
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+          model.fit(X_train, y_train)
+          accuracy = model.score(X_test, y_test)
+
+  follow_up:
+    challenges:
+      - "Get and print feature importances"
+      - "Try n_estimators values: 10, 50, 200"
+      - "Use RandomForestRegressor for regression"
+      - "Enable oob_score and compare with test score"
+
+    next_lesson: "sklearn_07"
+
+    additional_resources:
+      - title: "Random Forest Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html"

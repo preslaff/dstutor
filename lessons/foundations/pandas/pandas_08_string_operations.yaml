@@ -1,0 +1,353 @@
+lesson:
+  id: "pandas_08"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "String Operations"
+  order: 8
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_07"]
+    learning_objectives:
+      - "Use .str accessor for string operations"
+      - "Perform string cleaning and transformation"
+      - "Extract patterns from text data"
+      - "Handle text data efficiently"
+
+  content:
+    introduction: |
+      # String Operations in Pandas
+
+      Text data is everywhere! Learn to clean, transform, and extract information from
+      strings using Pandas' powerful .str accessor.
+
+      **What you'll learn:**
+      - String methods with .str accessor
+      - Case conversion and trimming
+      - Pattern matching and extraction
+      - String splitting and joining
+
+    concept: |
+      ## The .str Accessor
+
+      **What is .str?**
+      The `.str` accessor gives you access to string methods on Series of strings.
+
+      **Common Operations:**
+
+      **Case Conversion:**
+      - `.str.lower()` - Convert to lowercase
+      - `.str.upper()` - Convert to uppercase
+      - `.str.title()` - Title case (capitalize first letter of each word)
+
+      **Cleaning:**
+      - `.str.strip()` - Remove leading/trailing whitespace
+      - `.str.replace(old, new)` - Replace substring
+
+      **Pattern Matching:**
+      - `.str.contains(pattern)` - Check if pattern exists
+      - `.str.startswith(prefix)` - Check if starts with
+      - `.str.endswith(suffix)` - Check if ends with
+
+      **Extraction:**
+      - `.str.split(delimiter)` - Split string
+      - `.str.extract(pattern)` - Extract with regex
+      - `.str[:n]` - String slicing
+
+      **Why Use .str?**
+      - 🚀 Vectorized operations (fast!)
+      - 📝 Cleaner code than loops
+      - 🛠️ Handles NaN values gracefully
+      - 🔧 Integrates with other Pandas operations
+
+    examples:
+      - title: "Case Conversion and Cleaning"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['  alice  ', 'BOB', 'Charlie ', 'DAVID'],
+              'Email': ['alice@email.com', 'bob@EMAIL.COM',
+                       'charlie@email.com', 'david@EMAIL.COM']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Clean names: strip whitespace and title case
+          df['Name_Clean'] = df['Name'].str.strip().str.title()
+          print("Cleaned names:")
+          print(df[['Name', 'Name_Clean']])
+          print()
+
+          # Lowercase emails
+          df['Email_Clean'] = df['Email'].str.lower()
+          print("Lowercased emails:")
+          print(df[['Email', 'Email_Clean']])
+
+        output: |
+          Original:
+                 Name             Email
+          0    alice    alice@email.com
+          1      BOB      bob@EMAIL.COM
+          2  Charlie   charlie@email.com
+          3    DAVID     david@EMAIL.COM
+
+          Cleaned names:
+                 Name Name_Clean
+          0    alice       Alice
+          1      BOB         Bob
+          2  Charlie     Charlie
+          3    DAVID       David
+
+          Lowercased emails:
+                      Email        Email_Clean
+          0   alice@email.com  alice@email.com
+          1     bob@EMAIL.COM    bob@email.com
+          2 charlie@email.com  charlie@email.com
+          3   david@EMAIL.COM    david@email.com
+
+      - title: "String Replacement"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Text': ['Hello World!', 'Goodbye World!', 'Hello Python!'],
+              'Phone': ['(123) 456-7890', '123-456-7890', '(999) 888-7777']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Replace words
+          df['Text_New'] = df['Text'].str.replace('World', 'Universe')
+          print("After replacement:")
+          print(df[['Text', 'Text_New']])
+          print()
+
+          # Clean phone numbers (remove non-digits)
+          df['Phone_Clean'] = df['Phone'].str.replace(r'[()-\s]', '', regex=True)
+          print("Cleaned phones:")
+          print(df[['Phone', 'Phone_Clean']])
+
+        output: |
+          Original:
+                       Text           Phone
+          0      Hello World!  (123) 456-7890
+          1    Goodbye World!   123-456-7890
+          2     Hello Python!  (999) 888-7777
+
+          After replacement:
+                       Text          Text_New
+          0      Hello World!   Hello Universe!
+          1    Goodbye World! Goodbye Universe!
+          2     Hello Python!    Hello Python!
+
+          Cleaned phones:
+                      Phone Phone_Clean
+          0  (123) 456-7890  1234567890
+          1   123-456-7890  1234567890
+          2  (999) 888-7777  9998887777
+
+      - title: "Pattern Matching"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Email': ['alice@gmail.com', 'bob@yahoo.com',
+                       'charlie@gmail.com', 'david@outlook.com']
+          })
+
+          print("Emails:")
+          print(df)
+          print()
+
+          # Check if contains pattern
+          df['is_gmail'] = df['Email'].str.contains('gmail')
+          print("Gmail users:")
+          print(df)
+          print()
+
+          # Filter gmail users
+          gmail_users = df[df['Email'].str.contains('gmail')]
+          print("Only Gmail:")
+          print(gmail_users)
+
+        output: |
+          Emails:
+                       Email
+          0   alice@gmail.com
+          1     bob@yahoo.com
+          2 charlie@gmail.com
+          3 david@outlook.com
+
+          Gmail users:
+                       Email  is_gmail
+          0   alice@gmail.com      True
+          1     bob@yahoo.com     False
+          2 charlie@gmail.com      True
+          3 david@outlook.com     False
+
+          Only Gmail:
+                       Email  is_gmail
+          0   alice@gmail.com      True
+          2 charlie@gmail.com      True
+
+      - title: "String Splitting and Extraction"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'FullName': ['Alice Smith', 'Bob Jones', 'Charlie Brown'],
+              'Date': ['2024-01-15', '2024-02-20', '2024-03-25']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Split names into first and last
+          df[['FirstName', 'LastName']] = df['FullName'].str.split(' ', expand=True)
+          print("After splitting names:")
+          print(df)
+          print()
+
+          # Extract year from date
+          df['Year'] = df['Date'].str[:4]
+          df['Month'] = df['Date'].str[5:7]
+          print("Extracted date parts:")
+          print(df[['Date', 'Year', 'Month']])
+
+        output: |
+          Original:
+                 FullName        Date
+          0   Alice Smith  2024-01-15
+          1     Bob Jones  2024-02-20
+          2  Charlie Brown  2024-03-25
+
+          After splitting names:
+                 FullName        Date FirstName LastName
+          0   Alice Smith  2024-01-15     Alice    Smith
+          1     Bob Jones  2024-02-20       Bob    Jones
+          2  Charlie Brown  2024-03-25   Charlie    Brown
+
+          Extracted date parts:
+                  Date  Year Month
+          0  2024-01-15  2024    01
+          1  2024-02-20  2024    02
+          2  2024-03-25  2024    03
+
+      - title: "String Length and Slicing"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['Laptop', 'Phone', 'Tablet', 'TV'],
+              'Code': ['LAP-001', 'PHO-002', 'TAB-003', 'TV-004']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # String length
+          df['Name_Length'] = df['Product'].str.len()
+          print("With lengths:")
+          print(df)
+          print()
+
+          # Extract category prefix from code
+          df['Category'] = df['Code'].str[:3]
+          print("Extracted categories:")
+          print(df[['Code', 'Category']])
+
+        output: |
+          Original:
+            Product     Code
+          0  Laptop  LAP-001
+          1   Phone  PHO-002
+          2  Tablet  TAB-003
+          3      TV   TV-004
+
+          With lengths:
+            Product     Code  Name_Length
+          0  Laptop  LAP-001            6
+          1   Phone  PHO-002            5
+          2  Tablet  TAB-003            6
+          3      TV   TV-004            2
+
+          Extracted categories:
+                Code Category
+          0  LAP-001      LAP
+          1  PHO-002      PHO
+          2  TAB-003      TAB
+          3   TV-004       TV
+
+  exercise:
+    title: "Clean Customer Names"
+
+    instruction: |
+      Clean this customer name data:
+
+      1. Remove leading/trailing whitespace
+      2. Convert to title case
+      3. Create a new column 'Name_Length' with the length of cleaned names
+
+      Store the result (with all columns including the new one) in `result`.
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'customer_id': [1, 2, 3, 4],
+          'name': ['  alice johnson  ', 'BOB SMITH', 'charlie brown  ', '  DIANA PRINCE']
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.copy()
+      result['name'] = result['name'].str.strip().str.title()
+      result['Name_Length'] = result['name'].str.len()
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "columns"
+          expected: ['customer_id', 'name', 'Name_Length']
+
+    hints:
+      - level: 1
+        text: |
+          Use .str.strip() to remove whitespace, .str.title() for title case,
+          and .str.len() to get length. Chain operations with .str
+
+      - level: 2
+        text: |
+          result = df.copy()
+          result['name'] = result['name'].str.strip().str.title()
+          result['Name_Length'] = result['name'].str.len()
+
+      - level: 3
+        code: |
+          result = df.copy()
+          result['name'] = result['name'].str.strip().str.title()
+          result['Name_Length'] = result['name'].str.len()
+
+  follow_up:
+    challenges:
+      - "Extract domain from email addresses"
+      - "Find all rows containing a specific word"
+      - "Replace special characters in text"
+      - "Split full addresses into street, city, state"
+
+    next_lesson: "pandas_09"
+
+    additional_resources:
+      - title: "Pandas String Methods"
+        url: "https://pandas.pydata.org/docs/user_guide/text.html"

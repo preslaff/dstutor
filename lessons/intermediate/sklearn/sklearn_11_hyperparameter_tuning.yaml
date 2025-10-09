@@ -1,0 +1,678 @@
+lesson:
+  id: "sklearn_11"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Hyperparameter Tuning"
+  order: 11
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_06", "sklearn_10"]
+    learning_objectives:
+      - "Understand hyperparameters vs parameters"
+      - "Use GridSearchCV for exhaustive search"
+      - "Use RandomizedSearchCV for efficient search"
+      - "Interpret tuning results and avoid overfitting"
+
+  content:
+    introduction: |
+      # Hyperparameter Tuning
+
+      Optimize your models for peak performance! Learn systematic approaches
+      to find the best hyperparameters using grid search and random search.
+
+      **What you'll learn:**
+      - What are hyperparameters
+      - Grid search
+      - Randomized search
+      - Best practices
+
+    concept: |
+      ## Finding Optimal Hyperparameters
+
+      **1. Parameters vs Hyperparameters**
+
+      **Parameters** (learned from data):
+      - Linear regression coefficients
+      - Decision tree split points
+      - Neural network weights
+      - **Learned during training**
+
+      **Hyperparameters** (set before training):
+      - Random Forest: n_estimators, max_depth
+      - SVM: C, gamma, kernel
+      - KNN: n_neighbors
+      - **You choose these!**
+
+      **Goal:** Find hyperparameters that maximize performance
+
+      **2. Grid Search - Exhaustive Search**
+
+      **Idea:** Try every combination
+
+      **Example:** Random Forest tuning
+      ```python
+      param_grid = {
+          'n_estimators': [50, 100, 200],      # 3 values
+          'max_depth': [5, 10, 15, None],      # 4 values
+          'min_samples_split': [2, 5, 10]      # 3 values
+      }
+      # Total combinations: 3 × 4 × 3 = 36
+      # With 5-fold CV: 36 × 5 = 180 model fits!
+      ```
+
+      **sklearn GridSearchCV:**
+      ```python
+      from sklearn.model_selection import GridSearchCV
+
+      grid_search = GridSearchCV(
+          estimator=RandomForestClassifier(),
+          param_grid=param_grid,
+          cv=5,                    # 5-fold cross-validation
+          scoring='accuracy',      # Metric to optimize
+          n_jobs=-1,              # Use all CPU cores
+          verbose=1               # Show progress
+      )
+
+      grid_search.fit(X_train, y_train)
+
+      print(f"Best params: {grid_search.best_params_}")
+      print(f"Best score: {grid_search.best_score_:.3f}")
+
+      # Use best model
+      best_model = grid_search.best_estimator_
+      ```
+
+      **3. Randomized Search - Efficient Alternative**
+
+      **Problem:** Grid search is slow for many parameters
+
+      **Solution:** Try random combinations
+      - Specify how many combinations to try
+      - Often finds good solutions faster
+      - Better for continuous parameters
+
+      ```python
+      from sklearn.model_selection import RandomizedSearchCV
+      from scipy.stats import randint, uniform
+
+      param_dist = {
+          'n_estimators': randint(50, 500),      # Random integers
+          'max_depth': randint(3, 20),
+          'min_samples_split': randint(2, 20),
+          'max_features': ['sqrt', 'log2', None]
+      }
+
+      random_search = RandomizedSearchCV(
+          estimator=RandomForestClassifier(),
+          param_distributions=param_dist,
+          n_iter=50,              # Try 50 random combinations
+          cv=5,
+          scoring='accuracy',
+          n_jobs=-1,
+          random_state=42
+      )
+
+      random_search.fit(X_train, y_train)
+      ```
+
+      **4. When to Use Which**
+
+      **Grid Search:**
+      - ✅ Few hyperparameters (2-3)
+      - ✅ Small search space
+      - ✅ Need to try every combination
+      - ❌ Slow for large spaces
+
+      **Randomized Search:**
+      - ✅ Many hyperparameters (4+)
+      - ✅ Large or continuous search space
+      - ✅ Limited time/compute
+      - ✅ Good enough solution acceptable
+
+      **5. Important Attributes**
+
+      ```python
+      # Best parameters found
+      grid_search.best_params_
+
+      # Best cross-validation score
+      grid_search.best_score_
+
+      # Best model (already fitted)
+      grid_search.best_estimator_
+
+      # All results
+      grid_search.cv_results_
+
+      # Index of best combination
+      grid_search.best_index_
+      ```
+
+      **6. Analyzing Results**
+
+      ```python
+      import pandas as pd
+
+      results = pd.DataFrame(grid_search.cv_results_)
+
+      # Key columns:
+      # - params: parameter combinations
+      # - mean_test_score: average CV score
+      # - std_test_score: CV score std dev
+      # - rank_test_score: ranking
+
+      results = results.sort_values('rank_test_score')
+      print(results[['params', 'mean_test_score', 'std_test_score']].head())
+      ```
+
+      **7. Avoiding Overfitting**
+
+      **Problem:** Optimizing on test set = overfitting!
+
+      **Solution: Nested Cross-Validation**
+      - Outer loop: Model evaluation
+      - Inner loop: Hyperparameter tuning
+      - Never tune on final test set!
+
+      **Proper workflow:**
+      1. Split: Train / Test
+      2. GridSearchCV on Train (uses CV internally)
+      3. Evaluate best_estimator_ on Test
+
+      **8. Common Hyperparameters by Model**
+
+      **Random Forest:**
+      - n_estimators: 50-500
+      - max_depth: 5-20 or None
+      - min_samples_split: 2-20
+      - max_features: 'sqrt', 'log2', None
+
+      **Logistic Regression:**
+      - C: 0.001-1000 (regularization)
+      - penalty: 'l1', 'l2'
+      - solver: 'liblinear', 'saga', 'lbfgs'
+
+      **SVM:**
+      - C: 0.1-100
+      - gamma: 0.001-1 or 'scale', 'auto'
+      - kernel: 'linear', 'rbf', 'poly'
+
+      **Decision Tree:**
+      - max_depth: 3-20
+      - min_samples_split: 2-20
+      - min_samples_leaf: 1-10
+
+    examples:
+      - title: "Basic Grid Search"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import train_test_split, GridSearchCV
+          from sklearn.ensemble import RandomForestClassifier
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          # Define parameter grid
+          param_grid = {
+              'n_estimators': [50, 100, 200],
+              'max_depth': [3, 5, 10],
+              'min_samples_split': [2, 5]
+          }
+
+          # Create grid search
+          grid_search = GridSearchCV(
+              RandomForestClassifier(random_state=42),
+              param_grid,
+              cv=5,
+              scoring='accuracy',
+              verbose=1
+          )
+
+          # Fit grid search
+          print("Running Grid Search...")
+          grid_search.fit(X_train, y_train)
+
+          # Results
+          print(f"\nBest Parameters: {grid_search.best_params_}")
+          print(f"Best CV Score: {grid_search.best_score_:.3f}")
+
+          # Evaluate on test set
+          test_score = grid_search.score(X_test, y_test)
+          print(f"Test Set Score: {test_score:.3f}")
+
+        output: |
+          Running Grid Search...
+          Fitting 5 folds for each of 18 candidates, totalling 90 fits
+
+          Best Parameters: {'max_depth': 5, 'min_samples_split': 2, 'n_estimators': 100}
+          Best CV Score: 0.952
+          Test Set Score: 0.978
+
+      - title: "Randomized Search"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import train_test_split, RandomizedSearchCV
+          from sklearn.ensemble import RandomForestClassifier
+          from scipy.stats import randint
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Define parameter distributions
+          param_dist = {
+              'n_estimators': randint(50, 500),
+              'max_depth': randint(3, 20),
+              'min_samples_split': randint(2, 20),
+              'min_samples_leaf': randint(1, 10),
+              'max_features': ['sqrt', 'log2', None]
+          }
+
+          # Randomized search
+          random_search = RandomizedSearchCV(
+              RandomForestClassifier(random_state=42),
+              param_distributions=param_dist,
+              n_iter=30,                    # Try 30 random combinations
+              cv=5,
+              scoring='accuracy',
+              random_state=42,
+              verbose=1
+          )
+
+          print("Running Randomized Search (30 iterations)...")
+          random_search.fit(X_train, y_train)
+
+          print(f"\nBest Parameters: {random_search.best_params_}")
+          print(f"Best CV Score: {random_search.best_score_:.3f}")
+          print(f"Test Set Score: {random_search.score(X_test, y_test):.3f}")
+
+        output: |
+          Running Randomized Search (30 iterations)...
+          Fitting 5 folds for each of 30 candidates, totalling 150 fits
+
+          Best Parameters: {'max_depth': 14, 'max_features': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 386}
+          Best CV Score: 0.973
+          Test Set Score: 0.974
+
+      - title: "Analyzing Search Results"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import GridSearchCV
+          from sklearn.tree import DecisionTreeClassifier
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Parameter grid
+          param_grid = {
+              'max_depth': [2, 4, 6, 8, 10],
+              'min_samples_split': [2, 5, 10]
+          }
+
+          # Grid search
+          grid_search = GridSearchCV(
+              DecisionTreeClassifier(random_state=42),
+              param_grid,
+              cv=5,
+              scoring='accuracy'
+          )
+
+          grid_search.fit(X, y)
+
+          # Convert results to DataFrame
+          results = pd.DataFrame(grid_search.cv_results_)
+
+          # Select important columns
+          results_summary = results[[
+              'param_max_depth',
+              'param_min_samples_split',
+              'mean_test_score',
+              'std_test_score',
+              'rank_test_score'
+          ]].sort_values('rank_test_score')
+
+          print("Top 5 Parameter Combinations:")
+          print(results_summary.head())
+          print()
+          print(f"Best Parameters: {grid_search.best_params_}")
+          print(f"Best Score: {grid_search.best_score_:.3f}")
+
+        output: |
+          Top 5 Parameter Combinations:
+             param_max_depth param_min_samples_split  mean_test_score  std_test_score  rank_test_score
+          9                6                       2         0.973333        0.025166                1
+          14               10                       2         0.973333        0.025166                1
+          4                4                       2         0.960000        0.032660                3
+          6                6                      10         0.960000        0.032660                3
+          11               8                       5         0.960000        0.032660                3
+
+          Best Parameters: {'max_depth': 6, 'min_samples_split': 2}
+          Best Score: 0.973
+
+      - title: "Grid Search with Pipeline"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import train_test_split, GridSearchCV
+          from sklearn.pipeline import Pipeline
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.svm import SVC
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Create pipeline
+          pipeline = Pipeline([
+              ('scaler', StandardScaler()),
+              ('svm', SVC())
+          ])
+
+          # Parameter grid (use __ to access pipeline steps)
+          param_grid = {
+              'svm__C': [0.1, 1, 10],
+              'svm__gamma': ['scale', 0.001, 0.01],
+              'svm__kernel': ['rbf', 'linear']
+          }
+
+          # Grid search
+          grid_search = GridSearchCV(
+              pipeline,
+              param_grid,
+              cv=5,
+              scoring='accuracy'
+          )
+
+          grid_search.fit(X_train, y_train)
+
+          print("Best Parameters:")
+          for param, value in grid_search.best_params_.items():
+              print(f"  {param}: {value}")
+
+          print(f"\nBest CV Score: {grid_search.best_score_:.3f}")
+          print(f"Test Score: {grid_search.score(X_test, y_test):.3f}")
+
+        output: |
+          Best Parameters:
+            svm__C: 10
+            svm__gamma: scale
+            svm__kernel: rbf
+
+          Best CV Score: 0.984
+          Test Score: 0.982
+
+      - title: "Comparing Multiple Models"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import GridSearchCV
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.linear_model import LogisticRegression
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Models and their parameter grids
+          models_params = [
+              {
+                  'name': 'Decision Tree',
+                  'model': DecisionTreeClassifier(random_state=42),
+                  'params': {
+                      'max_depth': [3, 5, 10],
+                      'min_samples_split': [2, 5]
+                  }
+              },
+              {
+                  'name': 'Random Forest',
+                  'model': RandomForestClassifier(random_state=42),
+                  'params': {
+                      'n_estimators': [50, 100],
+                      'max_depth': [5, 10]
+                  }
+              },
+              {
+                  'name': 'Logistic Regression',
+                  'model': LogisticRegression(max_iter=1000),
+                  'params': {
+                      'C': [0.1, 1, 10],
+                      'penalty': ['l2']
+                  }
+              }
+          ]
+
+          print("Model Comparison with Hyperparameter Tuning:")
+          print()
+
+          best_overall = None
+          best_score = 0
+
+          for model_info in models_params:
+              grid_search = GridSearchCV(
+                  model_info['model'],
+                  model_info['params'],
+                  cv=5,
+                  scoring='accuracy'
+              )
+
+              grid_search.fit(X, y)
+
+              print(f"{model_info['name']}:")
+              print(f"  Best params: {grid_search.best_params_}")
+              print(f"  Best score: {grid_search.best_score_:.3f}")
+              print()
+
+              if grid_search.best_score_ > best_score:
+                  best_score = grid_search.best_score_
+                  best_overall = model_info['name']
+
+          print(f"Winner: {best_overall} ({best_score:.3f})")
+
+        output: |
+          Model Comparison with Hyperparameter Tuning:
+
+          Decision Tree:
+            Best params: {'max_depth': 3, 'min_samples_split': 5}
+            Best score: 0.960
+
+          Random Forest:
+            Best params: {'max_depth': 5, 'n_estimators': 100}
+            Best score: 0.973
+
+          Logistic Regression:
+            Best params: {'C': 1, 'penalty': 'l2'}
+            Best score: 0.973
+
+          Winner: Random Forest (0.973)
+
+      - title: "Visualizing Parameter Impact"
+        code: |
+          import numpy as np
+          import matplotlib.pyplot as plt
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import GridSearchCV
+          from sklearn.ensemble import RandomForestClassifier
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          # Simple grid for visualization
+          param_grid = {
+              'n_estimators': [10, 50, 100, 200, 300],
+              'max_depth': [5, 10, 15, 20, None]
+          }
+
+          grid_search = GridSearchCV(
+              RandomForestClassifier(random_state=42),
+              param_grid,
+              cv=5,
+              scoring='accuracy'
+          )
+
+          grid_search.fit(X, y)
+
+          # Extract results
+          results = grid_search.cv_results_
+          n_estimators_vals = [10, 50, 100, 200, 300]
+          max_depth_vals = [5, 10, 15, 20, None]
+
+          # Create heatmap data
+          scores = results['mean_test_score'].reshape(len(n_estimators_vals), len(max_depth_vals))
+
+          # Plot
+          plt.figure(figsize=(10, 6))
+          plt.imshow(scores, cmap='viridis', aspect='auto')
+          plt.colorbar(label='Mean CV Accuracy')
+          plt.xlabel('max_depth')
+          plt.ylabel('n_estimators')
+          plt.xticks(range(len(max_depth_vals)), max_depth_vals)
+          plt.yticks(range(len(n_estimators_vals)), n_estimators_vals)
+          plt.title('Grid Search Results Heatmap')
+
+          # Mark best
+          best_idx = np.unravel_index(scores.argmax(), scores.shape)
+          plt.plot(best_idx[1], best_idx[0], 'r*', markersize=20, label='Best')
+          plt.legend()
+
+          plt.tight_layout()
+          plt.show()
+
+          print(f"Best params: {grid_search.best_params_}")
+          print(f"Best score: {grid_search.best_score_:.3f}")
+
+        output: |
+          [Heatmap showing accuracy scores for different parameter combinations]
+
+          Best params: {'max_depth': None, 'n_estimators': 200}
+          Best score: 0.970
+
+  exercise:
+    title: "Tune Random Forest Hyperparameters"
+
+    instruction: |
+      Use GridSearchCV to find the best hyperparameters for a Random Forest.
+
+      **Tasks:**
+      1. Create parameter grid with:
+         - n_estimators: [50, 100, 200]
+         - max_depth: [5, 10, None]
+      2. Use GridSearchCV with cv=5 and scoring='accuracy'
+      3. Fit on X_train, y_train
+      4. Store best n_estimators in `best_n_estimators`
+      5. Store best CV score in `best_score`
+
+    setup_code: |
+      from sklearn.datasets import load_iris
+      from sklearn.model_selection import train_test_split, GridSearchCV
+      from sklearn.ensemble import RandomForestClassifier
+
+      iris = load_iris()
+      X, y = iris.data, iris.target
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.3, random_state=42
+      )
+
+    starter_code: |
+      # Your code here
+      param_grid = {
+          'n_estimators': ...,
+          'max_depth': ...
+      }
+
+      grid_search = GridSearchCV(...)
+      # Fit and extract results
+      best_n_estimators =
+      best_score =
+
+    solution: |
+      param_grid = {
+          'n_estimators': [50, 100, 200],
+          'max_depth': [5, 10, None]
+      }
+
+      grid_search = GridSearchCV(
+          RandomForestClassifier(random_state=42),
+          param_grid,
+          cv=5,
+          scoring='accuracy'
+      )
+
+      grid_search.fit(X_train, y_train)
+      best_n_estimators = grid_search.best_params_['n_estimators']
+      best_score = grid_search.best_score_
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "best_n_estimators"
+          type: "int"
+          allowed: [50, 100, 200]
+        - variable: "best_score"
+          type: "float"
+          min: 0.90
+
+    hints:
+      - level: 1
+        text: |
+          Create param_grid dictionary with n_estimators and max_depth lists.
+          Use GridSearchCV with RandomForestClassifier, param_grid, cv=5.
+          Access best parameters: grid_search.best_params_['n_estimators'].
+          Access best score: grid_search.best_score_.
+
+      - level: 2
+        text: |
+          param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [5, 10, None]}
+          grid_search = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=5, scoring='accuracy')
+          grid_search.fit(X_train, y_train)
+          best_n_estimators = grid_search.best_params_['n_estimators']
+          best_score = grid_search.best_score_
+
+      - level: 3
+        code: |
+          param_grid = {
+              'n_estimators': [50, 100, 200],
+              'max_depth': [5, 10, None]
+          }
+
+          grid_search = GridSearchCV(
+              RandomForestClassifier(random_state=42),
+              param_grid,
+              cv=5,
+              scoring='accuracy'
+          )
+
+          grid_search.fit(X_train, y_train)
+          best_n_estimators = grid_search.best_params_['n_estimators']
+          best_score = grid_search.best_score_
+
+  follow_up:
+    challenges:
+      - "Try RandomizedSearchCV with more parameters"
+      - "Compare grid search with different CV folds (3, 5, 10)"
+      - "Tune SVM hyperparameters (C, gamma, kernel)"
+      - "Create a pipeline with preprocessing and tuning"
+
+    next_lesson: "sklearn_12"
+
+    additional_resources:
+      - title: "GridSearchCV Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html"

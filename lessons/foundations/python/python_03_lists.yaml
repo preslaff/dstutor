@@ -1,0 +1,357 @@
+lesson:
+  id: "python_03"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Lists and List Operations"
+  order: 3
+
+  metadata:
+    duration: "30 min"
+    difficulty: "easy"
+    prerequisites: ["python_01", "python_02"]
+    learning_objectives:
+      - "Create and manipulate lists"
+      - "Use list methods (append, extend, insert, remove)"
+      - "Access list elements with indexing and slicing"
+      - "Understand list mutability"
+
+  content:
+    introduction: |
+      # Lists and List Operations
+
+      Lists are Python's most versatile data structure! Store multiple items,
+      modify them, and perform powerful operations.
+
+      **What you'll learn:**
+      - Creating and modifying lists
+      - Adding and removing elements
+      - List indexing and slicing
+      - Common list methods
+
+    concept: |
+      ## Working with Lists
+
+      **1. Creating Lists**
+
+      Use square brackets `[]`:
+      ```python
+      numbers = [1, 2, 3, 4, 5]
+      names = ["Alice", "Bob", "Charlie"]
+      mixed = [1, "hello", 3.14, True]
+      empty = []
+      ```
+
+      **2. Accessing Elements**
+
+      Zero-indexed, just like strings:
+      ```python
+      fruits = ["apple", "banana", "cherry"]
+      print(fruits[0])    # "apple"
+      print(fruits[-1])   # "cherry" (last element)
+      ```
+
+      **3. Slicing Lists**
+
+      ```python
+      numbers = [0, 1, 2, 3, 4, 5]
+      print(numbers[1:4])    # [1, 2, 3]
+      print(numbers[:3])     # [0, 1, 2]
+      print(numbers[3:])     # [3, 4, 5]
+      print(numbers[::2])    # [0, 2, 4] (every 2nd element)
+      ```
+
+      **4. Modifying Lists (Mutable!)**
+
+      **Change elements:**
+      ```python
+      fruits[0] = "orange"
+      ```
+
+      **Add elements:**
+      ```python
+      fruits.append("grape")        # Add to end
+      fruits.insert(1, "kiwi")      # Insert at index
+      fruits.extend(["mango", "pear"])  # Add multiple
+      ```
+
+      **Remove elements:**
+      ```python
+      fruits.remove("apple")   # Remove first occurrence
+      last = fruits.pop()      # Remove and return last
+      item = fruits.pop(0)     # Remove and return at index
+      del fruits[0]            # Delete at index
+      fruits.clear()           # Remove all
+      ```
+
+      **5. List Methods**
+
+      ```python
+      numbers = [3, 1, 4, 1, 5, 9, 2]
+
+      numbers.sort()           # Sort in place
+      numbers.reverse()        # Reverse in place
+      count = numbers.count(1) # Count occurrences
+      index = numbers.index(4) # Find first index
+      length = len(numbers)    # Get length
+      ```
+
+      **6. List Operations**
+
+      **Concatenation:**
+      ```python
+      list1 + list2
+      ```
+
+      **Repetition:**
+      ```python
+      [0] * 5  # [0, 0, 0, 0, 0]
+      ```
+
+      **Membership:**
+      ```python
+      "apple" in fruits  # True/False
+      ```
+
+      **7. Copying Lists**
+
+      ```python
+      # Reference (not a copy!)
+      list2 = list1
+
+      # Actual copies:
+      list2 = list1.copy()
+      list2 = list1[:]
+      list2 = list(list1)
+      ```
+
+      **Key Differences from Strings:**
+      - ✅ Lists are **mutable** (can be changed)
+      - ✅ Can contain mixed types
+      - ✅ Can be nested (lists within lists)
+
+    examples:
+      - title: "Creating and Accessing Lists"
+        code: |
+          # Create list
+          fruits = ["apple", "banana", "cherry", "date"]
+
+          print("Full list:", fruits)
+          print("First item:", fruits[0])
+          print("Last item:", fruits[-1])
+          print("Length:", len(fruits))
+
+          # Slicing
+          print("First two:", fruits[:2])
+          print("Last two:", fruits[-2:])
+
+        output: |
+          Full list: ['apple', 'banana', 'cherry', 'date']
+          First item: apple
+          Last item: date
+          Length: 4
+          First two: ['apple', 'banana']
+          Last two: ['cherry', 'date']
+
+      - title: "Modifying Lists"
+        code: |
+          numbers = [1, 2, 3]
+          print("Original:", numbers)
+
+          # Change element
+          numbers[0] = 10
+          print("After change:", numbers)
+
+          # Append
+          numbers.append(4)
+          print("After append:", numbers)
+
+          # Insert
+          numbers.insert(1, 15)
+          print("After insert:", numbers)
+
+          # Extend
+          numbers.extend([5, 6])
+          print("After extend:", numbers)
+
+        output: |
+          Original: [1, 2, 3]
+          After change: [10, 2, 3]
+          After append: [10, 2, 3, 4]
+          After insert: [10, 15, 2, 3, 4]
+          After extend: [10, 15, 2, 3, 4, 5, 6]
+
+      - title: "Removing Elements"
+        code: |
+          fruits = ["apple", "banana", "cherry", "banana", "date"]
+          print("Original:", fruits)
+
+          # Remove by value (first occurrence)
+          fruits.remove("banana")
+          print("After remove:", fruits)
+
+          # Pop (remove last)
+          last = fruits.pop()
+          print("Popped:", last)
+          print("After pop:", fruits)
+
+          # Pop at index
+          first = fruits.pop(0)
+          print("Popped at 0:", first)
+          print("After pop(0):", fruits)
+
+        output: |
+          Original: ['apple', 'banana', 'cherry', 'banana', 'date']
+          After remove: ['apple', 'cherry', 'banana', 'date']
+          Popped: date
+          After pop: ['apple', 'cherry', 'banana']
+          Popped at 0: apple
+          After pop(0): ['cherry', 'banana']
+
+      - title: "List Methods"
+        code: |
+          numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+          print("Original:", numbers)
+
+          # Sort
+          numbers.sort()
+          print("Sorted:", numbers)
+
+          # Reverse
+          numbers.reverse()
+          print("Reversed:", numbers)
+
+          # Count
+          count = numbers.count(1)
+          print("Count of 1:", count)
+
+          # Index
+          index = numbers.index(4)
+          print("Index of 4:", index)
+
+        output: |
+          Original: [3, 1, 4, 1, 5, 9, 2, 6]
+          Sorted: [1, 1, 2, 3, 4, 5, 6, 9]
+          Reversed: [9, 6, 5, 4, 3, 2, 1, 1]
+          Count of 1: 2
+          Index of 4: 3
+
+      - title: "List Operations"
+        code: |
+          # Concatenation
+          list1 = [1, 2, 3]
+          list2 = [4, 5, 6]
+          combined = list1 + list2
+          print("Combined:", combined)
+
+          # Repetition
+          repeated = [0] * 5
+          print("Repeated:", repeated)
+
+          # Membership
+          numbers = [1, 2, 3, 4, 5]
+          print("3 in numbers:", 3 in numbers)
+          print("10 in numbers:", 10 in numbers)
+
+        output: |
+          Combined: [1, 2, 3, 4, 5, 6]
+          Repeated: [0, 0, 0, 0, 0]
+          3 in numbers: True
+          10 in numbers: False
+
+      - title: "Nested Lists"
+        code: |
+          # List of lists (matrix)
+          matrix = [
+              [1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]
+          ]
+
+          print("Matrix:", matrix)
+          print("First row:", matrix[0])
+          print("Element [1][2]:", matrix[1][2])  # Row 1, Column 2
+
+          # List of mixed data
+          student = ["Alice", 25, ["Math", "Science", "History"]]
+          print("Student:", student)
+          print("Name:", student[0])
+          print("Courses:", student[2])
+          print("First course:", student[2][0])
+
+        output: |
+          Matrix: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+          First row: [1, 2, 3]
+          Element [1][2]: 6
+          Student: ['Alice', 25, ['Math', 'Science', 'History']]
+          Name: Alice
+          Courses: ['Math', 'Science', 'History']
+          First course: Math
+
+  exercise:
+    title: "List Manipulation"
+
+    instruction: |
+      Perform various list operations.
+
+      **Given:** numbers = [10, 20, 30, 40]
+
+      **Tasks:**
+      1. Append 50 to the list
+      2. Insert 15 at index 1
+      3. Remove 30 from the list
+      4. Store the final result in `result`
+
+    setup_code: |
+      numbers = [10, 20, 30, 40]
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = [10, 20, 30, 40]
+      result.append(50)
+      result.insert(1, 15)
+      result.remove(30)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          expected: [10, 15, 20, 40, 50]
+          type: "list"
+
+    hints:
+      - level: 1
+        text: |
+          Start with the given list and perform operations in order:
+          1. Use .append(50)
+          2. Use .insert(1, 15)
+          3. Use .remove(30)
+
+      - level: 2
+        text: |
+          result = [10, 20, 30, 40]
+          result.append(50)
+          result.insert(1, 15)
+          result.remove(30)
+
+      - level: 3
+        code: |
+          result = [10, 20, 30, 40]
+          result.append(50)
+          result.insert(1, 15)
+          result.remove(30)
+
+  follow_up:
+    challenges:
+      - "Sort a list in descending order"
+      - "Create a list of squares: [1, 4, 9, 16, 25]"
+      - "Find the maximum and minimum in a list"
+      - "Reverse a list using slicing [::-1]"
+
+    next_lesson: "python_04"
+
+    additional_resources:
+      - title: "Python Lists Documentation"
+        url: "https://docs.python.org/3/tutorial/datastructures.html#more-on-lists"

@@ -1,0 +1,393 @@
+lesson:
+  id: "sklearn_01"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Introduction to Machine Learning"
+  order: 1
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["python_07", "numpy_01", "pandas_02"]
+    learning_objectives:
+      - "Understand machine learning fundamentals"
+      - "Learn supervised vs unsupervised learning"
+      - "Understand the sklearn workflow"
+      - "Know classification vs regression problems"
+
+  content:
+    introduction: |
+      # Introduction to Machine Learning
+
+      Welcome to Machine Learning! Learn how to teach computers to make predictions
+      and discover patterns in data using scikit-learn (sklearn).
+
+      **What you'll learn:**
+      - What is Machine Learning?
+      - Types of ML problems
+      - The sklearn workflow
+      - Your first ML model
+
+    concept: |
+      ## Understanding Machine Learning
+
+      **1. What is Machine Learning?**
+
+      Teaching computers to learn from data without explicit programming:
+      - **Traditional Programming**: Rules → Computer → Answers
+      - **Machine Learning**: Data + Answers → Computer → Rules
+
+      **Example:**
+      - Traditional: "If temperature > 30°C, predict 'hot'"
+      - ML: Show 1000s of examples → Model learns patterns
+
+      **2. Types of Machine Learning**
+
+      **Supervised Learning** (we have labels/answers):
+      - **Classification**: Predict categories (spam/not spam, cat/dog)
+      - **Regression**: Predict numbers (house price, temperature)
+
+      **Unsupervised Learning** (no labels):
+      - **Clustering**: Group similar items
+      - **Dimensionality Reduction**: Simplify data
+
+      **3. The sklearn Workflow**
+
+      ```python
+      # 1. Prepare data
+      from sklearn.model_selection import train_test_split
+      X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+      # 2. Choose model
+      from sklearn.linear_model import LogisticRegression
+      model = LogisticRegression()
+
+      # 3. Train model
+      model.fit(X_train, y_train)
+
+      # 4. Make predictions
+      predictions = model.predict(X_test)
+
+      # 5. Evaluate
+      from sklearn.metrics import accuracy_score
+      accuracy = accuracy_score(y_test, predictions)
+      ```
+
+      **4. Key Concepts**
+
+      **Features (X)**: Input data, what we know
+      - Example: house size, bedrooms, location
+
+      **Target (y)**: What we want to predict
+      - Example: house price
+
+      **Training**: Model learns patterns from data
+
+      **Prediction**: Apply learned patterns to new data
+
+      **5. Classification vs Regression**
+
+      **Classification** (categorical output):
+      - Email: spam or not spam (2 classes)
+      - Digit recognition: 0-9 (10 classes)
+      - Iris species: setosa, versicolor, virginica
+
+      **Regression** (continuous output):
+      - Predict house price: $200,000
+      - Forecast temperature: 23.5°C
+      - Estimate sales: $45,231
+
+      **6. Common sklearn Models**
+
+      **Classification:**
+      - LogisticRegression
+      - DecisionTreeClassifier
+      - RandomForestClassifier
+      - SVC (Support Vector)
+
+      **Regression:**
+      - LinearRegression
+      - DecisionTreeRegressor
+      - RandomForestRegressor
+      - SVR (Support Vector)
+
+      **Why sklearn?**
+      - ✅ Consistent API across all models
+      - ✅ Well-documented and tested
+      - ✅ Built on NumPy/SciPy
+      - ✅ Industry standard
+
+    examples:
+      - title: "Problem Type Examples"
+        code: |
+          # Problem type identification
+
+          # 1. CLASSIFICATION (predict category)
+          problems_classification = [
+              "Is this email spam? (Yes/No)",
+              "What species is this iris? (setosa/versicolor/virginica)",
+              "Will customer buy? (True/False)",
+              "Handwritten digit recognition (0-9)"
+          ]
+
+          print("Classification Problems:")
+          for p in problems_classification:
+              print(f"  - {p}")
+
+          print("\n" + "="*50 + "\n")
+
+          # 2. REGRESSION (predict number)
+          problems_regression = [
+              "What will the house sell for? ($250,000)",
+              "How many units will sell? (1,234 units)",
+              "What will tomorrow's temperature be? (23.5°C)",
+              "What is the person's age? (45 years)"
+          ]
+
+          print("Regression Problems:")
+          for p in problems_regression:
+              print(f"  - {p}")
+
+        output: |
+          Classification Problems:
+            - Is this email spam? (Yes/No)
+            - What species is this iris? (setosa/versicolor/virginica)
+            - Will customer buy? (True/False)
+            - Handwritten digit recognition (0-9)
+
+          ==================================================
+
+          Regression Problems:
+            - What will the house sell for? ($250,000)
+            - How many units will sell? (1,234 units)
+            - What will tomorrow's temperature be? (23.5°C)
+            - What is the person's age? (45 years)
+
+      - title: "First Classification Example - Iris Dataset"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import train_test_split
+          from sklearn.neighbors import KNeighborsClassifier
+          from sklearn.metrics import accuracy_score
+
+          # Load famous iris dataset
+          iris = load_iris()
+          X = iris.data   # Features: sepal/petal measurements
+          y = iris.target # Target: species (0, 1, or 2)
+
+          print("Dataset shape:", X.shape)
+          print("Features:", iris.feature_names)
+          print("Classes:", iris.target_names)
+          print()
+
+          # Split data
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Create and train model
+          model = KNeighborsClassifier(n_neighbors=3)
+          model.fit(X_train, y_train)
+
+          # Make predictions
+          predictions = model.predict(X_test)
+
+          # Evaluate
+          accuracy = accuracy_score(y_test, predictions)
+          print(f"Model Accuracy: {accuracy:.2%}")
+
+        output: |
+          Dataset shape: (150, 4)
+          Features: ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']
+          Classes: ['setosa' 'versicolor' 'virginica']
+
+          Model Accuracy: 100.00%
+
+      - title: "First Regression Example - Boston Housing"
+        code: |
+          import numpy as np
+          from sklearn.model_selection import train_test_split
+          from sklearn.linear_model import LinearRegression
+          from sklearn.metrics import mean_squared_error, r2_score
+
+          # Create synthetic housing data
+          np.random.seed(42)
+          size = np.random.randint(500, 3500, 100)  # Square feet
+          bedrooms = np.random.randint(1, 6, 100)
+
+          # Price formula with some noise
+          price = 100000 + (size * 150) + (bedrooms * 20000) + np.random.normal(0, 50000, 100)
+
+          # Features and target
+          X = np.column_stack([size, bedrooms])
+          y = price
+
+          print("Dataset shape:", X.shape)
+          print("Sample features (size, bedrooms):", X[:3])
+          print("Sample prices:", y[:3])
+          print()
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+
+          # Predict
+          predictions = model.predict(X_test)
+
+          # Evaluate
+          r2 = r2_score(y_test, predictions)
+          print(f"R² Score: {r2:.3f}")
+          print(f"\nExample prediction:")
+          print(f"  House: {X_test[0]} (size, bedrooms)")
+          print(f"  Predicted: ${predictions[0]:,.0f}")
+          print(f"  Actual: ${y_test[0]:,.0f}")
+
+        output: |
+          Dataset shape: (100, 2)
+          Sample features (size, bedrooms): [[2732    4]
+           [1704    2]
+           [2665    4]]
+          Sample prices: [642339.86671244 341563.36969775 621816.22152189]
+
+          R² Score: 0.955
+
+          Example prediction:
+            House: [1993    2] (size, bedrooms)
+            Predicted: $431,088
+            Actual: $454,607
+
+      - title: "sklearn Consistent API"
+        code: |
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.ensemble import RandomForestClassifier
+          import numpy as np
+
+          # Create simple dataset
+          X = np.array([[1, 2], [2, 3], [3, 4], [4, 5]])
+          y = np.array([0, 0, 1, 1])
+
+          print("All sklearn models follow the same pattern:\n")
+
+          # Model 1
+          model1 = LogisticRegression()
+          model1.fit(X, y)
+          pred1 = model1.predict([[2.5, 3.5]])
+          print(f"LogisticRegression prediction: {pred1[0]}")
+
+          # Model 2
+          model2 = DecisionTreeClassifier()
+          model2.fit(X, y)
+          pred2 = model2.predict([[2.5, 3.5]])
+          print(f"DecisionTree prediction: {pred2[0]}")
+
+          # Model 3
+          model3 = RandomForestClassifier()
+          model3.fit(X, y)
+          pred3 = model3.predict([[2.5, 3.5]])
+          print(f"RandomForest prediction: {pred3[0]}")
+
+          print("\n→ Same .fit() and .predict() methods for all!")
+
+        output: |
+          All sklearn models follow the same pattern:
+
+          LogisticRegression prediction: 0
+          DecisionTree prediction: 0
+          RandomForest prediction: 0
+
+          → Same .fit() and .predict() methods for all!
+
+  exercise:
+    title: "Build Your First Classifier"
+
+    instruction: |
+      Create a simple classifier using the iris dataset.
+
+      **Tasks:**
+      1. Load iris dataset using load_iris()
+      2. Create X (features) and y (target) from iris.data and iris.target
+      3. Split data with train_test_split (test_size=0.3, random_state=42)
+      4. Create KNeighborsClassifier with n_neighbors=5
+      5. Train model with fit()
+      6. Calculate accuracy on test set, store in `accuracy`
+
+    setup_code: |
+      from sklearn.datasets import load_iris
+      from sklearn.model_selection import train_test_split
+      from sklearn.neighbors import KNeighborsClassifier
+      from sklearn.metrics import accuracy_score
+
+    starter_code: |
+      # Your code here
+      iris = load_iris()
+      X =
+      y =
+      X_train, X_test, y_train, y_test = train_test_split(...)
+      model =
+      # Train and evaluate
+      accuracy =
+
+    solution: |
+      iris = load_iris()
+      X = iris.data
+      y = iris.target
+      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+      model = KNeighborsClassifier(n_neighbors=5)
+      model.fit(X_train, y_train)
+      predictions = model.predict(X_test)
+      accuracy = accuracy_score(y_test, predictions)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "accuracy"
+          expected: 1.0
+          type: "float"
+
+    hints:
+      - level: 1
+        text: |
+          Load the iris dataset and extract data and target.
+          Use train_test_split with the correct parameters.
+          Create model, fit it, make predictions, and calculate accuracy.
+
+      - level: 2
+        text: |
+          X = iris.data
+          y = iris.target
+          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+          model = KNeighborsClassifier(n_neighbors=5)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+          accuracy = accuracy_score(y_test, predictions)
+
+      - level: 3
+        code: |
+          iris = load_iris()
+          X = iris.data
+          y = iris.target
+          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+          model = KNeighborsClassifier(n_neighbors=5)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+          accuracy = accuracy_score(y_test, predictions)
+
+  follow_up:
+    challenges:
+      - "Try different n_neighbors values (3, 5, 10)"
+      - "Use a different classifier (DecisionTreeClassifier)"
+      - "Change the test_size to 0.2 and compare results"
+      - "Print the first 5 predictions vs actual values"
+
+    next_lesson: "sklearn_02"
+
+    additional_resources:
+      - title: "Scikit-learn Documentation"
+        url: "https://scikit-learn.org/stable/getting_started.html"
+      - title: "Machine Learning Basics"
+        url: "https://scikit-learn.org/stable/tutorial/basic/tutorial.html"

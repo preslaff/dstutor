@@ -1,0 +1,370 @@
+lesson:
+  id: "pandas_12"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Time Series Basics"
+  order: 12
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_04"]
+    learning_objectives:
+      - "Work with DatetimeIndex in Pandas"
+      - "Create date ranges and time-based data"
+      - "Perform time-based indexing and slicing"
+      - "Resample time series data"
+
+  content:
+    introduction: |
+      # Time Series Basics
+
+      Time series data is everywhere - stock prices, weather, sales trends. Pandas makes
+      working with temporal data incredibly powerful and intuitive!
+
+      **What you'll learn:**
+      - DatetimeIndex for temporal data
+      - Creating date ranges
+      - Time-based slicing
+      - Resampling and frequency conversion
+
+    concept: |
+      ## Working with Time Series
+
+      **What is a Time Series?**
+      Data indexed by timestamps, allowing time-based operations and analysis.
+
+      **Key Components:**
+
+      **1. DatetimeIndex**
+      - Special index type for temporal data
+      - Enables time-based operations
+      - Created from datetime strings or pd.to_datetime()
+
+      **2. Date Ranges**
+      ```python
+      pd.date_range(start='2024-01-01', end='2024-01-10', freq='D')
+      ```
+      - `start` - Starting date
+      - `end` - Ending date (or use `periods` for count)
+      - `freq` - Frequency ('D'=day, 'W'=week, 'M'=month, 'H'=hour, etc.)
+
+      **3. Time-Based Indexing**
+      - Slice by date strings: `df['2024-01']`
+      - Range selection: `df['2024-01-01':'2024-01-31']`
+      - Partial matching works automatically
+
+      **4. Resampling**
+      - **Downsampling**: Reduce frequency (daily → monthly)
+      - **Upsampling**: Increase frequency (monthly → daily)
+      - Always specify aggregation for downsampling
+
+      **Common Frequencies:**
+      - `'D'` - Calendar day
+      - `'W'` - Weekly
+      - `'M'` - Month end
+      - `'MS'` - Month start
+      - `'Q'` - Quarter end
+      - `'Y'` - Year end
+      - `'H'` - Hourly
+      - `'T'` or `'min'` - Minutely
+
+    examples:
+      - title: "Creating DatetimeIndex"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # From date strings
+          dates = pd.to_datetime(['2024-01-01', '2024-01-02', '2024-01-03'])
+          sales = pd.Series([100, 120, 110], index=dates)
+
+          print("Time series with DatetimeIndex:")
+          print(sales)
+          print()
+          print(f"Index type: {type(sales.index)}")
+
+        output: |
+          Time series with DatetimeIndex:
+          2024-01-01    100
+          2024-01-02    120
+          2024-01-03    110
+          dtype: int64
+
+          Index type: <class 'pandas.core.indexes.datetimes.DatetimeIndex'>
+
+      - title: "Creating Date Ranges"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Daily dates for 7 days
+          daily = pd.date_range(start='2024-01-01', periods=7, freq='D')
+          print("Daily dates:")
+          print(daily)
+          print()
+
+          # Weekly dates
+          weekly = pd.date_range(start='2024-01-01', periods=4, freq='W')
+          print("Weekly dates:")
+          print(weekly)
+          print()
+
+          # Monthly dates
+          monthly = pd.date_range(start='2024-01-01', periods=6, freq='MS')
+          print("Monthly dates (month start):")
+          print(monthly)
+
+        output: |
+          Daily dates:
+          DatetimeIndex(['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04',
+                         '2024-01-05', '2024-01-06', '2024-01-07'],
+                        dtype='datetime64[ns]', freq='D')
+
+          Weekly dates:
+          DatetimeIndex(['2024-01-07', '2024-01-14', '2024-01-21', '2024-01-28'],
+                        dtype='datetime64[ns]', freq='W-SUN')
+
+          Monthly dates (month start):
+          DatetimeIndex(['2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01',
+                         '2024-05-01', '2024-06-01'],
+                        dtype='datetime64[ns]', freq='MS')
+
+      - title: "Time-Based Slicing"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create sample data
+          dates = pd.date_range('2024-01-01', periods=90, freq='D')
+          df = pd.DataFrame({
+              'Sales': np.random.randint(100, 200, size=90)
+          }, index=dates)
+
+          print("Full data shape:", df.shape)
+          print()
+
+          # Slice by month
+          january = df['2024-01']
+          print("January data:")
+          print(january.head())
+          print(f"January rows: {len(january)}")
+          print()
+
+          # Slice by date range
+          week1 = df['2024-01-01':'2024-01-07']
+          print("First week of January:")
+          print(week1)
+
+        output: |
+          Full data shape: (90, 1)
+
+          January data:
+                      Sales
+          2024-01-01    142
+          2024-01-02    167
+          2024-01-03    123
+          2024-01-04    189
+          2024-01-05    156
+
+          January rows: 31
+
+          First week of January:
+                      Sales
+          2024-01-01    142
+          2024-01-02    167
+          2024-01-03    123
+          2024-01-04    189
+          2024-01-05    156
+          2024-01-06    178
+          2024-01-07    134
+
+      - title: "Resampling - Downsampling"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Daily sales data
+          dates = pd.date_range('2024-01-01', periods=30, freq='D')
+          df = pd.DataFrame({
+              'Sales': np.random.randint(100, 200, size=30)
+          }, index=dates)
+
+          print("Daily data (first 7 days):")
+          print(df.head(7))
+          print()
+
+          # Resample to weekly (sum)
+          weekly = df.resample('W').sum()
+          print("Weekly totals:")
+          print(weekly)
+          print()
+
+          # Resample to weekly (mean)
+          weekly_avg = df.resample('W').mean()
+          print("Weekly averages:")
+          print(weekly_avg)
+
+        output: |
+          Daily data (first 7 days):
+                      Sales
+          2024-01-01    142
+          2024-01-02    167
+          2024-01-03    123
+          2024-01-04    189
+          2024-01-05    156
+          2024-01-06    178
+          2024-01-07    134
+
+          Weekly totals:
+                      Sales
+          2024-01-07    949
+          2024-01-14    987
+          2024-01-21   1023
+          2024-01-28   1056
+          2024-02-04    445
+
+          Weekly averages:
+                           Sales
+          2024-01-07  135.571429
+          2024-01-14  141.000000
+          2024-01-21  146.142857
+          2024-01-28  150.857143
+          2024-02-04  148.333333
+
+      - title: "Rolling Windows"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Daily stock prices
+          dates = pd.date_range('2024-01-01', periods=10, freq='D')
+          df = pd.DataFrame({
+              'Price': [100, 102, 98, 103, 105, 107, 104, 106, 108, 110]
+          }, index=dates)
+
+          print("Daily prices:")
+          print(df)
+          print()
+
+          # 3-day moving average
+          df['MA_3'] = df['Price'].rolling(window=3).mean()
+
+          print("With 3-day moving average:")
+          print(df)
+          print()
+
+          # 3-day rolling sum
+          df['Sum_3'] = df['Price'].rolling(window=3).sum()
+          print("With 3-day rolling sum:")
+          print(df[['Price', 'Sum_3']])
+
+        output: |
+          Daily prices:
+                      Price
+          2024-01-01    100
+          2024-01-02    102
+          2024-01-03     98
+          2024-01-04    103
+          2024-01-05    105
+          2024-01-06    107
+          2024-01-07    104
+          2024-01-08    106
+          2024-01-09    108
+          2024-01-10    110
+
+          With 3-day moving average:
+                      Price       MA_3
+          2024-01-01    100        NaN
+          2024-01-02    102        NaN
+          2024-01-03     98  100.000000
+          2024-01-04    103  101.000000
+          2024-01-05    105  102.000000
+          2024-01-06    107  105.000000
+          2024-01-07    104  105.333333
+          2024-01-08    106  105.666667
+          2024-01-09    108  106.000000
+          2024-01-10    110  108.000000
+
+          With 3-day rolling sum:
+                      Price  Sum_3
+          2024-01-01    100    NaN
+          2024-01-02    102    NaN
+          2024-01-03     98  300.0
+          2024-01-04    103  303.0
+          2024-01-05    105  306.0
+          2024-01-06    107  315.0
+          2024-01-07    104  316.0
+          2024-01-08    106  317.0
+          2024-01-09    108  318.0
+          2024-01-10    110  324.0
+
+  exercise:
+    title: "Resample Daily to Weekly Sales"
+
+    instruction: |
+      You have daily sales data for January 2024.
+
+      **Task:** Resample to weekly frequency and calculate the total sales per week.
+
+      **Requirements:**
+      - Use `.resample('W')` to group by week
+      - Apply `.sum()` to get weekly totals
+      - Store result in `result`
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      # Daily sales data
+      dates = pd.date_range('2024-01-01', periods=31, freq='D')
+      df = pd.DataFrame({
+          'Sales': [120, 135, 145, 130, 125, 140, 155,
+                    160, 150, 145, 170, 165, 155, 160,
+                    175, 180, 170, 165, 185, 190, 195,
+                    180, 175, 200, 205, 195, 190, 210,
+                    215, 205, 200]
+      }, index=dates)
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.resample('W').sum()
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [5, 1]
+        - type: "index_type"
+          expected: "DatetimeIndex"
+
+    hints:
+      - level: 1
+        text: |
+          Use df.resample('W') to group by week, then apply an aggregation
+          function like sum() to get weekly totals.
+
+      - level: 2
+        text: |
+          The pattern is: df.resample('frequency').aggregation()
+          For weekly totals: df.resample('W').sum()
+
+      - level: 3
+        code: |
+          result = df.resample('W').sum()
+
+  follow_up:
+    challenges:
+      - "Resample to monthly frequency"
+      - "Calculate 7-day rolling average"
+      - "Slice data for specific date range"
+      - "Create hourly time series data"
+
+    next_lesson: "pandas_13"
+
+    additional_resources:
+      - title: "Pandas Time Series Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/timeseries.html"

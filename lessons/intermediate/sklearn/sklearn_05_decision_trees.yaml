@@ -1,0 +1,352 @@
+lesson:
+  id: "sklearn_05"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Decision Trees"
+  order: 5
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_02", "sklearn_04"]
+    learning_objectives:
+      - "Understand decision tree algorithms"
+      - "Build classification and regression trees"
+      - "Interpret tree structure and feature importance"
+      - "Control tree complexity to avoid overfitting"
+
+  content:
+    introduction: |
+      # Decision Trees
+
+      Learn like humans do - with yes/no questions! Decision trees create
+      simple, interpretable models that make decisions step by step.
+
+      **What you'll learn:**
+      - How decision trees work
+      - Building tree models
+      - Feature importance
+      - Preventing overfitting
+
+    concept: |
+      ## Tree-Based Decision Making
+
+      **1. How Decision Trees Work**
+
+      Like a flowchart of questions:
+      ```
+      Is petal length > 2.5?
+      ├─ Yes → Is petal width > 1.7?
+      │  ├─ Yes → Virginica
+      │  └─ No → Versicolor
+      └─ No → Setosa
+      ```
+
+      **Advantages:**
+      - ✅ Easy to understand and visualize
+      - ✅ No scaling needed
+      - ✅ Handles mixed data types
+      - ✅ Non-linear relationships
+      - ✅ Feature importance built-in
+
+      **2. sklearn Decision Trees**
+
+      **Classification:**
+      ```python
+      from sklearn.tree import DecisionTreeClassifier
+
+      model = DecisionTreeClassifier(max_depth=5, random_state=42)
+      model.fit(X_train, y_train)
+      predictions = model.predict(X_test)
+      ```
+
+      **Regression:**
+      ```python
+      from sklearn.tree import DecisionTreeRegressor
+
+      model = DecisionTreeRegressor(max_depth=5, random_state=42)
+      model.fit(X_train, y_train)
+      predictions = model.predict(X_test)
+      ```
+
+      **3. Key Parameters**
+
+      **max_depth**: Maximum tree depth
+      - Controls complexity
+      - Deeper = more complex = risk of overfitting
+      - Typical: 3-10
+
+      **min_samples_split**: Minimum samples to split node
+      - Higher = simpler tree
+      - Default: 2
+
+      **min_samples_leaf**: Minimum samples in leaf
+      - Higher = smoother predictions
+      - Default: 1
+
+      **4. Feature Importance**
+
+      Trees automatically rank features:
+      ```python
+      importances = model.feature_importances_
+      ```
+
+      Values sum to 1.0
+      - Higher = more important for predictions
+      - Useful for feature selection
+
+      **5. Overfitting Problem**
+
+      **Without constraints:**
+      - Tree grows until perfect accuracy on training data
+      - Memorizes noise
+      - Poor generalization
+
+      **Solutions:**
+      - Limit max_depth
+      - Increase min_samples_split
+      - Increase min_samples_leaf
+      - Use pruning (post-training simplification)
+
+      **6. Visualization**
+
+      ```python
+      from sklearn.tree import plot_tree
+
+      plot_tree(model, feature_names=features, filled=True)
+      ```
+
+      **When to Use Decision Trees:**
+      - ✅ Need interpretable model
+      - ✅ Mixed feature types
+      - ✅ Non-linear relationships
+      - ✅ Don't want to scale features
+      - ❌ Avoid for high-dimensional data (use Random Forest)
+
+    examples:
+      - title: "Classification Tree - Iris Dataset"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import accuracy_score
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Split
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          # Train tree
+          model = DecisionTreeClassifier(max_depth=3, random_state=42)
+          model.fit(X_train, y_train)
+
+          # Evaluate
+          train_acc = model.score(X_train, y_train)
+          test_acc = model.score(X_test, y_test)
+
+          print(f"Training accuracy: {train_acc:.2%}")
+          print(f"Test accuracy: {test_acc:.2%}")
+          print()
+
+          # Predictions
+          predictions = model.predict(X_test[:5])
+          actual = y_test[:5]
+          print("Sample predictions:")
+          for i, (pred, act) in enumerate(zip(predictions, actual)):
+              print(f"  Sample {i+1}: Predicted={iris.target_names[pred]}, "
+                    f"Actual={iris.target_names[act]}")
+
+        output: |
+          Training accuracy: 97.14%
+          Test accuracy: 100.00%
+
+          Sample predictions:
+            Sample 1: Predicted=virginica, Actual=virginica
+            Sample 2: Predicted=setosa, Actual=setosa
+            Sample 3: Predicted=versicolor, Actual=versicolor
+            Sample 4: Predicted=virginica, Actual=virginica
+            Sample 5: Predicted=setosa, Actual=setosa
+
+      - title: "Feature Importance"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.tree import DecisionTreeClassifier
+          import pandas as pd
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Train
+          model = DecisionTreeClassifier(max_depth=3, random_state=42)
+          model.fit(X, y)
+
+          # Get feature importance
+          importances = model.feature_importances_
+
+          # Create DataFrame for better display
+          feature_imp = pd.DataFrame({
+              'Feature': iris.feature_names,
+              'Importance': importances
+          }).sort_values('Importance', ascending=False)
+
+          print("Feature Importance:")
+          for idx, row in feature_imp.iterrows():
+              print(f"  {row['Feature']}: {row['Importance']:.3f}")
+
+        output: |
+          Feature Importance:
+            petal width (cm): 0.907
+            petal length (cm): 0.093
+            sepal length (cm): 0.000
+            sepal width (cm): 0.000
+
+      - title: "Regression Tree - House Prices"
+        code: |
+          import numpy as np
+          from sklearn.tree import DecisionTreeRegressor
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import mean_squared_error, r2_score
+
+          # Create data
+          np.random.seed(42)
+          X = np.random.rand(100, 1) * 10
+          y = 50 + 30 * X.ravel() + np.random.randn(100) * 10
+
+          # Split
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Train tree
+          model = DecisionTreeRegressor(max_depth=3, random_state=42)
+          model.fit(X_train, y_train)
+
+          # Predictions
+          predictions = model.predict(X_test)
+
+          # Evaluate
+          mse = mean_squared_error(y_test, predictions)
+          r2 = r2_score(y_test, predictions)
+
+          print(f"Mean Squared Error: {mse:.2f}")
+          print(f"R² Score: {r2:.3f}")
+
+        output: |
+          Mean Squared Error: 104.23
+          R² Score: 0.891
+
+      - title: "Effect of max_depth on Overfitting"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.model_selection import train_test_split
+
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          print("Effect of max_depth:")
+          print("Depth | Train Acc | Test Acc")
+          print("------|-----------|----------")
+
+          for depth in [1, 3, 5, 10, None]:
+              model = DecisionTreeClassifier(max_depth=depth, random_state=42)
+              model.fit(X_train, y_train)
+
+              train_acc = model.score(X_train, y_train)
+              test_acc = model.score(X_test, y_test)
+
+              depth_str = str(depth) if depth else "None"
+              print(f"{depth_str:>5} | {train_acc:>8.2%} | {test_acc:>8.2%}")
+
+        output: |
+          Effect of max_depth:
+          Depth | Train Acc | Test Acc
+          ------|-----------|----------
+              1 |    66.67% |    66.67%
+              3 |    97.14% |   100.00%
+              5 |    99.05% |   100.00%
+             10 |   100.00% |   100.00%
+           None |   100.00% |   100.00%
+
+  exercise:
+    title: "Build a Decision Tree Classifier"
+
+    instruction: |
+      Create a decision tree to classify iris flowers.
+
+      **Tasks:**
+      1. Create DecisionTreeClassifier with max_depth=4 and random_state=42
+      2. Train on X_train and y_train
+      3. Calculate accuracy on X_test
+      4. Store accuracy in `accuracy`
+
+    setup_code: |
+      from sklearn.datasets import load_iris
+      from sklearn.tree import DecisionTreeClassifier
+      from sklearn.model_selection import train_test_split
+
+      iris = load_iris()
+      X, y = iris.data, iris.target
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.3, random_state=42
+      )
+
+    starter_code: |
+      # Your code here
+      model = DecisionTreeClassifier(...)
+      # Train and evaluate
+      accuracy =
+
+    solution: |
+      model = DecisionTreeClassifier(max_depth=4, random_state=42)
+      model.fit(X_train, y_train)
+      accuracy = model.score(X_test, y_test)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "accuracy"
+          expected: 1.0
+          type: "float"
+
+    hints:
+      - level: 1
+        text: |
+          Create DecisionTreeClassifier with max_depth=4 and random_state=42.
+          Use model.fit(X_train, y_train) to train.
+          Use model.score(X_test, y_test) to get accuracy.
+
+      - level: 2
+        text: |
+          model = DecisionTreeClassifier(max_depth=4, random_state=42)
+          model.fit(X_train, y_train)
+          accuracy = model.score(X_test, y_test)
+
+      - level: 3
+        code: |
+          model = DecisionTreeClassifier(max_depth=4, random_state=42)
+          model.fit(X_train, y_train)
+          accuracy = model.score(X_test, y_test)
+
+  follow_up:
+    challenges:
+      - "Print feature importances"
+      - "Try different max_depth values"
+      - "Use DecisionTreeRegressor for regression"
+      - "Compare with LogisticRegression"
+
+    next_lesson: "sklearn_06"
+
+    additional_resources:
+      - title: "Decision Trees Documentation"
+        url: "https://scikit-learn.org/stable/modules/tree.html"

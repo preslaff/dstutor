@@ -1,0 +1,237 @@
+lesson:
+  id: "pandas_04"
+  level: "beginner"
+  topic: "pandas"
+  subtopic: "Loading and Saving Data"
+  order: 4
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["pandas_02"]
+    learning_objectives:
+      - "Load data from CSV files"
+      - "Inspect loaded data"
+      - "Save DataFrames to files"
+      - "Handle common loading issues"
+
+  content:
+    introduction: |
+      # Loading and Saving Data
+
+      Real data science starts with loading real data! Learn to work with CSV files
+      and other data formats.
+
+      **What you'll learn:**
+      - Read CSV files into DataFrames
+      - Inspect and validate loaded data
+      - Save DataFrames to CSV
+      - Handle common data loading issues
+
+    concept: |
+      ## Reading Data Files
+
+      **CSV Files (Most Common):**
+      - `pd.read_csv('file.csv')` - Read CSV
+      - `df.to_csv('file.csv')` - Write CSV
+
+      **Other Formats:**
+      - `pd.read_excel('file.xlsx')` - Excel files
+      - `pd.read_json('file.json')` - JSON files
+      - `pd.read_sql(query, connection)` - SQL databases
+
+      **Key Parameters for read_csv():**
+      - `sep` or `delimiter` - Column separator (default: ',')
+      - `header` - Row number for column names (default: 0)
+      - `index_col` - Column to use as row index
+      - `usecols` - Select specific columns
+      - `nrows` - Read only first N rows
+      - `skiprows` - Skip rows at the start
+
+      **Best Practices:**
+      1. Always inspect data after loading
+      2. Check data types and missing values
+      3. Validate expected shape
+      4. Look at both head() and tail()
+
+    examples:
+      - title: "Reading CSV Files"
+        code: |
+          import pandas as pd
+
+          # Basic CSV read (we'll create a sample)
+          import io
+
+          csv_data = """Name,Age,City,Salary
+          Alice,25,NYC,70000
+          Bob,30,LA,80000
+          Charlie,35,Chicago,90000"""
+
+          # Read from string (simulating file)
+          df = pd.read_csv(io.StringIO(csv_data))
+
+          print("Loaded DataFrame:")
+          print(df)
+          print()
+
+          # Check shape and info
+          print("Shape:", df.shape)
+          print("\nData types:")
+          print(df.dtypes)
+          print("\nFirst 2 rows:")
+          print(df.head(2))
+
+        output: |
+          Loaded DataFrame:
+                  Name  Age     City  Salary
+          0     Alice   25      NYC   70000
+          1       Bob   30       LA   80000
+          2   Charlie   35  Chicago   90000
+
+          Shape: (3, 4)
+
+          Data types:
+          Name      object
+          Age        int64
+          City      object
+          Salary     int64
+          dtype: object
+
+          First 2 rows:
+               Name  Age City  Salary
+          0  Alice   25  NYC   70000
+          1    Bob   30   LA   80000
+
+      - title: "Common Loading Parameters"
+        code: |
+          import pandas as pd
+          import io
+
+          # CSV with custom separator
+          tsv_data = "Name\tAge\tCity\nAlice\t25\tNYC\nBob\t30\tLA"
+          df_tsv = pd.read_csv(io.StringIO(tsv_data), sep='\t')
+          print("Tab-separated:")
+          print(df_tsv)
+          print()
+
+          # Set index column
+          csv_data = "ID,Name,Score\n1,Alice,85\n2,Bob,92"
+          df_indexed = pd.read_csv(io.StringIO(csv_data), index_col='ID')
+          print("With custom index:")
+          print(df_indexed)
+          print()
+
+          # Read specific columns
+          df_subset = pd.read_csv(io.StringIO(csv_data),
+                                   usecols=['Name', 'Score'])
+          print("Selected columns only:")
+          print(df_subset)
+
+        output: |
+          Tab-separated:
+               Name  Age City
+          0  Alice   25  NYC
+          1    Bob   30   LA
+
+          With custom index:
+                Name  Score
+          ID
+          1    Alice     85
+          2      Bob     92
+
+          Selected columns only:
+               Name  Score
+          0  Alice     85
+          1    Bob     92
+
+      - title: "Saving DataFrames"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['Laptop', 'Mouse'],
+              'Price': [999, 25]
+          })
+
+          # Save to CSV (simulated)
+          csv_string = df.to_csv(index=False)
+          print("CSV output:")
+          print(csv_string)
+
+          # Save with custom separator
+          tsv_string = df.to_csv(sep='\t', index=False)
+          print("TSV output:")
+          print(tsv_string)
+
+        output: |
+          CSV output:
+          Product,Price
+          Laptop,999
+          Mouse,25
+
+          TSV output:
+          Product	Price
+          Laptop	999
+          Mouse	25
+
+  exercise:
+    title: "Load CSV Data"
+
+    instruction: |
+      You're given CSV data as a string. Load it into a DataFrame.
+
+      The data has columns: Name, Department, Salary
+
+      After loading, verify:
+      - Shape should be (4, 3)
+      - Column names correct
+
+    setup_code: |
+      import pandas as pd
+      import io
+
+      csv_data = """Name,Department,Salary
+      Emma,Engineering,85000
+      Liam,Marketing,65000
+      Olivia,Engineering,90000
+      Noah,Sales,70000"""
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = pd.read_csv(io.StringIO(csv_data))
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [4, 3]
+        - type: "columns"
+          expected: ['Name', 'Department', 'Salary']
+
+    hints:
+      - level: 1
+        text: |
+          Use pd.read_csv() with io.StringIO(csv_data) to read from the string.
+
+      - level: 2
+        text: |
+          result = pd.read_csv(io.StringIO(csv_data))
+
+      - level: 3
+        code: |
+          result = pd.read_csv(io.StringIO(csv_data))
+
+  follow_up:
+    challenges:
+      - "Save a DataFrame to CSV without the index"
+      - "Load only the Name and Salary columns"
+      - "Skip the first row when loading"
+
+    next_lesson: "pandas_05"
+
+    additional_resources:
+      - title: "Pandas IO Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/io.html"

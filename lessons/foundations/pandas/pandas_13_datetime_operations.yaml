@@ -1,0 +1,375 @@
+lesson:
+  id: "pandas_13"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "DateTime Operations"
+  order: 13
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_12"]
+    learning_objectives:
+      - "Parse dates from strings with pd.to_datetime()"
+      - "Extract date components using .dt accessor"
+      - "Perform date arithmetic with timedeltas"
+      - "Work with date formatting and parsing"
+
+  content:
+    introduction: |
+      # DateTime Operations
+
+      Master the art of date manipulation! Learn to parse, extract, calculate, and
+      format dates like a pro.
+
+      **What you'll learn:**
+      - Converting strings to datetime
+      - Extracting date components
+      - Date arithmetic
+      - Custom date formats
+
+    concept: |
+      ## DateTime Manipulation
+
+      **1. Parsing Dates - pd.to_datetime()**
+
+      Convert strings to datetime objects:
+      ```python
+      pd.to_datetime('2024-01-15')
+      pd.to_datetime(['2024-01-01', '2024-02-01'])
+      ```
+
+      **Common Parameters:**
+      - `format` - Specify date format (e.g., '%Y-%m-%d')
+      - `errors='coerce'` - Convert invalid dates to NaT (Not a Time)
+      - `dayfirst=True` - Interpret dates as day-first (European format)
+
+      **2. The .dt Accessor**
+
+      Access datetime properties on Series:
+      ```python
+      df['date'].dt.year        # Year
+      df['date'].dt.month       # Month (1-12)
+      df['date'].dt.day         # Day of month
+      df['date'].dt.dayofweek   # Day of week (0=Monday, 6=Sunday)
+      df['date'].dt.hour        # Hour
+      df['date'].dt.minute      # Minute
+      ```
+
+      **3. Date Arithmetic**
+
+      Add or subtract time periods:
+      ```python
+      # Add days
+      df['date'] + pd.Timedelta(days=7)
+
+      # Subtract weeks
+      df['date'] - pd.Timedelta(weeks=2)
+
+      # Add months (use DateOffset)
+      df['date'] + pd.DateOffset(months=1)
+      ```
+
+      **4. Date Formatting**
+
+      Convert datetime to custom string format:
+      ```python
+      df['date'].dt.strftime('%Y-%m-%d')
+      df['date'].dt.strftime('%B %d, %Y')  # January 15, 2024
+      ```
+
+      **Common Format Codes:**
+      - `%Y` - 4-digit year (2024)
+      - `%m` - Month as number (01-12)
+      - `%d` - Day of month (01-31)
+      - `%B` - Full month name (January)
+      - `%A` - Full day name (Monday)
+      - `%H` - Hour (00-23)
+      - `%M` - Minute (00-59)
+
+    examples:
+      - title: "Parsing Dates from Strings"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'date_str': ['2024-01-15', '2024-02-20', '2024-03-10'],
+              'sales': [100, 150, 120]
+          })
+
+          print("Original (string dates):")
+          print(df)
+          print(f"\ndate_str dtype: {df['date_str'].dtype}")
+          print()
+
+          # Convert to datetime
+          df['date'] = pd.to_datetime(df['date_str'])
+
+          print("After conversion:")
+          print(df)
+          print(f"\ndate dtype: {df['date'].dtype}")
+
+        output: |
+          Original (string dates):
+                date_str  sales
+          0  2024-01-15    100
+          1  2024-02-20    150
+          2  2024-03-10    120
+
+          date_str dtype: object
+
+          After conversion:
+                date_str  sales       date
+          0  2024-01-15    100 2024-01-15
+          1  2024-02-20    150 2024-02-20
+          2  2024-03-10    120 2024-03-10
+
+          date dtype: datetime64[ns]
+
+      - title: "Extracting Date Components"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'date': pd.to_datetime(['2024-01-15', '2024-02-20', '2024-03-10'])
+          })
+
+          print("Original dates:")
+          print(df)
+          print()
+
+          # Extract components
+          df['year'] = df['date'].dt.year
+          df['month'] = df['date'].dt.month
+          df['day'] = df['date'].dt.day
+          df['dayofweek'] = df['date'].dt.dayofweek
+          df['day_name'] = df['date'].dt.day_name()
+          df['month_name'] = df['date'].dt.month_name()
+
+          print("With extracted components:")
+          print(df)
+
+        output: |
+          Original dates:
+                  date
+          0 2024-01-15
+          1 2024-02-20
+          2 2024-03-10
+
+          With extracted components:
+                  date  year  month  day  dayofweek   day_name month_name
+          0 2024-01-15  2024      1   15          0     Monday    January
+          1 2024-02-20  2024      2   20          1    Tuesday   February
+          2 2024-03-10  2024      3   10          6     Sunday      March
+
+      - title: "Date Arithmetic with Timedelta"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'order_date': pd.to_datetime(['2024-01-15', '2024-01-20', '2024-01-25'])
+          })
+
+          print("Original order dates:")
+          print(df)
+          print()
+
+          # Add 7 days for delivery
+          df['delivery_date'] = df['order_date'] + pd.Timedelta(days=7)
+
+          print("With delivery dates (+7 days):")
+          print(df)
+          print()
+
+          # Calculate days until end of month (Jan 31)
+          end_of_month = pd.Timestamp('2024-01-31')
+          df['days_remaining'] = (end_of_month - df['order_date']).dt.days
+
+          print("Days until end of month:")
+          print(df[['order_date', 'days_remaining']])
+
+        output: |
+          Original order dates:
+            order_date
+          0 2024-01-15
+          1 2024-01-20
+          2 2024-01-25
+
+          With delivery dates (+7 days):
+            order_date delivery_date
+          0 2024-01-15    2024-01-22
+          1 2024-01-20    2024-01-27
+          2 2024-01-25    2024-02-01
+
+          Days until end of month:
+            order_date  days_remaining
+          0 2024-01-15              16
+          1 2024-01-20              11
+          2 2024-01-25               6
+
+      - title: "Custom Date Formats"
+        code: |
+          import pandas as pd
+
+          # Parse custom format
+          df = pd.DataFrame({
+              'date_str': ['15/01/2024', '20/02/2024', '10/03/2024']
+          })
+
+          print("Original strings (DD/MM/YYYY):")
+          print(df)
+          print()
+
+          # Parse with dayfirst=True
+          df['date'] = pd.to_datetime(df['date_str'], dayfirst=True)
+
+          print("Parsed dates:")
+          print(df)
+          print()
+
+          # Format as different string
+          df['formatted'] = df['date'].dt.strftime('%B %d, %Y')
+
+          print("Custom formatted:")
+          print(df[['date', 'formatted']])
+
+        output: |
+          Original strings (DD/MM/YYYY):
+              date_str
+          0  15/01/2024
+          1  20/02/2024
+          2  10/03/2024
+
+          Parsed dates:
+              date_str       date
+          0  15/01/2024 2024-01-15
+          1  20/02/2024 2024-02-20
+          2  10/03/2024 2024-03-10
+
+          Custom formatted:
+                  date        formatted
+          0 2024-01-15  January 15, 2024
+          1 2024-02-20 February 20, 2024
+          2 2024-03-10    March 10, 2024
+
+      - title: "Handling Invalid Dates"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'date_str': ['2024-01-15', 'invalid', '2024-03-10', 'not a date']
+          })
+
+          print("Original (with invalid dates):")
+          print(df)
+          print()
+
+          # Parse with errors='coerce' (converts invalid to NaT)
+          df['date'] = pd.to_datetime(df['date_str'], errors='coerce')
+
+          print("After parsing (invalid → NaT):")
+          print(df)
+          print()
+
+          # Check for missing dates
+          print(f"Missing dates: {df['date'].isna().sum()}")
+
+          # Filter valid dates only
+          valid_dates = df[df['date'].notna()]
+          print("\nValid dates only:")
+          print(valid_dates)
+
+        output: |
+          Original (with invalid dates):
+              date_str
+          0  2024-01-15
+          1     invalid
+          2  2024-03-10
+          3  not a date
+
+          After parsing (invalid → NaT):
+              date_str       date
+          0  2024-01-15 2024-01-15
+          1     invalid        NaT
+          2  2024-03-10 2024-03-10
+          3  not a date        NaT
+
+          Missing dates: 2
+
+          Valid dates only:
+              date_str       date
+          0  2024-01-15 2024-01-15
+          2  2024-03-10 2024-03-10
+
+  exercise:
+    title: "Calculate Days Until Deadline"
+
+    instruction: |
+      You have project data with start dates as strings.
+
+      **Tasks:**
+      1. Convert 'start_date' column to datetime
+      2. Add 30 days to get 'deadline' date
+      3. Calculate days between start_date and deadline, store in 'duration_days'
+
+      Store the DataFrame with all columns in `result`.
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'project': ['A', 'B', 'C'],
+          'start_date': ['2024-01-15', '2024-02-01', '2024-03-10']
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.copy()
+      result['start_date'] = pd.to_datetime(result['start_date'])
+      result['deadline'] = result['start_date'] + pd.Timedelta(days=30)
+      result['duration_days'] = (result['deadline'] - result['start_date']).dt.days
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "columns"
+          expected: ['project', 'start_date', 'deadline', 'duration_days']
+        - type: "shape"
+          expected: [3, 4]
+
+    hints:
+      - level: 1
+        text: |
+          Use pd.to_datetime() to convert strings to datetime.
+          Add pd.Timedelta(days=30) to create deadline.
+          Subtract dates and use .dt.days to get day count.
+
+      - level: 2
+        text: |
+          result = df.copy()
+          result['start_date'] = pd.to_datetime(result['start_date'])
+          result['deadline'] = result['start_date'] + pd.Timedelta(days=30)
+          result['duration_days'] = (result['deadline'] - result['start_date']).dt.days
+
+      - level: 3
+        code: |
+          result = df.copy()
+          result['start_date'] = pd.to_datetime(result['start_date'])
+          result['deadline'] = result['start_date'] + pd.Timedelta(days=30)
+          result['duration_days'] = (result['deadline'] - result['start_date']).dt.days
+
+  follow_up:
+    challenges:
+      - "Extract year and month from dates"
+      - "Format dates as 'Day, Month DD, YYYY'"
+      - "Calculate age in years from birthdate"
+      - "Find all orders from Mondays"
+
+    next_lesson: "pandas_14"
+
+    additional_resources:
+      - title: "Pandas DateTime Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/timeseries.html"

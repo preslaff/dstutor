@@ -1,0 +1,367 @@
+lesson:
+  id: "sklearn_02"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Train-Test Split"
+  order: 2
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_01", "numpy_01", "pandas_02"]
+    learning_objectives:
+      - "Understand why we split data"
+      - "Use train_test_split correctly"
+      - "Avoid data leakage"
+      - "Understand stratification for imbalanced data"
+
+  content:
+    introduction: |
+      # Train-Test Split
+
+      Never test on your training data! Learn the fundamental practice of
+      splitting data to properly evaluate machine learning models.
+
+      **What you'll learn:**
+      - Why splitting data is critical
+      - Using train_test_split()
+      - Stratification for balanced splits
+      - Common pitfalls to avoid
+
+    concept: |
+      ## Evaluating Models Properly
+
+      **1. Why Split Data?**
+
+      **The Problem:**
+      If you train and test on the same data, the model just memorizes!
+
+      **The Solution:**
+      - **Training Set** (70-80%): Model learns from this
+      - **Test Set** (20-30%): Model evaluated on this (never seen before!)
+
+      Think of it like studying:
+      - Training = Practice problems
+      - Testing = Final exam (different questions!)
+
+      **2. Basic train_test_split()**
+
+      ```python
+      from sklearn.model_selection import train_test_split
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y,
+          test_size=0.2,      # 20% for testing
+          random_state=42     # Reproducible results
+      )
+      ```
+
+      **Parameters:**
+      - `test_size`: Fraction for test set (0.2 = 20%)
+      - `train_size`: Alternative to test_size
+      - `random_state`: Seed for reproducibility
+      - `shuffle`: Whether to shuffle (default True)
+      - `stratify`: Keep class proportions (for classification)
+
+      **3. The Workflow**
+
+      ```python
+      # 1. Split FIRST
+      X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+      # 2. Fit on training data ONLY
+      model.fit(X_train, y_train)
+
+      # 3. Evaluate on test data
+      score = model.score(X_test, y_test)
+      ```
+
+      **4. Stratified Split**
+
+      For classification with imbalanced classes:
+
+      ```python
+      # Class distribution: 90% class A, 10% class B
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y,
+          test_size=0.2,
+          stratify=y,  # Keeps same ratio in both sets
+          random_state=42
+      )
+      ```
+
+      **5. Common Mistakes**
+
+      ❌ **Fitting on all data:**
+      ```python
+      scaler.fit(X)  # WRONG - using test data!
+      X_scaled = scaler.transform(X)
+      X_train, X_test = train_test_split(X_scaled)
+      ```
+
+      ✅ **Fit on training only:**
+      ```python
+      X_train, X_test = train_test_split(X)
+      scaler.fit(X_train)  # RIGHT - only training data
+      X_train = scaler.transform(X_train)
+      X_test = scaler.transform(X_test)
+      ```
+
+      **6. Train-Validation-Test Split**
+
+      For hyperparameter tuning:
+      - **Training**: Model learns
+      - **Validation**: Tune hyperparameters
+      - **Test**: Final evaluation (untouched until end!)
+
+      ```python
+      # Split into train+val and test
+      X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=0.2)
+
+      # Split train+val into train and val
+      X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.25)
+
+      # Result: 60% train, 20% val, 20% test
+      ```
+
+      **Best Practices:**
+      - ✅ Always use random_state for reproducibility
+      - ✅ Split before any preprocessing
+      - ✅ Use stratify for classification
+      - ✅ Typical splits: 80/20 or 70/30
+      - ✅ Never touch test set until final evaluation
+
+    examples:
+      - title: "Basic Train-Test Split"
+        code: |
+          from sklearn.model_selection import train_test_split
+          import numpy as np
+
+          # Create sample data
+          X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10],
+                        [11, 12], [13, 14], [15, 16], [17, 18], [19, 20]])
+          y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+
+          print("Original data shape:", X.shape)
+          print("Original labels:", y)
+          print()
+
+          # Split 80/20
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          print("Training set shape:", X_train.shape)
+          print("Test set shape:", X_test.shape)
+          print()
+          print("Training labels:", y_train)
+          print("Test labels:", y_test)
+
+        output: |
+          Original data shape: (10, 2)
+          Original labels: [0 0 0 0 0 1 1 1 1 1]
+
+          Training set shape: (8, 2)
+          Test set shape: (2, 2)
+
+          Training labels: [1 0 0 0 1 1 0 0]
+          Test labels: [1 0]
+
+      - title: "Stratified Split for Imbalanced Data"
+        code: |
+          from sklearn.model_selection import train_test_split
+          import numpy as np
+
+          # Imbalanced dataset: 80% class 0, 20% class 1
+          X = np.arange(100).reshape(100, 1)
+          y = np.array([0]*80 + [1]*20)
+
+          print("Original class distribution:")
+          print(f"  Class 0: {sum(y==0)} ({sum(y==0)/len(y)*100:.0f}%)")
+          print(f"  Class 1: {sum(y==1)} ({sum(y==1)/len(y)*100:.0f}%)")
+          print()
+
+          # WITHOUT stratification
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          print("Without stratify - Test set:")
+          print(f"  Class 0: {sum(y_test==0)} ({sum(y_test==0)/len(y_test)*100:.0f}%)")
+          print(f"  Class 1: {sum(y_test==1)} ({sum(y_test==1)/len(y_test)*100:.0f}%)")
+          print()
+
+          # WITH stratification
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, stratify=y, random_state=42
+          )
+
+          print("With stratify - Test set:")
+          print(f"  Class 0: {sum(y_test==0)} ({sum(y_test==0)/len(y_test)*100:.0f}%)")
+          print(f"  Class 1: {sum(y_test==1)} ({sum(y_test==1)/len(y_test)*100:.0f}%)")
+
+        output: |
+          Original class distribution:
+            Class 0: 80 (80%)
+            Class 1: 20 (20%)
+
+          Without stratify - Test set:
+            Class 0: 18 (90%)
+            Class 1: 2 (10%)
+
+          With stratify - Test set:
+            Class 0: 16 (80%)
+            Class 1: 4 (20%)
+
+      - title: "Complete Workflow Example"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import train_test_split
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.metrics import accuracy_score
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          print("Step 1: Split data")
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+          print(f"  Training samples: {len(X_train)}")
+          print(f"  Test samples: {len(X_test)}")
+          print()
+
+          # Train model
+          print("Step 2: Train model on training data")
+          model = DecisionTreeClassifier(random_state=42)
+          model.fit(X_train, y_train)
+          print("  Model trained!")
+          print()
+
+          # Evaluate on training data
+          print("Step 3: Evaluate")
+          train_pred = model.predict(X_train)
+          train_acc = accuracy_score(y_train, train_pred)
+          print(f"  Training accuracy: {train_acc:.2%}")
+
+          # Evaluate on test data
+          test_pred = model.predict(X_test)
+          test_acc = accuracy_score(y_test, test_pred)
+          print(f"  Test accuracy: {test_acc:.2%}")
+
+          if train_acc > test_acc + 0.05:
+              print("\n  ⚠️  Model may be overfitting!")
+
+        output: |
+          Step 1: Split data
+            Training samples: 105
+            Test samples: 45
+
+          Step 2: Train model on training data
+            Model trained!
+
+          Step 3: Evaluate
+            Training accuracy: 100.00%
+            Test accuracy: 100.00%
+
+      - title: "Reproducibility with random_state"
+        code: |
+          from sklearn.model_selection import train_test_split
+          import numpy as np
+
+          X = np.arange(20).reshape(10, 2)
+          y = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+
+          # First split with random_state=42
+          _, _, y_train1, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+
+          # Second split with same random_state
+          _, _, y_train2, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+
+          # Third split with different random_state
+          _, _, y_train3, _ = train_test_split(X, y, test_size=0.2, random_state=99)
+
+          print("Split 1 (random_state=42):", y_train1)
+          print("Split 2 (random_state=42):", y_train2)
+          print("Split 3 (random_state=99):", y_train3)
+          print()
+          print("Splits 1 and 2 identical:", np.array_equal(y_train1, y_train2))
+          print("Splits 1 and 3 different:", not np.array_equal(y_train1, y_train3))
+
+        output: |
+          Split 1 (random_state=42): [1 0 0 0 1 1 0 0]
+          Split 2 (random_state=42): [1 0 0 0 1 1 0 0]
+          Split 3 (random_state=99): [0 0 1 0 1 0 1 0]
+
+          Splits 1 and 2 identical: True
+          Splits 1 and 3 different: True
+
+  exercise:
+    title: "Properly Split Iris Dataset"
+
+    instruction: |
+      Split the iris dataset properly for model evaluation.
+
+      **Tasks:**
+      1. Load iris dataset
+      2. Split with test_size=0.25, random_state=42, stratify=y
+      3. Store the 4 results in X_train, X_test, y_train, y_test
+
+    setup_code: |
+      from sklearn.datasets import load_iris
+      from sklearn.model_selection import train_test_split
+
+      iris = load_iris()
+      X = iris.data
+      y = iris.target
+
+    starter_code: |
+      # Your code here
+      X_train, X_test, y_train, y_test = train_test_split(...)
+
+    solution: |
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.25, random_state=42, stratify=y
+      )
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "X_train"
+          type: "array"
+          shape: [112, 4]
+        - variable: "X_test"
+          type: "array"
+          shape: [38, 4]
+
+    hints:
+      - level: 1
+        text: |
+          Use train_test_split with X and y.
+          Set test_size=0.25, random_state=42, and stratify=y.
+
+      - level: 2
+        text: |
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.25, random_state=42, stratify=y
+          )
+
+      - level: 3
+        code: |
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.25, random_state=42, stratify=y
+          )
+
+  follow_up:
+    challenges:
+      - "Try different test_size values (0.2, 0.3, 0.4)"
+      - "Create a 60/20/20 train/val/test split"
+      - "Compare stratified vs non-stratified splits"
+      - "Check class distribution in each split"
+
+    next_lesson: "sklearn_03"
+
+    additional_resources:
+      - title: "Train-Test Split Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html"

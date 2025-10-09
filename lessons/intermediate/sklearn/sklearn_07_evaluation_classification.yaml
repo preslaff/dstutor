@@ -1,0 +1,381 @@
+lesson:
+  id: "sklearn_07"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Evaluating Classification Models"
+  order: 7
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_04", "sklearn_05"]
+    learning_objectives:
+      - "Use accuracy, precision, recall, and F1-score"
+      - "Interpret confusion matrices"
+      - "Understand ROC curves and AUC"
+      - "Choose appropriate metrics for your problem"
+
+  content:
+    introduction: |
+      # Evaluating Classification Models
+
+      Accuracy isn't everything! Learn to properly evaluate classifiers using
+      multiple metrics to understand model performance from different angles.
+
+      **What you'll learn:**
+      - Confusion matrix
+      - Precision, Recall, F1-score
+      - ROC curves and AUC
+      - Choosing the right metric
+
+    concept: |
+      ## Beyond Accuracy
+
+      **1. The Problem with Accuracy**
+
+      **Scenario:** Cancer detection (1% have cancer)
+      - Predict "no cancer" for everyone → 99% accurate!
+      - But completely useless!
+
+      **Need more metrics** to understand performance.
+
+      **2. Confusion Matrix**
+
+      ```
+                      Predicted
+                    No      Yes
+      Actual  No    TN      FP
+              Yes   FN      TP
+      ```
+
+      - **TP** (True Positive): Correctly predicted positive
+      - **TN** (True Negative): Correctly predicted negative
+      - **FP** (False Positive): Incorrectly predicted positive (Type I error)
+      - **FN** (False Negative): Incorrectly predicted negative (Type II error)
+
+      ```python
+      from sklearn.metrics import confusion_matrix
+      cm = confusion_matrix(y_true, y_pred)
+      ```
+
+      **3. Key Metrics**
+
+      **Accuracy** = (TP + TN) / Total
+      - Overall correctness
+      - Good for balanced datasets
+
+      **Precision** = TP / (TP + FP)
+      - "Of all positive predictions, how many were correct?"
+      - Important when false positives are costly
+      - Example: Spam filter (don't mark real emails as spam)
+
+      **Recall** (Sensitivity) = TP / (TP + FN)
+      - "Of all actual positives, how many did we find?"
+      - Important when false negatives are costly
+      - Example: Cancer detection (don't miss actual cases)
+
+      **F1-Score** = 2 × (Precision × Recall) / (Precision + Recall)
+      - Harmonic mean of precision and recall
+      - Good for imbalanced datasets
+
+      **4. Classification Report**
+
+      ```python
+      from sklearn.metrics import classification_report
+      print(classification_report(y_true, y_pred))
+      ```
+
+      Shows precision, recall, F1 for each class.
+
+      **5. ROC Curve and AUC**
+
+      **ROC** (Receiver Operating Characteristic):
+      - Plots True Positive Rate vs False Positive Rate
+      - Shows performance across all thresholds
+
+      **AUC** (Area Under Curve):
+      - Single number: 0 to 1
+      - 1.0 = perfect classifier
+      - 0.5 = random guessing
+      - 0.0 = perfectly wrong
+
+      ```python
+      from sklearn.metrics import roc_auc_score, roc_curve
+
+      # Get probabilities
+      probs = model.predict_proba(X_test)[:, 1]
+
+      # Calculate AUC
+      auc = roc_auc_score(y_test, probs)
+
+      # Get ROC curve points
+      fpr, tpr, thresholds = roc_curve(y_test, probs)
+      ```
+
+      **6. When to Use Which Metric**
+
+      **Accuracy**: Balanced datasets, equal cost for errors
+
+      **Precision**: False positives costly
+      - Spam detection
+      - Fraud detection
+      - Medical diagnosis confirmation
+
+      **Recall**: False negatives costly
+      - Cancer screening
+      - Detecting manufacturing defects
+      - Security threat detection
+
+      **F1-Score**: Balance precision and recall
+      - Imbalanced datasets
+      - Want one metric
+
+      **ROC-AUC**: Compare models, probability calibration
+
+    examples:
+      - title: "Confusion Matrix"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import train_test_split
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.metrics import confusion_matrix
+          import numpy as np
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = RandomForestClassifier(random_state=42)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+
+          # Confusion matrix
+          cm = confusion_matrix(y_test, predictions)
+
+          print("Confusion Matrix:")
+          print("                Predicted")
+          print("              Benign  Malignant")
+          print(f"Actual Benign    {cm[0,0]:3d}      {cm[0,1]:3d}")
+          print(f"     Malignant   {cm[1,0]:3d}      {cm[1,1]:3d}")
+          print()
+          print(f"True Negatives:  {cm[0,0]}")
+          print(f"False Positives: {cm[0,1]}")
+          print(f"False Negatives: {cm[1,0]}")
+          print(f"True Positives:  {cm[1,1]}")
+
+        output: |
+          Confusion Matrix:
+                      Predicted
+                    Benign  Malignant
+          Actual Benign     71        0
+               Malignant     3       40
+
+          True Negatives:  71
+          False Positives: 0
+          False Negatives: 3
+          True Positives:  40
+
+      - title: "Precision, Recall, F1-Score"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import train_test_split
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.metrics import (precision_score, recall_score,
+                                        f1_score, accuracy_score)
+
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = RandomForestClassifier(random_state=42)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+
+          # Calculate metrics
+          accuracy = accuracy_score(y_test, predictions)
+          precision = precision_score(y_test, predictions)
+          recall = recall_score(y_test, predictions)
+          f1 = f1_score(y_test, predictions)
+
+          print("Classification Metrics:")
+          print(f"  Accuracy:  {accuracy:.3f}")
+          print(f"  Precision: {precision:.3f}")
+          print(f"  Recall:    {recall:.3f}")
+          print(f"  F1-Score:  {f1:.3f}")
+
+        output: |
+          Classification Metrics:
+            Accuracy:  0.974
+            Precision: 1.000
+            Recall:    0.930
+            F1-Score:  0.964
+
+      - title: "Classification Report"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import train_test_split
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.metrics import classification_report
+
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          model = RandomForestClassifier(random_state=42)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+
+          # Generate report
+          print(classification_report(y_test, predictions,
+                                      target_names=iris.target_names))
+
+        output: |
+                      precision    recall  f1-score   support
+
+              setosa       1.00      1.00      1.00        19
+          versicolor       1.00      1.00      1.00        13
+           virginica       1.00      1.00      1.00        13
+
+            accuracy                           1.00        45
+           macro avg       1.00      1.00      1.00        45
+        weighted avg       1.00      1.00      1.00        45
+
+      - title: "ROC Curve and AUC"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import train_test_split
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.metrics import roc_auc_score, roc_curve
+          import matplotlib.pyplot as plt
+
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LogisticRegression(max_iter=10000)
+          model.fit(X_train, y_train)
+
+          # Get probability predictions
+          probs = model.predict_proba(X_test)[:, 1]
+
+          # Calculate AUC
+          auc = roc_auc_score(y_test, probs)
+          print(f"ROC-AUC Score: {auc:.3f}")
+
+          # Get ROC curve
+          fpr, tpr, thresholds = roc_curve(y_test, probs)
+
+          # Plot
+          plt.figure(figsize=(8, 6))
+          plt.plot(fpr, tpr, linewidth=2, label=f'ROC (AUC = {auc:.3f})')
+          plt.plot([0, 1], [0, 1], 'k--', label='Random')
+          plt.xlabel('False Positive Rate')
+          plt.ylabel('True Positive Rate')
+          plt.title('ROC Curve')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          ROC-AUC Score: 0.994
+
+          [Plot showing ROC curve with AUC = 0.994]
+
+  exercise:
+    title: "Calculate Classification Metrics"
+
+    instruction: |
+      Evaluate a classifier using multiple metrics.
+
+      **Tasks:**
+      1. Train a LogisticRegression model (max_iter=1000, random_state=42)
+      2. Make predictions on X_test
+      3. Calculate accuracy and store in `accuracy`
+      4. Calculate F1-score and store in `f1`
+
+    setup_code: |
+      from sklearn.datasets import load_breast_cancer
+      from sklearn.model_selection import train_test_split
+      from sklearn.linear_model import LogisticRegression
+      from sklearn.metrics import accuracy_score, f1_score
+
+      data = load_breast_cancer()
+      X, y = data.data, data.target
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.2, random_state=42
+      )
+
+    starter_code: |
+      # Your code here
+      model = LogisticRegression(...)
+      # Train and evaluate
+      accuracy =
+      f1 =
+
+    solution: |
+      model = LogisticRegression(max_iter=1000, random_state=42)
+      model.fit(X_train, y_train)
+      predictions = model.predict(X_test)
+      accuracy = accuracy_score(y_test, predictions)
+      f1 = f1_score(y_test, predictions)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "accuracy"
+          type: "float"
+          min: 0.95
+        - variable: "f1"
+          type: "float"
+          min: 0.95
+
+    hints:
+      - level: 1
+        text: |
+          Train LogisticRegression with max_iter=1000, random_state=42.
+          Use accuracy_score(y_test, predictions) for accuracy.
+          Use f1_score(y_test, predictions) for F1-score.
+
+      - level: 2
+        text: |
+          model = LogisticRegression(max_iter=1000, random_state=42)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+          accuracy = accuracy_score(y_test, predictions)
+          f1 = f1_score(y_test, predictions)
+
+      - level: 3
+        code: |
+          model = LogisticRegression(max_iter=1000, random_state=42)
+          model.fit(X_train, y_train)
+          predictions = model.predict(X_test)
+          accuracy = accuracy_score(y_test, predictions)
+          f1 = f1_score(y_test, predictions)
+
+  follow_up:
+    challenges:
+      - "Create and visualize confusion matrix"
+      - "Print classification report"
+      - "Calculate ROC-AUC score"
+      - "Compare precision and recall"
+
+    next_lesson: "sklearn_08"
+
+    additional_resources:
+      - title: "Classification Metrics"
+        url: "https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics"

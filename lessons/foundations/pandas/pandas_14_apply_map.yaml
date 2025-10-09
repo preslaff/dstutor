@@ -1,0 +1,435 @@
+lesson:
+  id: "pandas_14"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Apply and Map Functions"
+  order: 14
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_03"]
+    learning_objectives:
+      - "Use .apply() for custom transformations"
+      - "Write lambda functions for data manipulation"
+      - "Use .map() to transform Series"
+      - "Chain operations for complex transformations"
+
+  content:
+    introduction: |
+      # Apply and Map Functions
+
+      Go beyond built-in functions! Learn to apply custom logic to your data with
+      .apply() and .map() - the Swiss Army knives of Pandas transformations.
+
+      **What you'll learn:**
+      - Custom functions with .apply()
+      - Lambda functions for quick operations
+      - .map() for Series transformations
+      - Practical transformation patterns
+
+    concept: |
+      ## Transform Data with Apply and Map
+
+      **1. Series.apply() - Transform Each Element**
+
+      Apply a function to each element of a Series:
+      ```python
+      def custom_function(x):
+          return x * 2
+
+      df['column'].apply(custom_function)
+      ```
+
+      **2. DataFrame.apply() - Apply to Rows or Columns**
+
+      Apply function to entire rows or columns:
+      ```python
+      # Apply to each column (default, axis=0)
+      df.apply(sum)
+
+      # Apply to each row (axis=1)
+      df.apply(lambda row: row['A'] + row['B'], axis=1)
+      ```
+
+      **3. Lambda Functions**
+
+      Quick inline functions without def:
+      ```python
+      df['column'].apply(lambda x: x * 2)
+      df['column'].apply(lambda x: 'high' if x > 100 else 'low')
+      ```
+
+      **4. Series.map() - Map Values**
+
+      Transform values using a dictionary or function:
+      ```python
+      # Dictionary mapping
+      mapping = {'A': 1, 'B': 2, 'C': 3}
+      df['column'].map(mapping)
+
+      # Function mapping
+      df['column'].map(lambda x: x.upper())
+      ```
+
+      **When to Use Each:**
+
+      **Use .apply() when:**
+      - You need access to multiple columns (axis=1)
+      - Complex logic requiring multiple steps
+      - Returning different data types
+
+      **Use .map() when:**
+      - Simple one-to-one transformation on Series
+      - Dictionary-based mapping
+      - Slightly faster than apply for Series
+
+      **Performance Tip:**
+      Vectorized operations (using built-in Pandas/NumPy functions) are almost
+      always faster than .apply(). Use .apply() when vectorization isn't possible.
+
+    examples:
+      - title: "Basic Apply with Function"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie'],
+              'Score': [85, 92, 78]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Define custom function
+          def grade(score):
+              if score >= 90:
+                  return 'A'
+              elif score >= 80:
+                  return 'B'
+              else:
+                  return 'C'
+
+          # Apply to Score column
+          df['Grade'] = df['Score'].apply(grade)
+
+          print("With grades:")
+          print(df)
+
+        output: |
+          Original:
+               Name  Score
+          0   Alice     85
+          1     Bob     92
+          2  Charlie     78
+
+          With grades:
+               Name  Score Grade
+          0   Alice     85     B
+          1     Bob     92     A
+          2  Charlie     78     C
+
+      - title: "Lambda Functions"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['laptop', 'phone', 'tablet'],
+              'Price': [999, 699, 499]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Capitalize product names
+          df['Product_Upper'] = df['Product'].apply(lambda x: x.upper())
+
+          # Add 10% tax
+          df['Price_With_Tax'] = df['Price'].apply(lambda x: x * 1.1)
+
+          # Categorize price
+          df['Price_Category'] = df['Price'].apply(
+              lambda x: 'Expensive' if x > 600 else 'Affordable'
+          )
+
+          print("After transformations:")
+          print(df)
+
+        output: |
+          Original:
+            Product  Price
+          0  laptop    999
+          1   phone    699
+          2  tablet    499
+
+          After transformations:
+            Product  Price Product_Upper  Price_With_Tax Price_Category
+          0  laptop    999        LAPTOP          1098.9      Expensive
+          1   phone    699         PHONE           768.9      Expensive
+          2  tablet    499        TABLET           548.9     Affordable
+
+      - title: "Apply on Multiple Columns (axis=1)"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Math': [85, 90, 78],
+              'Science': [88, 92, 85],
+              'English': [82, 87, 90]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Calculate average across columns for each row
+          df['Average'] = df.apply(lambda row: row.mean(), axis=1)
+
+          # Find highest score for each student
+          df['Highest'] = df.apply(lambda row: row[['Math', 'Science', 'English']].max(), axis=1)
+
+          # Custom logic using multiple columns
+          df['Pass'] = df.apply(
+              lambda row: 'Yes' if row['Math'] >= 80 and row['Science'] >= 80 else 'No',
+              axis=1
+          )
+
+          print("With calculations:")
+          print(df)
+
+        output: |
+          Original:
+             Math  Science  English
+          0    85       88       82
+          1    90       92       87
+          2    78       85       90
+
+          With calculations:
+             Math  Science  English    Average  Highest Pass
+          0    85       88       82  85.000000       88  Yes
+          1    90       92       87  89.666667       92  Yes
+          2    78       85       90  84.333333       90   No
+
+      - title: "Map with Dictionary"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'City': ['NYC', 'LA', 'CHI', 'NYC', 'LA'],
+              'Sales': [100, 150, 120, 130, 140]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Map city codes to full names
+          city_mapping = {
+              'NYC': 'New York',
+              'LA': 'Los Angeles',
+              'CHI': 'Chicago'
+          }
+
+          df['City_Full'] = df['City'].map(city_mapping)
+
+          print("With full city names:")
+          print(df)
+
+        output: |
+          Original:
+            City  Sales
+          0  NYC    100
+          1   LA    150
+          2  CHI    120
+          3  NYC    130
+          4   LA    140
+
+          With full city names:
+            City  Sales    City_Full
+          0  NYC    100     New York
+          1   LA    150  Los Angeles
+          2  CHI    120      Chicago
+          3  NYC    130     New York
+          4   LA    140  Los Angeles
+
+      - title: "Map with Function"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Email': ['alice@EXAMPLE.com', 'BOB@example.COM', 'charlie@EXAMPLE.com']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Clean emails: lowercase and extract domain
+          df['Email_Clean'] = df['Email'].map(lambda x: x.lower())
+          df['Domain'] = df['Email_Clean'].map(lambda x: x.split('@')[1])
+
+          print("Cleaned:")
+          print(df)
+
+        output: |
+          Original:
+                           Email
+          0  alice@EXAMPLE.com
+          1   BOB@example.COM
+          2  charlie@EXAMPLE.com
+
+          Cleaned:
+                           Email        Email_Clean       Domain
+          0  alice@EXAMPLE.com  alice@example.com  example.com
+          1   BOB@example.COM    bob@example.com  example.com
+          2  charlie@EXAMPLE.com  charlie@example.com  example.com
+
+      - title: "Complex Transformation Pipeline"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice Smith', 'Bob Jones', 'Charlie Brown'],
+              'Age': [25, 35, 45],
+              'Salary': [50000, 75000, 100000]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Extract first name
+          df['FirstName'] = df['Name'].apply(lambda x: x.split()[0])
+
+          # Age group
+          df['AgeGroup'] = df['Age'].apply(
+              lambda x: 'Young' if x < 30 else ('Mid' if x < 40 else 'Senior')
+          )
+
+          # Salary level
+          df['SalaryLevel'] = df['Salary'].apply(
+              lambda x: 'Entry' if x < 60000 else ('Mid' if x < 90000 else 'Senior')
+          )
+
+          # Custom calculation using multiple columns
+          df['YearsToRetirement'] = df.apply(
+              lambda row: max(0, 65 - row['Age']),
+              axis=1
+          )
+
+          print("Transformed:")
+          print(df)
+
+        output: |
+          Original:
+                     Name  Age  Salary
+          0   Alice Smith   25   50000
+          1     Bob Jones   35   75000
+          2  Charlie Brown   45  100000
+
+          Transformed:
+                     Name  Age  Salary FirstName AgeGroup SalaryLevel  YearsToRetirement
+          0   Alice Smith   25   50000     Alice    Young       Entry                 40
+          1     Bob Jones   35   75000       Bob      Mid         Mid                 30
+          2  Charlie Brown   45  100000   Charlie   Senior      Senior                 20
+
+  exercise:
+    title: "Calculate Bonus Based on Performance"
+
+    instruction: |
+      Calculate employee bonuses based on performance rating.
+
+      **Bonus Rules:**
+      - Excellent (rating >= 4.5): 20% of salary
+      - Good (rating >= 3.5): 10% of salary
+      - Average (rating < 3.5): 5% of salary
+
+      **Tasks:**
+      1. Create 'Bonus' column with calculated bonus amounts
+      2. Create 'Total' column (Salary + Bonus)
+
+      Store the DataFrame with all columns in `result`.
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'Name': ['Alice', 'Bob', 'Charlie', 'Diana'],
+          'Salary': [60000, 75000, 50000, 90000],
+          'Rating': [4.8, 3.9, 3.2, 4.5]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.copy()
+
+      def calculate_bonus(row):
+          if row['Rating'] >= 4.5:
+              return row['Salary'] * 0.20
+          elif row['Rating'] >= 3.5:
+              return row['Salary'] * 0.10
+          else:
+              return row['Salary'] * 0.05
+
+      result['Bonus'] = result.apply(calculate_bonus, axis=1)
+      result['Total'] = result['Salary'] + result['Bonus']
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "columns"
+          expected: ['Name', 'Salary', 'Rating', 'Bonus', 'Total']
+        - type: "shape"
+          expected: [4, 5]
+
+    hints:
+      - level: 1
+        text: |
+          Use .apply() with axis=1 to access both Salary and Rating in each row.
+          Write a function that checks Rating and returns the appropriate bonus.
+
+      - level: 2
+        text: |
+          def calculate_bonus(row):
+              if row['Rating'] >= 4.5:
+                  return row['Salary'] * 0.20
+              elif row['Rating'] >= 3.5:
+                  return row['Salary'] * 0.10
+              else:
+                  return row['Salary'] * 0.05
+
+          result['Bonus'] = result.apply(calculate_bonus, axis=1)
+          result['Total'] = result['Salary'] + result['Bonus']
+
+      - level: 3
+        code: |
+          result = df.copy()
+
+          def calculate_bonus(row):
+              if row['Rating'] >= 4.5:
+                  return row['Salary'] * 0.20
+              elif row['Rating'] >= 3.5:
+                  return row['Salary'] * 0.10
+              else:
+                  return row['Salary'] * 0.05
+
+          result['Bonus'] = result.apply(calculate_bonus, axis=1)
+          result['Total'] = result['Salary'] + result['Bonus']
+
+  follow_up:
+    challenges:
+      - "Use lambda instead of named function"
+      - "Map categories to numeric codes"
+      - "Extract email domains and count occurrences"
+      - "Calculate running totals using apply"
+
+    next_lesson: "pandas_15"
+
+    additional_resources:
+      - title: "Pandas Apply Documentation"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.apply.html"

@@ -1,0 +1,27 @@
+# Core Dependencies
+ipython>=8.0.0
+jupyter>=1.0.0
+notebook>=6.5.0
+ipywidgets>=8.0.0
+ipykernel>=6.0.0
+
+# Data Science Stack
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scikit-learn>=1.3.0
+
+# LLM Integration
+anthropic>=0.25.0
+
+# Utilities
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# Optional Advanced Libraries (for later lessons)
+# xgboost>=1.7.0
+# lightgbm>=4.0.0
+# tensorflow>=2.13.0
+# torch>=2.0.0
+# shap>=0.42.0

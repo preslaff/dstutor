@@ -1,0 +1,403 @@
+lesson:
+  id: "matplotlib_10"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Saving and Exporting Plots"
+  order: 10
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: ["matplotlib_01"]
+    learning_objectives:
+      - "Save plots to various file formats"
+      - "Control resolution and quality"
+      - "Optimize file size and appearance"
+      - "Export for publications and presentations"
+
+  content:
+    introduction: |
+      # Saving and Exporting Plots
+
+      Share your visualizations with the world! Learn to save plots in various
+      formats optimized for different uses - publications, presentations, or web.
+
+      **What you'll learn:**
+      - Saving to common formats (PNG, PDF, SVG)
+      - Controlling resolution and quality
+      - Transparent backgrounds
+      - File size optimization
+
+    concept: |
+      ## Exporting Your Visualizations
+
+      **1. Basic Saving**
+
+      Use `plt.savefig()` to save the current figure:
+      ```python
+      plt.plot(x, y)
+      plt.savefig('plot.png')
+      ```
+
+      **Key Parameters:**
+      - `fname` - File name (extension determines format)
+      - `dpi` - Dots per inch (resolution, default 100)
+      - `bbox_inches='tight'` - Remove extra whitespace
+      - `transparent=True` - Transparent background
+      - `facecolor` - Background color
+      - `format` - Explicitly specify format
+
+      **2. Common File Formats**
+
+      **PNG (Raster)**
+      ```python
+      plt.savefig('plot.png', dpi=300, bbox_inches='tight')
+      ```
+      - ✅ Best for: Web, presentations, general use
+      - ✅ Good quality at high DPI
+      - ❌ Pixelated when scaled up
+
+      **PDF (Vector)**
+      ```python
+      plt.savefig('plot.pdf', bbox_inches='tight')
+      ```
+      - ✅ Best for: Publications, printing
+      - ✅ Scalable without quality loss
+      - ✅ Editable in vector software
+
+      **SVG (Vector)**
+      ```python
+      plt.savefig('plot.svg', bbox_inches='tight')
+      ```
+      - ✅ Best for: Web, editing, presentations
+      - ✅ Scalable and editable
+      - ✅ Smaller file size than PDF
+
+      **JPEG (Raster)**
+      ```python
+      plt.savefig('plot.jpg', dpi=300, quality=95)
+      ```
+      - ✅ Smaller file size
+      - ❌ Lossy compression
+      - ❌ Not ideal for plots (use PNG instead)
+
+      **3. Resolution (DPI)**
+
+      Higher DPI = Higher quality & larger file size:
+      - **72 DPI**: Screen display, web (low quality)
+      - **150 DPI**: Good for web, presentations
+      - **300 DPI**: Print quality, publications (recommended)
+      - **600 DPI**: High-quality printing
+
+      **4. Removing Whitespace**
+
+      ```python
+      plt.savefig('plot.png', bbox_inches='tight', pad_inches=0.1)
+      ```
+      - `bbox_inches='tight'` - Crop to content
+      - `pad_inches` - Add padding (default 0.1)
+
+      **5. Transparent Background**
+
+      ```python
+      plt.savefig('plot.png', transparent=True, bbox_inches='tight')
+      ```
+
+      Useful for overlaying on presentations or documents.
+
+      **6. Saving with Specific Figure**
+
+      ```python
+      fig, ax = plt.subplots()
+      ax.plot(x, y)
+      fig.savefig('plot.png', dpi=300)
+      ```
+
+      **Best Practices:**
+      - Use **PNG** at 300 DPI for general high-quality use
+      - Use **PDF** or **SVG** for publications (vector formats)
+      - Always use `bbox_inches='tight'` to remove extra whitespace
+      - Set DPI to 300 for print-quality output
+      - Use descriptive file names with dates: `sales_2024_01_15.png`
+
+      **Format Decision Tree:**
+      ```
+      Publishing in paper? → PDF
+      Web/presentation? → PNG (300 DPI)
+      Need to edit later? → SVG or PDF
+      File size critical? → PNG (lower DPI) or JPEG
+      Transparent background? → PNG with transparent=True
+      ```
+
+    examples:
+      - title: "Basic Save"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.sin(x)
+
+          plt.figure(figsize=(10, 6))
+          plt.plot(x, y, linewidth=2)
+          plt.xlabel('x')
+          plt.ylabel('sin(x)')
+          plt.title('Sine Wave')
+          plt.grid(True, alpha=0.3)
+
+          # Save as PNG
+          plt.savefig('sine_wave.png')
+          print("Saved as sine_wave.png")
+
+          plt.show()
+
+        output: |
+          Saved as sine_wave.png
+          [Plot displayed and file created]
+
+      - title: "High-Resolution Save"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.sin(x)
+
+          plt.figure(figsize=(10, 6))
+          plt.plot(x, y, linewidth=2, color='#2E86AB')
+          plt.xlabel('x', fontsize=12)
+          plt.ylabel('sin(x)', fontsize=12)
+          plt.title('High-Resolution Sine Wave', fontsize=14, fontweight='bold')
+          plt.grid(True, alpha=0.3)
+
+          # Save high-resolution PNG (300 DPI)
+          plt.savefig('sine_wave_hires.png', dpi=300, bbox_inches='tight')
+          print("Saved high-resolution PNG")
+
+          plt.show()
+
+        output: |
+          Saved high-resolution PNG
+          [High-quality plot with no extra whitespace]
+
+      - title: "Multiple Formats"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.cos(x)
+
+          plt.figure(figsize=(10, 6))
+          plt.plot(x, y, linewidth=2.5, color='#E63946')
+          plt.xlabel('x', fontsize=12)
+          plt.ylabel('cos(x)', fontsize=12)
+          plt.title('Cosine Wave - Multi-Format Export', fontsize=14, fontweight='bold')
+          plt.grid(True, alpha=0.3)
+
+          # Save in multiple formats
+          plt.savefig('cosine.png', dpi=300, bbox_inches='tight')
+          print("✓ Saved PNG")
+
+          plt.savefig('cosine.pdf', bbox_inches='tight')
+          print("✓ Saved PDF (vector)")
+
+          plt.savefig('cosine.svg', bbox_inches='tight')
+          print("✓ Saved SVG (vector)")
+
+          plt.show()
+
+        output: |
+          ✓ Saved PNG
+          ✓ Saved PDF (vector)
+          ✓ Saved SVG (vector)
+          [Three files created in different formats]
+
+      - title: "Transparent Background"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.sin(x)
+
+          plt.figure(figsize=(10, 6))
+          plt.plot(x, y, linewidth=3, color='#457B9D')
+          plt.xlabel('x', fontsize=12, fontweight='bold')
+          plt.ylabel('sin(x)', fontsize=12, fontweight='bold')
+          plt.title('Plot with Transparent Background', fontsize=14, fontweight='bold')
+          plt.grid(True, alpha=0.3)
+
+          # Save with transparent background
+          plt.savefig('transparent_plot.png',
+                      dpi=300,
+                      transparent=True,
+                      bbox_inches='tight')
+          print("Saved with transparent background")
+
+          plt.show()
+
+        output: |
+          Saved with transparent background
+          [Plot with no background color, suitable for overlaying]
+
+      - title: "Custom DPI Comparison"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.sin(x) * np.cos(x)
+
+          fig, ax = plt.subplots(figsize=(8, 5))
+          ax.plot(x, y, linewidth=2, color='#F4A261')
+          ax.set_xlabel('x', fontsize=11)
+          ax.set_ylabel('y', fontsize=11)
+          ax.set_title('DPI Comparison', fontsize=13, fontweight='bold')
+          ax.grid(True, alpha=0.3)
+
+          # Save at different resolutions
+          fig.savefig('plot_72dpi.png', dpi=72, bbox_inches='tight')
+          print("✓ Saved at 72 DPI (web, 50 KB)")
+
+          fig.savefig('plot_150dpi.png', dpi=150, bbox_inches='tight')
+          print("✓ Saved at 150 DPI (presentation, 150 KB)")
+
+          fig.savefig('plot_300dpi.png', dpi=300, bbox_inches='tight')
+          print("✓ Saved at 300 DPI (print, 400 KB)")
+
+          plt.show()
+
+        output: |
+          ✓ Saved at 72 DPI (web, 50 KB)
+          ✓ Saved at 150 DPI (presentation, 150 KB)
+          ✓ Saved at 300 DPI (print, 400 KB)
+          [Three files with different quality/size trade-offs]
+
+      - title: "Publication-Ready Save"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create publication-quality figure
+          fig, ax = plt.subplots(figsize=(8, 6))
+
+          x = np.linspace(0, 10, 100)
+          ax.plot(x, np.sin(x), linewidth=2, label='sin(x)', color='#2E86AB')
+          ax.plot(x, np.cos(x), linewidth=2, label='cos(x)', color='#A23B72')
+
+          ax.set_xlabel('Time (s)', fontsize=13, fontweight='bold')
+          ax.set_ylabel('Amplitude', fontsize=13, fontweight='bold')
+          ax.set_title('Trigonometric Functions', fontsize=15, fontweight='bold', pad=15)
+          ax.legend(fontsize=11, frameon=True, shadow=True)
+          ax.grid(True, alpha=0.3, linestyle='--')
+
+          # Remove top and right spines
+          ax.spines['top'].set_visible(False)
+          ax.spines['right'].set_visible(False)
+
+          # Save publication-ready versions
+          # For paper submission
+          fig.savefig('publication_figure.pdf',
+                      dpi=300,
+                      bbox_inches='tight',
+                      format='pdf')
+          print("✓ Saved PDF for publication")
+
+          # For presentation
+          fig.savefig('presentation_figure.png',
+                      dpi=300,
+                      bbox_inches='tight',
+                      facecolor='white')
+          print("✓ Saved PNG for presentation")
+
+          plt.show()
+
+        output: |
+          ✓ Saved PDF for publication
+          ✓ Saved PNG for presentation
+          [Professional-quality exports ready for academic/business use]
+
+  exercise:
+    title: "Save Plot in Multiple Formats"
+
+    instruction: |
+      Create a plot and save it in PNG and PDF formats.
+
+      **Requirements:**
+      1. Create a line plot of the data
+      2. Add xlabel 'X-axis', ylabel 'Y-axis', title 'My Plot'
+      3. Save as PNG with:
+         - filename: 'my_plot.png'
+         - dpi=300
+         - bbox_inches='tight'
+      4. Save as PDF with:
+         - filename: 'my_plot.pdf'
+         - bbox_inches='tight'
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      x = np.linspace(0, 5, 50)
+      y = x ** 2
+
+    starter_code: |
+      # Your code here
+      plt.figure(figsize=(8, 6))
+
+    solution: |
+      plt.figure(figsize=(8, 6))
+      plt.plot(x, y)
+      plt.xlabel('X-axis')
+      plt.ylabel('Y-axis')
+      plt.title('My Plot')
+      plt.savefig('my_plot.png', dpi=300, bbox_inches='tight')
+      plt.savefig('my_plot.pdf', bbox_inches='tight')
+
+    validation:
+      type: "file_check"
+      checks:
+        - type: "file_exists"
+          expected: ['my_plot.png', 'my_plot.pdf']
+
+    hints:
+      - level: 1
+        text: |
+          Create the plot with labels and title.
+          Use plt.savefig() twice with different filenames and formats.
+          Set dpi=300 and bbox_inches='tight' for PNG.
+
+      - level: 2
+        text: |
+          plt.plot(x, y)
+          plt.xlabel('X-axis')
+          plt.ylabel('Y-axis')
+          plt.title('My Plot')
+          plt.savefig('my_plot.png', dpi=300, bbox_inches='tight')
+          plt.savefig('my_plot.pdf', bbox_inches='tight')
+
+      - level: 3
+        code: |
+          plt.figure(figsize=(8, 6))
+          plt.plot(x, y)
+          plt.xlabel('X-axis')
+          plt.ylabel('Y-axis')
+          plt.title('My Plot')
+          plt.savefig('my_plot.png', dpi=300, bbox_inches='tight')
+          plt.savefig('my_plot.pdf', bbox_inches='tight')
+
+  follow_up:
+    challenges:
+      - "Save with transparent background"
+      - "Compare file sizes at different DPI values"
+      - "Save SVG format and open in vector editor"
+      - "Create batch export for multiple plots"
+
+    next_lesson: "sklearn_01"
+
+    additional_resources:
+      - title: "Matplotlib Savefig Documentation"
+        url: "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html"
+      - title: "Image File Formats Guide"
+        url: "https://matplotlib.org/stable/api/image_api.html"

@@ -1,0 +1,322 @@
+lesson:
+  id: "python_01"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Variables and Data Types"
+  order: 1
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: []
+    learning_objectives:
+      - "Understand Python variables and assignment"
+      - "Learn basic data types (int, float, str, bool)"
+      - "Check types with type() function"
+      - "Perform basic type conversion"
+
+  content:
+    introduction: |
+      # Variables and Data Types
+
+      Welcome to Python! Every programming journey starts with understanding how to
+      store and work with data. Let's learn the fundamentals!
+
+      **What you'll learn:**
+      - Creating variables
+      - Basic data types
+      - Type checking and conversion
+      - Variable naming rules
+
+    concept: |
+      ## Understanding Variables and Types
+
+      **1. Variables - Storing Data**
+
+      Variables are containers that hold data:
+      ```python
+      name = "Alice"
+      age = 25
+      height = 5.7
+      is_student = True
+      ```
+
+      **No declaration needed!** Python automatically determines the type.
+
+      **2. Basic Data Types**
+
+      **Integer (int)** - Whole numbers:
+      ```python
+      count = 42
+      temperature = -10
+      ```
+
+      **Float (float)** - Decimal numbers:
+      ```python
+      price = 19.99
+      pi = 3.14159
+      ```
+
+      **String (str)** - Text:
+      ```python
+      name = "Alice"
+      message = 'Hello, World!'
+      ```
+
+      **Boolean (bool)** - True or False:
+      ```python
+      is_active = True
+      has_permission = False
+      ```
+
+      **3. Checking Types**
+
+      Use `type()` to check a variable's type:
+      ```python
+      x = 42
+      print(type(x))  # <class 'int'>
+      ```
+
+      **4. Type Conversion**
+
+      Convert between types:
+      ```python
+      # String to int
+      age = int("25")
+
+      # Int to string
+      number_str = str(42)
+
+      # String to float
+      price = float("19.99")
+
+      # Int to float
+      decimal = float(10)
+      ```
+
+      **5. Variable Naming Rules**
+
+      ✅ **Good names:**
+      - `user_name`, `total_price`, `is_valid`
+      - Start with letter or underscore
+      - Can contain letters, numbers, underscores
+      - Use descriptive names
+
+      ❌ **Invalid names:**
+      - `2users` (starts with number)
+      - `user-name` (contains hyphen)
+      - `class` (reserved keyword)
+
+      **Best Practices:**
+      - Use `snake_case` for variable names
+      - Make names descriptive: `total_price` not `tp`
+      - Avoid single letters except for loops
+
+    examples:
+      - title: "Creating Variables"
+        code: |
+          # Integer
+          age = 25
+          print("Age:", age)
+
+          # Float
+          height = 5.9
+          print("Height:", height)
+
+          # String
+          name = "Alice"
+          print("Name:", name)
+
+          # Boolean
+          is_student = True
+          print("Is student:", is_student)
+
+        output: |
+          Age: 25
+          Height: 5.9
+          Name: Alice
+          Is student: True
+
+      - title: "Checking Types"
+        code: |
+          age = 25
+          height = 5.9
+          name = "Alice"
+          is_student = True
+
+          print("Type of age:", type(age))
+          print("Type of height:", type(height))
+          print("Type of name:", type(name))
+          print("Type of is_student:", type(is_student))
+
+        output: |
+          Type of age: <class 'int'>
+          Type of height: <class 'float'>
+          Type of name: <class 'str'>
+          Type of is_student: <class 'bool'>
+
+      - title: "Type Conversion"
+        code: |
+          # String to int
+          age_str = "25"
+          age = int(age_str)
+          print("Converted age:", age, "Type:", type(age))
+
+          # Int to float
+          count = 10
+          decimal_count = float(count)
+          print("Float count:", decimal_count, "Type:", type(decimal_count))
+
+          # Int to string
+          number = 42
+          number_str = str(number)
+          print("String number:", number_str, "Type:", type(number_str))
+
+          # Float to int (truncates decimal)
+          price = 19.99
+          price_int = int(price)
+          print("Int price:", price_int)
+
+        output: |
+          Converted age: 25 Type: <class 'int'>
+          Float count: 10.0 Type: <class 'float'>
+          String number: 42 Type: <class 'str'>
+          Int price: 19
+
+      - title: "Basic Arithmetic"
+        code: |
+          # Math with integers
+          a = 10
+          b = 3
+
+          print("Addition:", a + b)
+          print("Subtraction:", a - b)
+          print("Multiplication:", a * b)
+          print("Division:", a / b)
+          print("Integer division:", a // b)
+          print("Modulo (remainder):", a % b)
+          print("Power:", a ** 2)
+
+        output: |
+          Addition: 13
+          Subtraction: 7
+          Multiplication: 30
+          Division: 3.3333333333333335
+          Integer division: 3
+          Modulo (remainder): 1
+          Power: 100
+
+      - title: "Variables are Dynamic"
+        code: |
+          # Python allows changing type
+          x = 42
+          print("x is:", x, "Type:", type(x))
+
+          x = "now I'm a string"
+          print("x is:", x, "Type:", type(x))
+
+          x = 3.14
+          print("x is:", x, "Type:", type(x))
+
+        output: |
+          x is: 42 Type: <class 'int'>
+          x is: now I'm a string Type: <class 'str'>
+          x is: 3.14 Type: <class 'float'>
+
+      - title: "Multiple Assignment"
+        code: |
+          # Assign multiple variables at once
+          x, y, z = 10, 20, 30
+          print("x:", x)
+          print("y:", y)
+          print("z:", z)
+
+          # Same value to multiple variables
+          a = b = c = 100
+          print("a:", a, "b:", b, "c:", c)
+
+        output: |
+          x: 10
+          y: 20
+          z: 30
+          a: 100 b: 100 c: 100
+
+  exercise:
+    title: "Create and Convert Variables"
+
+    instruction: |
+      Create variables and perform type conversions.
+
+      **Tasks:**
+      1. Create variable `age` with integer value 30
+      2. Create variable `height` with float value 5.8
+      3. Convert `age` to float and store in `age_float`
+      4. Convert `height` to integer and store in `height_int`
+
+      All four variables should exist in your solution.
+
+    setup_code: |
+      # Your code will be tested
+
+    starter_code: |
+      # Your code here
+      age =
+      height =
+      age_float =
+      height_int =
+
+    solution: |
+      age = 30
+      height = 5.8
+      age_float = float(age)
+      height_int = int(height)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "age"
+          expected: 30
+          type: "int"
+        - variable: "height"
+          expected: 5.8
+          type: "float"
+        - variable: "age_float"
+          expected: 30.0
+          type: "float"
+        - variable: "height_int"
+          expected: 5
+          type: "int"
+
+    hints:
+      - level: 1
+        text: |
+          Create age as an integer and height as a float (with decimal point).
+          Use float() to convert integers to floats.
+          Use int() to convert floats to integers.
+
+      - level: 2
+        text: |
+          age = 30
+          height = 5.8
+          age_float = float(age)
+          height_int = int(height)
+
+      - level: 3
+        code: |
+          age = 30
+          height = 5.8
+          age_float = float(age)
+          height_int = int(height)
+
+  follow_up:
+    challenges:
+      - "Try converting a string '123' to an integer"
+      - "What happens when you try int('hello')?"
+      - "Calculate: (10 + 5) * 3"
+      - "Create variables with meaningful names for a person's data"
+
+    next_lesson: "python_02"
+
+    additional_resources:
+      - title: "Python Data Types"
+        url: "https://docs.python.org/3/library/stdtypes.html"

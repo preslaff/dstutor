@@ -1,0 +1,324 @@
+lesson:
+  id: "numpy_08"
+  level: "intermediate"
+  topic: "numpy"
+  subtopic: "Broadcasting"
+  order: 8
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["numpy_04", "numpy_05"]
+    learning_objectives:
+      - "Understand NumPy broadcasting rules"
+      - "Perform operations on arrays of different shapes"
+      - "Leverage broadcasting for efficient computations"
+      - "Avoid common broadcasting pitfalls"
+
+  content:
+    introduction: |
+      # NumPy Broadcasting - Powerful Array Operations
+
+      Broadcasting is NumPy's secret weapon - it lets you perform operations on arrays
+      of different shapes without explicit loops or reshaping. Master this for 10x
+      more efficient code!
+
+      **What you'll learn:**
+      - The broadcasting rules
+      - Operations on differently-shaped arrays
+      - Practical broadcasting patterns
+      - When and how to use broadcasting
+
+    concept: |
+      ## Broadcasting Rules
+
+      **What is Broadcasting?**
+      Broadcasting allows NumPy to work with arrays of different shapes during arithmetic operations.
+
+      **The Rules:**
+      1. If arrays have different number of dimensions, pad the smaller one with 1s on the left
+      2. Arrays are compatible if, for each dimension, they either:
+         - Have the same size, OR
+         - One of them has size 1
+
+      3. After broadcasting, each array behaves as if it had the larger shape
+
+      **Visual Example:**
+      ```
+      Array A: (3, 4)
+      Array B: (3, 1)
+
+      B broadcasts to (3, 4) - copies column 4 times
+      Result:  (3, 4)
+      ```
+
+      **Common Patterns:**
+      - Scalar to array: `arr + 5` → broadcasts 5 to all elements
+      - Row vector to matrix: `(1, n) + (m, n)` → row repeats m times
+      - Column vector to matrix: `(m, 1) + (m, n)` → column repeats n times
+
+      **Why Broadcasting?**
+      - 🚀 **Speed**: No Python loops, pure C
+      - 💾 **Memory**: No actual copying
+      - 📝 **Clarity**: More readable code
+
+    examples:
+      - title: "Basic Broadcasting Examples"
+        code: |
+          import numpy as np
+
+          # Scalar broadcasting (most common)
+          arr = np.array([1, 2, 3, 4, 5])
+          print("Original:", arr)
+          print("Add 10:", arr + 10)  # 10 broadcasts to all
+          print("Multiply by 2:", arr * 2)
+          print()
+
+          # 1D array with 2D array
+          matrix = np.array([[1, 2, 3],
+                             [4, 5, 6],
+                             [7, 8, 9]])
+
+          row = np.array([10, 20, 30])
+          print("Matrix:")
+          print(matrix)
+          print("\nRow:", row)
+          print("\nMatrix + Row (broadcasts row to each row of matrix):")
+          print(matrix + row)
+
+        output: |
+          Original: [1 2 3 4 5]
+          Add 10: [11 12 13 14 15]
+          Multiply by 2: [ 2  4  6  8 10]
+
+          Matrix:
+          [[1 2 3]
+           [4 5 6]
+           [7 8 9]]
+
+          Row: [10 20 30]
+
+          Matrix + Row (broadcasts row to each row of matrix):
+          [[11 22 33]
+           [14 25 36]
+           [17 28 39]]
+
+      - title: "Column Broadcasting"
+        code: |
+          import numpy as np
+
+          matrix = np.array([[1, 2, 3],
+                             [4, 5, 6],
+                             [7, 8, 9]])
+
+          # Column vector (shape: 3, 1)
+          col = np.array([[10],
+                          [20],
+                          [30]])
+
+          print("Matrix:")
+          print(matrix)
+          print("\nColumn (3, 1):")
+          print(col)
+          print("\nMatrix + Column:")
+          print(matrix + col)
+          print()
+
+          # Alternative: reshape 1D to column
+          col_alt = np.array([10, 20, 30]).reshape(-1, 1)
+          print("Alternative column creation:")
+          print(col_alt)
+
+        output: |
+          Matrix:
+          [[1 2 3]
+           [4 5 6]
+           [7 8 9]]
+
+          Column (3, 1):
+          [[10]
+           [20]
+           [30]]
+
+          Matrix + Column:
+          [[11 12 13]
+           [24 25 26]
+           [37 38 39]]
+
+          Alternative column creation:
+          [[10]
+           [20]
+           [30]]
+
+      - title: "Practical Broadcasting Example"
+        code: |
+          import numpy as np
+
+          # Normalize data (zero mean, unit variance)
+          # Common in machine learning preprocessing
+
+          data = np.array([[1, 2, 3],
+                           [4, 5, 6],
+                           [7, 8, 9],
+                           [10, 11, 12]])
+
+          print("Original data (4, 3):")
+          print(data)
+          print()
+
+          # Calculate mean for each column (features)
+          mean = np.mean(data, axis=0)  # Shape: (3,)
+          print("Column means:", mean)
+
+          # Calculate std for each column
+          std = np.std(data, axis=0)  # Shape: (3,)
+          print("Column stds:", std)
+          print()
+
+          # Normalize (broadcasting!)
+          normalized = (data - mean) / std
+          print("Normalized data:")
+          print(normalized)
+          print()
+
+          # Verify: mean should be ~0, std should be ~1
+          print("New means:", np.mean(normalized, axis=0))
+          print("New stds:", np.std(normalized, axis=0))
+
+        output: |
+          Original data (4, 3):
+          [[ 1  2  3]
+           [ 4  5  6]
+           [ 7  8  9]
+           [10 11 12]]
+
+          Column means: [5.5 6.5 7.5]
+          Column stds: [3.227... 3.227... 3.227...]
+
+          Normalized data:
+          [[-1.161  -1.161  -1.161]
+           [-0.387  -0.387  -0.387]
+           [ 0.387   0.387   0.387]
+           [ 1.161   1.161   1.161]]
+
+          New means: [0. 0. 0.]
+          New stds: [1. 1. 1.]
+
+      - title: "Broadcasting Compatibility Check"
+        code: |
+          import numpy as np
+
+          # Compatible shapes
+          a = np.ones((3, 4))     # (3, 4)
+          b = np.ones((3, 1))     # (3, 1)
+          c = np.ones((1, 4))     # (1, 4)
+          d = np.ones((4,))       # (4,) → broadcasts to (1, 4)
+
+          print("a.shape:", a.shape)
+          print("b.shape:", b.shape)
+          print("a + b shape:", (a + b).shape)  # (3, 4)
+          print()
+
+          print("c.shape:", c.shape)
+          print("a + c shape:", (a + c).shape)  # (3, 4)
+          print()
+
+          print("d.shape:", d.shape)
+          print("a + d shape:", (a + d).shape)  # (3, 4)
+          print()
+
+          # Incompatible shapes (would error)
+          # e = np.ones((3,))     # (3,)
+          # f = np.ones((4,))     # (4,)
+          # e + f  # ERROR! Can't broadcast (3,) and (4,)
+
+        output: |
+          a.shape: (3, 4)
+          b.shape: (3, 1)
+          a + b shape: (3, 4)
+
+          c.shape: (1, 4)
+          a + c shape: (3, 4)
+
+          d.shape: (4,)
+          a + d shape: (3, 4)
+
+  exercise:
+    title: "Normalize Rows Using Broadcasting"
+
+    instruction: |
+      Given a 2D array, normalize **each row** to have mean=0 and std=1.
+
+      **Data:**
+      ```
+      [[10, 20, 30],
+       [5, 10, 15],
+       [100, 200, 300]]
+      ```
+
+      **Steps:**
+      1. Calculate mean for each row (use axis=1)
+      2. Calculate std for each row (use axis=1)
+      3. Use broadcasting to normalize: (data - mean) / std
+
+      **Hint:** You'll need to reshape mean and std to be column vectors (3, 1)
+
+    setup_code: |
+      import numpy as np
+
+      data = np.array([[10, 20, 30],
+                       [5, 10, 15],
+                       [100, 200, 300]])
+
+    starter_code: |
+      # Your code here
+      # Calculate row means and stds
+      # Reshape them to (3, 1) for broadcasting
+      # Normalize
+
+      result =
+
+    solution: |
+      mean = np.mean(data, axis=1).reshape(-1, 1)
+      std = np.std(data, axis=1).reshape(-1, 1)
+      result = (data - mean) / std
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [3, 3]
+
+    hints:
+      - level: 1
+        text: |
+          Calculate row-wise mean: np.mean(data, axis=1)
+          This gives shape (3,) but you need (3, 1) for broadcasting.
+          Use .reshape(-1, 1) to convert to column vector.
+
+      - level: 2
+        text: |
+          mean = np.mean(data, axis=1).reshape(-1, 1)  # Shape: (3, 1)
+          std = np.std(data, axis=1).reshape(-1, 1)    # Shape: (3, 1)
+          Now you can broadcast: (data - mean) / std
+
+      - level: 3
+        code: |
+          mean = np.mean(data, axis=1).reshape(-1, 1)
+          std = np.std(data, axis=1).reshape(-1, 1)
+          result = (data - mean) / std
+
+  follow_up:
+    challenges:
+      - "Normalize columns instead of rows"
+      - "Add a bias term to each row (different bias for each row)"
+      - "Multiply each row by a different scalar"
+      - "Compute outer product of two 1D arrays using broadcasting"
+
+    next_lesson: "numpy_09"
+
+    additional_resources:
+      - title: "NumPy Broadcasting Documentation"
+        url: "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+      - title: "Broadcasting Illustrated"
+        url: "https://numpy.org/doc/stable/user/theory.broadcasting.html"

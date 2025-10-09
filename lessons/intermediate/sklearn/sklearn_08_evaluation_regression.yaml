@@ -1,0 +1,555 @@
+lesson:
+  id: "sklearn_08"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Evaluating Regression Models"
+  order: 8
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_03", "sklearn_06"]
+    learning_objectives:
+      - "Use MSE, RMSE, MAE, and R² for regression evaluation"
+      - "Interpret residual plots"
+      - "Compare regression models"
+      - "Choose appropriate metrics for your problem"
+
+  content:
+    introduction: |
+      # Evaluating Regression Models
+
+      How good is your regression model? Learn to measure prediction accuracy
+      and understand model performance using multiple evaluation metrics.
+
+      **What you'll learn:**
+      - MSE, RMSE, MAE, R²
+      - Residual analysis
+      - Model comparison
+      - Choosing the right metric
+
+    concept: |
+      ## Measuring Regression Performance
+
+      **1. Key Regression Metrics**
+
+      **Mean Squared Error (MSE)**
+      - Average of squared differences
+      - Formula: MSE = (1/n) × Σ(y_true - y_pred)²
+      - Heavily penalizes large errors
+      - Same units as y²
+
+      **Root Mean Squared Error (RMSE)**
+      - Square root of MSE
+      - Formula: RMSE = √MSE
+      - Same units as y (easier to interpret)
+      - Most common metric
+
+      **Mean Absolute Error (MAE)**
+      - Average of absolute differences
+      - Formula: MAE = (1/n) × Σ|y_true - y_pred|
+      - Less sensitive to outliers
+      - Same units as y
+
+      **R² Score (Coefficient of Determination)**
+      - Proportion of variance explained
+      - Range: -∞ to 1 (1 = perfect)
+      - 0.8 = explains 80% of variance
+      - Can be negative if model is very bad
+
+      ```python
+      from sklearn.metrics import (
+          mean_squared_error,
+          mean_absolute_error,
+          r2_score
+      )
+
+      mse = mean_squared_error(y_test, y_pred)
+      rmse = np.sqrt(mse)  # or use squared=False
+      mae = mean_absolute_error(y_test, y_pred)
+      r2 = r2_score(y_test, y_pred)
+      ```
+
+      **2. Residual Analysis**
+
+      **Residuals** = Actual - Predicted
+
+      Good model should have:
+      - ✅ Residuals centered around 0
+      - ✅ Constant variance (homoscedasticity)
+      - ✅ Normally distributed residuals
+      - ✅ No patterns in residual plot
+
+      ```python
+      residuals = y_test - y_pred
+
+      # Residual plot
+      plt.scatter(y_pred, residuals)
+      plt.axhline(y=0, color='r', linestyle='--')
+      plt.xlabel('Predicted')
+      plt.ylabel('Residuals')
+      plt.show()
+      ```
+
+      **Warning Signs:**
+      - 📊 Pattern in residuals → Non-linear relationship
+      - 📊 Increasing spread → Heteroscedasticity
+      - 📊 Outliers → May need robust regression
+
+      **3. Mean Absolute Percentage Error (MAPE)**
+
+      ```python
+      def mape(y_true, y_pred):
+          return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+      ```
+
+      - Expressed as percentage
+      - Scale-independent
+      - Undefined when y_true = 0
+
+      **4. When to Use Which Metric**
+
+      **RMSE**: Standard choice
+      - Penalizes large errors more
+      - Sensitive to outliers
+      - Use when large errors are very bad
+
+      **MAE**: Robust alternative
+      - Equal weight to all errors
+      - Less sensitive to outliers
+      - More interpretable
+
+      **R²**: Overall model quality
+      - Shows variance explained
+      - Good for comparing models
+      - Easy to communicate
+
+      **MAPE**: Business metrics
+      - Percentage error is intuitive
+      - Useful for forecasting
+      - Avoid if y can be zero
+
+      **5. Comparing Models**
+
+      ```python
+      models = {
+          'Linear': LinearRegression(),
+          'Ridge': Ridge(),
+          'Random Forest': RandomForestRegressor()
+      }
+
+      for name, model in models.items():
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+          rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+          r2 = r2_score(y_test, y_pred)
+          print(f"{name}: RMSE={rmse:.2f}, R²={r2:.3f}")
+      ```
+
+      **6. Cross-Validation for Robust Evaluation**
+
+      ```python
+      from sklearn.model_selection import cross_val_score
+
+      scores = cross_val_score(
+          model, X, y,
+          cv=5,
+          scoring='neg_mean_squared_error'
+      )
+      rmse_scores = np.sqrt(-scores)
+      print(f"CV RMSE: {rmse_scores.mean():.2f} (+/- {rmse_scores.std():.2f})")
+      ```
+
+    examples:
+      - title: "Basic Regression Metrics"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LinearRegression
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+          # Create synthetic data
+          np.random.seed(42)
+          X = np.random.rand(100, 1) * 10
+          y = 3 * X.ravel() + 7 + np.random.randn(100) * 2
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+
+          # Calculate metrics
+          mse = mean_squared_error(y_test, y_pred)
+          rmse = np.sqrt(mse)
+          mae = mean_absolute_error(y_test, y_pred)
+          r2 = r2_score(y_test, y_pred)
+
+          print("Regression Evaluation Metrics:")
+          print(f"  MSE:  {mse:.3f}")
+          print(f"  RMSE: {rmse:.3f}")
+          print(f"  MAE:  {mae:.3f}")
+          print(f"  R²:   {r2:.3f}")
+
+        output: |
+          Regression Evaluation Metrics:
+            MSE:  3.142
+            RMSE: 1.773
+            MAE:  1.398
+            R²:   0.917
+
+      - title: "Residual Analysis"
+        code: |
+          import numpy as np
+          import matplotlib.pyplot as plt
+          from sklearn.linear_model import LinearRegression
+          from sklearn.model_selection import train_test_split
+
+          # Generate data with slight non-linearity
+          np.random.seed(42)
+          X = np.linspace(0, 10, 100).reshape(-1, 1)
+          y = 2 * X.ravel() + 0.3 * X.ravel()**2 + np.random.randn(100) * 2
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+
+          # Calculate residuals
+          residuals = y_test - y_pred
+
+          # Statistics
+          print("Residual Analysis:")
+          print(f"  Mean: {residuals.mean():.4f}")
+          print(f"  Std:  {residuals.std():.4f}")
+          print(f"  Min:  {residuals.min():.4f}")
+          print(f"  Max:  {residuals.max():.4f}")
+
+          # Residual plot
+          plt.figure(figsize=(10, 4))
+
+          plt.subplot(1, 2, 1)
+          plt.scatter(y_pred, residuals, alpha=0.6)
+          plt.axhline(y=0, color='r', linestyle='--')
+          plt.xlabel('Predicted Values')
+          plt.ylabel('Residuals')
+          plt.title('Residual Plot')
+          plt.grid(True, alpha=0.3)
+
+          plt.subplot(1, 2, 2)
+          plt.hist(residuals, bins=15, edgecolor='black')
+          plt.xlabel('Residuals')
+          plt.ylabel('Frequency')
+          plt.title('Residual Distribution')
+          plt.grid(True, alpha=0.3)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          Residual Analysis:
+            Mean: 0.1524
+            Std:  3.0183
+            Min:  -5.7231
+            Max:  7.8945
+
+          [Two plots showing residual scatter plot and histogram]
+
+      - title: "Comparing Multiple Models"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LinearRegression, Ridge, Lasso
+          from sklearn.tree import DecisionTreeRegressor
+          from sklearn.ensemble import RandomForestRegressor
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+          # Create data
+          np.random.seed(42)
+          X = np.random.rand(200, 5)
+          y = 10 + 3*X[:, 0] + 5*X[:, 1] - 2*X[:, 2] + np.random.randn(200) * 2
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Models to compare
+          models = {
+              'Linear Regression': LinearRegression(),
+              'Ridge': Ridge(alpha=1.0),
+              'Lasso': Lasso(alpha=0.1),
+              'Decision Tree': DecisionTreeRegressor(max_depth=5, random_state=42),
+              'Random Forest': RandomForestRegressor(n_estimators=50, random_state=42)
+          }
+
+          print("Model Comparison:")
+          print("Model                | RMSE  | MAE   | R²")
+          print("---------------------|-------|-------|-------")
+
+          for name, model in models.items():
+              model.fit(X_train, y_train)
+              y_pred = model.predict(X_test)
+
+              rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+              mae = mean_absolute_error(y_test, y_pred)
+              r2 = r2_score(y_test, y_pred)
+
+              print(f"{name:20s} | {rmse:5.2f} | {mae:5.2f} | {r2:5.3f}")
+
+        output: |
+          Model Comparison:
+          Model                | RMSE  | MAE   | R²
+          ---------------------|-------|-------|-------
+          Linear Regression    |  1.98 |  1.55 | 0.931
+          Ridge                |  1.98 |  1.55 | 0.931
+          Lasso                |  1.99 |  1.56 | 0.930
+          Decision Tree        |  2.15 |  1.62 | 0.918
+          Random Forest        |  1.82 |  1.39 | 0.942
+
+      - title: "Actual vs Predicted Plot"
+        code: |
+          import numpy as np
+          import matplotlib.pyplot as plt
+          from sklearn.ensemble import RandomForestRegressor
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import r2_score
+
+          # Create data
+          np.random.seed(42)
+          X = np.random.rand(100, 3) * 10
+          y = 50 + 20*X[:, 0] - 10*X[:, 1] + 5*X[:, 2] + np.random.randn(100) * 10
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.25, random_state=42
+          )
+
+          # Train model
+          model = RandomForestRegressor(n_estimators=100, random_state=42)
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+
+          # Calculate R²
+          r2 = r2_score(y_test, y_pred)
+
+          # Plot
+          plt.figure(figsize=(8, 8))
+          plt.scatter(y_test, y_pred, alpha=0.6, s=100)
+
+          # Perfect prediction line
+          min_val = min(y_test.min(), y_pred.min())
+          max_val = max(y_test.max(), y_pred.max())
+          plt.plot([min_val, max_val], [min_val, max_val],
+                   'r--', lw=2, label='Perfect Prediction')
+
+          plt.xlabel('Actual Values', fontsize=12)
+          plt.ylabel('Predicted Values', fontsize=12)
+          plt.title(f'Actual vs Predicted (R² = {r2:.3f})', fontsize=14)
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.axis('equal')
+          plt.show()
+
+          print(f"R² Score: {r2:.3f}")
+          print(f"Model explains {r2*100:.1f}% of variance")
+
+        output: |
+          R² Score: 0.957
+          Model explains 95.7% of variance
+
+          [Scatter plot showing actual vs predicted values with diagonal line]
+
+      - title: "Mean Absolute Percentage Error (MAPE)"
+        code: |
+          import numpy as np
+          from sklearn.ensemble import RandomForestRegressor
+          from sklearn.model_selection import train_test_split
+
+          # Create sales data
+          np.random.seed(42)
+          X = np.random.rand(100, 2) * 10
+          y = 1000 + 50*X[:, 0] + 30*X[:, 1] + np.random.randn(100) * 50
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Train model
+          model = RandomForestRegressor(n_estimators=100, random_state=42)
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+
+          # Calculate MAPE
+          mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
+
+          print("Sales Prediction Evaluation:")
+          print(f"  MAPE: {mape:.2f}%")
+          print()
+          print("Sample Predictions:")
+          print("Actual    | Predicted | Error %")
+          print("----------|-----------|--------")
+
+          for i in range(5):
+              actual = y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]
+              predicted = y_pred[i]
+              error_pct = abs((actual - predicted) / actual) * 100
+              print(f"{actual:9.0f} | {predicted:9.0f} | {error_pct:6.2f}%")
+
+        output: |
+          Sales Prediction Evaluation:
+            MAPE: 2.87%
+
+          Sample Predictions:
+          Actual    | Predicted | Error %
+          ----------|-----------|--------
+               1245 |      1232 |   1.04%
+               1198 |      1215 |   1.42%
+               1089 |      1076 |   1.19%
+               1367 |      1392 |   1.83%
+               1156 |      1143 |   1.12%
+
+      - title: "Cross-Validation Scoring"
+        code: |
+          import numpy as np
+          from sklearn.ensemble import RandomForestRegressor
+          from sklearn.model_selection import cross_val_score
+          from sklearn.datasets import make_regression
+
+          # Create dataset
+          X, y = make_regression(
+              n_samples=200,
+              n_features=10,
+              noise=10,
+              random_state=42
+          )
+
+          # Model
+          model = RandomForestRegressor(n_estimators=50, random_state=42)
+
+          # Cross-validation with different metrics
+          mse_scores = -cross_val_score(
+              model, X, y, cv=5, scoring='neg_mean_squared_error'
+          )
+          rmse_scores = np.sqrt(mse_scores)
+
+          mae_scores = -cross_val_score(
+              model, X, y, cv=5, scoring='neg_mean_absolute_error'
+          )
+
+          r2_scores = cross_val_score(
+              model, X, y, cv=5, scoring='r2'
+          )
+
+          print("5-Fold Cross-Validation Results:")
+          print(f"  RMSE: {rmse_scores.mean():.2f} (+/- {rmse_scores.std():.2f})")
+          print(f"  MAE:  {mae_scores.mean():.2f} (+/- {mae_scores.std():.2f})")
+          print(f"  R²:   {r2_scores.mean():.3f} (+/- {r2_scores.std():.3f})")
+          print()
+          print("Individual Fold RMSE scores:")
+          for i, score in enumerate(rmse_scores, 1):
+              print(f"  Fold {i}: {score:.2f}")
+
+        output: |
+          5-Fold Cross-Validation Results:
+            RMSE: 10.34 (+/- 1.12)
+            MAE:  8.21 (+/- 0.87)
+            R²:   0.994 (+/- 0.002)
+
+          Individual Fold RMSE scores:
+            Fold 1: 9.87
+            Fold 2: 11.23
+            Fold 3: 10.15
+            Fold 4: 9.98
+            Fold 5: 10.48
+
+  exercise:
+    title: "Evaluate a Regression Model"
+
+    instruction: |
+      Build and evaluate a regression model on the California housing dataset.
+
+      **Tasks:**
+      1. Train a RandomForestRegressor with n_estimators=50 and random_state=42
+      2. Make predictions on X_test
+      3. Calculate RMSE and store in `rmse`
+      4. Calculate R² score and store in `r2`
+
+    setup_code: |
+      import numpy as np
+      from sklearn.datasets import fetch_california_housing
+      from sklearn.model_selection import train_test_split
+      from sklearn.ensemble import RandomForestRegressor
+      from sklearn.metrics import mean_squared_error, r2_score
+
+      # Load data
+      housing = fetch_california_housing()
+      X, y = housing.data, housing.target
+
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, test_size=0.2, random_state=42
+      )
+
+    starter_code: |
+      # Your code here
+      model = RandomForestRegressor(...)
+      # Train and evaluate
+      rmse =
+      r2 =
+
+    solution: |
+      model = RandomForestRegressor(n_estimators=50, random_state=42)
+      model.fit(X_train, y_train)
+      y_pred = model.predict(X_test)
+      rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+      r2 = r2_score(y_test, y_pred)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "rmse"
+          type: "float"
+          max: 0.6
+        - variable: "r2"
+          type: "float"
+          min: 0.75
+
+    hints:
+      - level: 1
+        text: |
+          Train RandomForestRegressor with n_estimators=50, random_state=42.
+          Use np.sqrt(mean_squared_error(y_test, y_pred)) for RMSE.
+          Use r2_score(y_test, y_pred) for R² score.
+
+      - level: 2
+        text: |
+          model = RandomForestRegressor(n_estimators=50, random_state=42)
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+          rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+          r2 = r2_score(y_test, y_pred)
+
+      - level: 3
+        code: |
+          model = RandomForestRegressor(n_estimators=50, random_state=42)
+          model.fit(X_train, y_train)
+          y_pred = model.predict(X_test)
+          rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+          r2 = r2_score(y_test, y_pred)
+
+  follow_up:
+    challenges:
+      - "Calculate and compare MAE with RMSE"
+      - "Create a residual plot for the predictions"
+      - "Calculate MAPE for the predictions"
+      - "Compare with LinearRegression performance"
+
+    next_lesson: "sklearn_09"
+
+    additional_resources:
+      - title: "Regression Metrics"
+        url: "https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics"

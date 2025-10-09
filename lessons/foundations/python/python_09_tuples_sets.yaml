@@ -1,0 +1,374 @@
+lesson:
+  id: "python_09"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Tuples and Sets"
+  order: 9
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: ["python_03"]
+    learning_objectives:
+      - "Use tuples for immutable sequences"
+      - "Understand when to use tuples vs lists"
+      - "Work with sets for unique collections"
+      - "Perform set operations (union, intersection, difference)"
+
+  content:
+    introduction: |
+      # Tuples and Sets
+
+      Expand your data structure toolkit! Learn about tuples (immutable lists)
+      and sets (collections of unique items).
+
+      **What you'll learn:**
+      - Tuples for fixed data
+      - Sets for unique values
+      - Set operations
+      - When to use each
+
+    concept: |
+      ## Two More Essential Data Structures
+
+      **1. Tuples - Immutable Sequences**
+
+      Like lists, but cannot be changed:
+      ```python
+      # Create tuple with parentheses
+      point = (10, 20)
+      rgb = (255, 128, 0)
+
+      # Or without parentheses
+      dimensions = 1920, 1080
+
+      # Single element tuple (note the comma!)
+      single = (42,)
+      ```
+
+      **Accessing elements:**
+      ```python
+      point = (10, 20)
+      x = point[0]  # 10
+      y = point[1]  # 20
+      ```
+
+      **Unpacking:**
+      ```python
+      point = (10, 20)
+      x, y = point  # x=10, y=20
+      ```
+
+      **Why use tuples?**
+      - ✅ Protect data from modification
+      - ✅ Slightly faster than lists
+      - ✅ Can be dictionary keys (lists cannot)
+      - ✅ Conventional for fixed structures (coordinates, RGB colors)
+
+      **2. Sets - Collections of Unique Elements**
+
+      Unordered collection with no duplicates:
+      ```python
+      # Create with curly braces
+      fruits = {"apple", "banana", "cherry"}
+
+      # Or from list (removes duplicates)
+      numbers = set([1, 2, 2, 3, 3, 3])  # {1, 2, 3}
+
+      # Empty set (use set(), not {})
+      empty = set()
+      ```
+
+      **Adding/removing:**
+      ```python
+      fruits.add("orange")
+      fruits.remove("apple")  # Error if not found
+      fruits.discard("apple")  # No error if not found
+      ```
+
+      **3. Set Operations**
+
+      **Union** (all items from both):
+      ```python
+      set1 = {1, 2, 3}
+      set2 = {3, 4, 5}
+      union = set1 | set2  # {1, 2, 3, 4, 5}
+      # Or: set1.union(set2)
+      ```
+
+      **Intersection** (common items):
+      ```python
+      intersection = set1 & set2  # {3}
+      # Or: set1.intersection(set2)
+      ```
+
+      **Difference** (in first but not second):
+      ```python
+      difference = set1 - set2  # {1, 2}
+      # Or: set1.difference(set2)
+      ```
+
+      **Symmetric Difference** (in either but not both):
+      ```python
+      sym_diff = set1 ^ set2  # {1, 2, 4, 5}
+      ```
+
+      **4. Set Methods**
+
+      ```python
+      # Check membership (very fast!)
+      "apple" in fruits  # True/False
+
+      # Check subset/superset
+      {1, 2}.issubset({1, 2, 3})  # True
+      {1, 2, 3}.issuperset({1, 2})  # True
+
+      # Length
+      len(fruits)
+      ```
+
+      **When to Use Each:**
+
+      **Tuple:**
+      - Fixed data that shouldn't change
+      - Function returns multiple values
+      - Dictionary keys
+      - Slightly better performance
+
+      **Set:**
+      - Remove duplicates
+      - Membership testing (very fast)
+      - Mathematical set operations
+      - Order doesn't matter
+
+      **List:**
+      - Need to modify data
+      - Order matters
+      - Allow duplicates
+
+    examples:
+      - title: "Creating and Using Tuples"
+        code: |
+          # Create tuple
+          point = (10, 20, 30)
+          print("Point:", point)
+          print("Type:", type(point))
+
+          # Access elements
+          print("x:", point[0])
+          print("y:", point[1])
+
+          # Unpacking
+          x, y, z = point
+          print(f"Unpacked: x={x}, y={y}, z={z}")
+
+          # Length
+          print("Length:", len(point))
+
+        output: |
+          Point: (10, 20, 30)
+          Type: <class 'tuple'>
+          x: 10
+          y: 20
+          Unpacked: x=10, y=20, z=30
+          Length: 3
+
+      - title: "Tuple Immutability"
+        code: |
+          colors = ("red", "green", "blue")
+          print("Original:", colors)
+
+          # This would cause an error:
+          # colors[0] = "yellow"  # TypeError!
+
+          # But you can create a new tuple
+          new_colors = ("yellow",) + colors[1:]
+          print("New tuple:", new_colors)
+          print("Original unchanged:", colors)
+
+        output: |
+          Original: ('red', 'green', 'blue')
+          New tuple: ('yellow', 'green', 'blue')
+          Original unchanged: ('red', 'green', 'blue')
+
+      - title: "Creating and Using Sets"
+        code: |
+          # Create set
+          fruits = {"apple", "banana", "cherry"}
+          print("Fruits:", fruits)
+
+          # From list (removes duplicates)
+          numbers = [1, 2, 2, 3, 3, 3, 4]
+          unique = set(numbers)
+          print("Unique numbers:", unique)
+
+          # Add and remove
+          fruits.add("orange")
+          print("After add:", fruits)
+
+          fruits.discard("banana")
+          print("After remove:", fruits)
+
+        output: |
+          Fruits: {'banana', 'cherry', 'apple'}
+          Unique numbers: {1, 2, 3, 4}
+          After add: {'banana', 'orange', 'cherry', 'apple'}
+          After remove: {'orange', 'cherry', 'apple'}
+
+      - title: "Set Operations"
+        code: |
+          # Two sets
+          set1 = {1, 2, 3, 4}
+          set2 = {3, 4, 5, 6}
+
+          print("Set 1:", set1)
+          print("Set 2:", set2)
+
+          # Union (all items)
+          print("Union:", set1 | set2)
+
+          # Intersection (common items)
+          print("Intersection:", set1 & set2)
+
+          # Difference (in set1 but not set2)
+          print("Difference:", set1 - set2)
+
+          # Symmetric difference (in either but not both)
+          print("Symmetric diff:", set1 ^ set2)
+
+        output: |
+          Set 1: {1, 2, 3, 4}
+          Set 2: {3, 4, 5, 6}
+          Union: {1, 2, 3, 4, 5, 6}
+          Intersection: {3, 4}
+          Difference: {1, 2}
+          Symmetric diff: {1, 2, 5, 6}
+
+      - title: "Practical Example - Removing Duplicates"
+        code: |
+          # Remove duplicates from list
+          numbers = [1, 2, 2, 3, 4, 4, 4, 5]
+          print("Original:", numbers)
+
+          # Convert to set and back to list
+          unique_numbers = list(set(numbers))
+          print("Unique (unordered):", unique_numbers)
+
+          # Remove duplicates while preserving order
+          seen = set()
+          unique_ordered = []
+          for num in numbers:
+              if num not in seen:
+                  seen.add(num)
+                  unique_ordered.append(num)
+
+          print("Unique (ordered):", unique_ordered)
+
+        output: |
+          Original: [1, 2, 2, 3, 4, 4, 4, 5]
+          Unique (unordered): [1, 2, 3, 4, 5]
+          Unique (ordered): [1, 2, 3, 4, 5]
+
+      - title: "Practical Example - Common Elements"
+        code: |
+          # Find common interests
+          alice_hobbies = {"reading", "cooking", "hiking"}
+          bob_hobbies = {"cooking", "gaming", "hiking"}
+
+          # Common hobbies
+          common = alice_hobbies & bob_hobbies
+          print("Common hobbies:", common)
+
+          # Unique to Alice
+          alice_only = alice_hobbies - bob_hobbies
+          print("Alice's unique hobbies:", alice_only)
+
+          # All hobbies
+          all_hobbies = alice_hobbies | bob_hobbies
+          print("All hobbies:", all_hobbies)
+
+        output: |
+          Common hobbies: {'hiking', 'cooking'}
+          Alice's unique hobbies: {'reading'}
+          All hobbies: {'reading', 'gaming', 'hiking', 'cooking'}
+
+      - title: "Tuple as Dictionary Key"
+        code: |
+          # Use tuple as key (lists can't be keys!)
+          locations = {}
+
+          # Store data by coordinates
+          locations[(10, 20)] = "Home"
+          locations[(30, 40)] = "Work"
+          locations[(50, 60)] = "Gym"
+
+          print("Locations:", locations)
+
+          # Look up by coordinate
+          home = locations[(10, 20)]
+          print(f"Location at (10, 20): {home}")
+
+        output: |
+          Locations: {(10, 20): 'Home', (30, 40): 'Work', (50, 60): 'Gym'}
+          Location at (10, 20): Home
+
+  exercise:
+    title: "Find Common Elements"
+
+    instruction: |
+      Find common elements between two lists using sets.
+
+      **Given:**
+      - list1 = [1, 2, 3, 4, 5]
+      - list2 = [4, 5, 6, 7, 8]
+
+      **Task:** Create a set `common` containing elements that appear in both lists.
+
+      **Expected result:** {4, 5}
+
+    setup_code: |
+      list1 = [1, 2, 3, 4, 5]
+      list2 = [4, 5, 6, 7, 8]
+
+    starter_code: |
+      # Your code here (use set intersection)
+      common =
+
+    solution: |
+      common = set(list1) & set(list2)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "common"
+          expected: {4, 5}
+          type: "set"
+
+    hints:
+      - level: 1
+        text: |
+          Convert both lists to sets.
+          Use the & operator (intersection) to find common elements.
+
+      - level: 2
+        text: |
+          common = set(list1) & set(list2)
+
+      - level: 3
+        code: |
+          common = set(list1) & set(list2)
+
+  follow_up:
+    challenges:
+      - "Remove duplicates from a list using set"
+      - "Find all elements unique to either list (symmetric difference)"
+      - "Check if one set is a subset of another"
+      - "Use tuple to return multiple values from a function"
+
+    next_lesson: "python_10"
+
+    additional_resources:
+      - title: "Python Tuples Documentation"
+        url: "https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences"
+      - title: "Python Sets Documentation"
+        url: "https://docs.python.org/3/tutorial/datastructures.html#sets"

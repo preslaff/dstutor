@@ -1,0 +1,384 @@
+lesson:
+  id: "pandas_06"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Handling Missing Data"
+  order: 6
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_03"]
+    learning_objectives:
+      - "Detect missing values in DataFrames"
+      - "Understand different types of missing data"
+      - "Handle missing values with various strategies"
+      - "Make informed decisions about missing data"
+
+  content:
+    introduction: |
+      # Handling Missing Data in Pandas
+
+      Real-world data is messy! Missing values are everywhere. Learning to handle them
+      properly is crucial for accurate analysis and modeling.
+
+      **What you'll learn:**
+      - Detect and count missing values
+      - Different strategies for handling them
+      - When to drop vs impute
+      - Best practices for missing data
+
+    concept: |
+      ## Missing Data in Pandas
+
+      **How Missing Data Appears:**
+      - `NaN` (Not a Number) - default for numeric columns
+      - `None` - Python's null value
+      - Empty strings (sometimes)
+      - Custom placeholders (-999, "N/A", etc.)
+
+      **Detection Methods:**
+      - `.isnull()` or `.isna()` - Returns boolean DataFrame
+      - `.notnull()` or `.notna()` - Opposite of isnull
+      - `.isnull().sum()` - Count missing per column
+
+      **Handling Strategies:**
+
+      1. **Drop Missing Data**
+         - `.dropna()` - Remove rows/columns with NaN
+         - Use when: Small amount of missing data, non-critical rows
+
+      2. **Fill Missing Data**
+         - `.fillna(value)` - Replace with specific value
+         - `.ffill()` - Forward fill (use previous value)
+          - `.bfill()` - Backward fill (use next value)
+         - `.interpolate()` - Interpolate values
+
+      3. **Imputation**
+         - Fill with mean/median/mode
+         - Use domain knowledge
+         - Advanced: ML-based imputation
+
+      **When to Use Each:**
+      - **Drop**: <5% missing, random pattern
+      - **Mean/Median**: Numeric, normal distribution
+      - **Mode**: Categorical data
+      - **Forward/Backward Fill**: Time series
+      - **Keep as NaN**: Missingness is informative
+
+    examples:
+      - title: "Detecting Missing Values"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create DataFrame with missing values
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve'],
+              'Age': [25, np.nan, 35, 28, np.nan],
+              'City': ['NYC', 'LA', None, 'Boston', 'Seattle'],
+              'Salary': [70000, 80000, np.nan, 65000, 85000]
+          })
+
+          print("DataFrame:")
+          print(df)
+          print()
+
+          # Check for missing values
+          print("Missing values (boolean):")
+          print(df.isnull())
+          print()
+
+          # Count missing per column
+          print("Missing count per column:")
+          print(df.isnull().sum())
+          print()
+
+          # Percentage missing
+          print("Percentage missing:")
+          print((df.isnull().sum() / len(df) * 100).round(1))
+
+        output: |
+          DataFrame:
+                Name   Age     City   Salary
+          0   Alice  25.0      NYC  70000.0
+          1     Bob   NaN       LA  80000.0
+          2 Charlie  35.0     None      NaN
+          3   David  28.0   Boston  65000.0
+          4     Eve   NaN  Seattle  85000.0
+
+          Missing values (boolean):
+              Name    Age   City  Salary
+          0  False  False  False   False
+          1  False   True  False   False
+          2  False  False   True    True
+          3  False  False  False   False
+          4  False   True  False   False
+
+          Missing count per column:
+          Name      0
+          Age       2
+          City      1
+          Salary    1
+          dtype: int64
+
+          Percentage missing:
+          Name       0.0
+          Age       40.0
+          City      20.0
+          Salary    20.0
+          dtype: float64
+
+      - title: "Dropping Missing Values"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'A': [1, 2, np.nan, 4],
+              'B': [5, np.nan, np.nan, 8],
+              'C': [9, 10, 11, 12]
+          })
+
+          print("Original DataFrame:")
+          print(df)
+          print()
+
+          # Drop rows with ANY missing values
+          print("Drop rows with ANY NaN:")
+          print(df.dropna())
+          print()
+
+          # Drop rows where ALL values are missing
+          print("Drop rows where ALL are NaN:")
+          print(df.dropna(how='all'))
+          print()
+
+          # Drop columns with missing values
+          print("Drop columns with ANY NaN:")
+          print(df.dropna(axis=1))
+          print()
+
+          # Drop rows with at least 2 non-NaN values
+          print("Keep rows with at least 2 non-NaN:")
+          print(df.dropna(thresh=2))
+
+        output: |
+          Original DataFrame:
+               A    B   C
+          0  1.0  5.0   9
+          1  2.0  NaN  10
+          2  NaN  NaN  11
+          3  4.0  8.0  12
+
+          Drop rows with ANY NaN:
+               A    B   C
+          0  1.0  5.0   9
+          3  4.0  8.0  12
+
+          Drop rows where ALL are NaN:
+               A    B   C
+          0  1.0  5.0   9
+          1  2.0  NaN  10
+          2  NaN  NaN  11
+          3  4.0  8.0  12
+
+          Drop columns with ANY NaN:
+              C
+          0   9
+          1  10
+          2  11
+          3  12
+
+          Keep rows with at least 2 non-NaN:
+               A    B   C
+          0  1.0  5.0   9
+          1  2.0  NaN  10
+          3  4.0  8.0  12
+
+      - title: "Filling Missing Values"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'A': [1, np.nan, 3, np.nan, 5],
+              'B': [10, 20, np.nan, 40, 50]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Fill with a constant
+          print("Fill with 0:")
+          print(df.fillna(0))
+          print()
+
+          # Fill with column mean
+          print("Fill with column mean:")
+          print(df.fillna(df.mean()))
+          print()
+
+          # Forward fill
+          print("Forward fill:")
+          print(df.ffill())
+          print()
+
+          # Backward fill
+          print("Backward fill:")
+          print(df.bfill())
+
+        output: |
+          Original:
+               A     B
+          0  1.0  10.0
+          1  NaN  20.0
+          2  3.0   NaN
+          3  NaN  40.0
+          4  5.0  50.0
+
+          Fill with 0:
+               A     B
+          0  1.0  10.0
+          1  0.0  20.0
+          2  3.0   0.0
+          3  0.0  40.0
+          4  5.0  50.0
+
+          Fill with column mean:
+               A     B
+          0  1.0  10.0
+          1  3.0  20.0
+          2  3.0  30.0
+          3  3.0  40.0
+          4  5.0  50.0
+
+          Forward fill:
+               A     B
+          0  1.0  10.0
+          1  1.0  20.0
+          2  3.0  20.0
+          3  3.0  40.0
+          4  5.0  50.0
+
+          Backward fill:
+               A     B
+          0  1.0  10.0
+          1  3.0  20.0
+          2  3.0  40.0
+          3  5.0  40.0
+          4  5.0  50.0
+
+      - title: "Different Strategies by Column"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'Age': [25, np.nan, 35, np.nan, 45],
+              'Income': [50000, 60000, np.nan, 70000, 80000],
+              'Category': ['A', 'B', np.nan, 'A', 'B']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Fill numeric with mean, categorical with mode
+          df_filled = df.copy()
+          df_filled['Age'].fillna(df['Age'].mean(), inplace=True)
+          df_filled['Income'].fillna(df['Income'].median(), inplace=True)
+          df_filled['Category'].fillna(df['Category'].mode()[0], inplace=True)
+
+          print("Filled (Age=mean, Income=median, Category=mode):")
+          print(df_filled)
+
+        output: |
+          Original:
+              Age   Income Category
+          0  25.0  50000.0        A
+          1   NaN  60000.0        B
+          2  35.0      NaN      NaN
+          3   NaN  70000.0        A
+          4  45.0  80000.0        B
+
+          Filled (Age=mean, Income=median, Category=mode):
+              Age   Income Category
+          0  25.0  50000.0        A
+          1  35.0  60000.0        B
+          2  35.0  65000.0        A
+          3  35.0  70000.0        A
+          4  45.0  80000.0        B
+
+  exercise:
+    title: "Handle Missing Sales Data"
+
+    instruction: |
+      You have sales data with missing values. Clean it by:
+
+      1. Fill missing 'Quantity' values with the median
+      2. Fill missing 'Product' values with 'Unknown'
+      3. Drop rows where 'Price' is missing
+
+      **Data has columns:** Product, Quantity, Price
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      df = pd.DataFrame({
+          'Product': ['A', 'B', np.nan, 'D', 'E'],
+          'Quantity': [10, np.nan, 15, np.nan, 20],
+          'Price': [100, 200, np.nan, 400, 500]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.copy()
+      result['Quantity'].fillna(result['Quantity'].median(), inplace=True)
+      result['Product'].fillna('Unknown', inplace=True)
+      result = result.dropna(subset=['Price'])
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [4, 3]
+        - type: "columns"
+          expected: ['Product', 'Quantity', 'Price']
+
+    hints:
+      - level: 1
+        text: |
+          Use .fillna() for Quantity (with median) and Product (with 'Unknown').
+          Then use .dropna(subset=['Price']) to drop rows with missing Price.
+
+      - level: 2
+        text: |
+          result = df.copy()
+          result['Quantity'].fillna(result['Quantity'].median(), inplace=True)
+          result['Product'].fillna('Unknown', inplace=True)
+          result = result.dropna(subset=['Price'])
+
+      - level: 3
+        code: |
+          result = df.copy()
+          result['Quantity'].fillna(result['Quantity'].median(), inplace=True)
+          result['Product'].fillna('Unknown', inplace=True)
+          result = result.dropna(subset=['Price'])
+
+  follow_up:
+    challenges:
+      - "Detect rows with more than 50% missing values"
+      - "Fill missing values with interpolation"
+      - "Create a 'missing' indicator column"
+
+    next_lesson: "pandas_07"
+
+    additional_resources:
+      - title: "Pandas Missing Data Guide"
+        url: "https://pandas.pydata.org/docs/user_guide/missing_data.html"

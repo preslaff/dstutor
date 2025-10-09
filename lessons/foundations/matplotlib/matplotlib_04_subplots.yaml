@@ -1,0 +1,393 @@
+lesson:
+  id: "matplotlib_04"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Subplots and Layouts"
+  order: 4
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["matplotlib_01", "matplotlib_02"]
+    learning_objectives:
+      - "Create multiple subplots in a single figure"
+      - "Use plt.subplots() for grid layouts"
+      - "Customize subplot spacing and arrangement"
+      - "Share axes between subplots"
+
+  content:
+    introduction: |
+      # Subplots and Layouts
+
+      Create powerful multi-panel visualizations! Learn to combine multiple plots
+      in a single figure for comprehensive data analysis.
+
+      **What you'll learn:**
+      - Creating subplot grids
+      - Accessing and customizing individual subplots
+      - Adjusting spacing and layout
+      - Sharing axes for better comparison
+
+    concept: |
+      ## Creating Multiple Plots
+
+      **1. plt.subplots() - The Recommended Way**
+
+      Create a figure with a grid of subplots:
+      ```python
+      fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+      ```
+
+      **Parameters:**
+      - `nrows` - Number of rows
+      - `ncols` - Number of columns
+      - `figsize` - Figure size in inches (width, height)
+      - `sharex` - Share x-axis across subplots
+      - `sharey` - Share y-axis across subplots
+
+      **2. Accessing Subplots**
+
+      The `axes` object is an array of subplot axes:
+      ```python
+      # Single row/column: axes is 1D array
+      fig, axes = plt.subplots(1, 3)
+      axes[0].plot(x, y1)
+      axes[1].plot(x, y2)
+      axes[2].plot(x, y3)
+
+      # Grid: axes is 2D array
+      fig, axes = plt.subplots(2, 2)
+      axes[0, 0].plot(x, y1)  # Top-left
+      axes[0, 1].plot(x, y2)  # Top-right
+      axes[1, 0].plot(x, y3)  # Bottom-left
+      axes[1, 1].plot(x, y4)  # Bottom-right
+      ```
+
+      **3. Flattening for Easy Iteration**
+
+      Convert 2D array to 1D for looping:
+      ```python
+      fig, axes = plt.subplots(2, 2)
+      for ax in axes.flat:
+          ax.plot(x, y)
+      ```
+
+      **4. Layout Adjustments**
+
+      Control spacing between subplots:
+      ```python
+      plt.tight_layout()  # Automatically adjust spacing
+      plt.subplots_adjust(hspace=0.3, wspace=0.4)  # Manual spacing
+      ```
+
+      **5. Shared Axes**
+
+      Make subplots share the same scale:
+      ```python
+      fig, axes = plt.subplots(2, 2, sharex=True, sharey=True)
+      ```
+
+      **Best Practices:**
+      - Use `plt.subplots()` over `plt.subplot()` (singular)
+      - Set `figsize` for proper proportions
+      - Use `tight_layout()` to prevent label overlap
+      - Share axes when comparing similar data
+
+    examples:
+      - title: "Basic 2x2 Subplot Grid"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Generate data
+          x = np.linspace(0, 10, 100)
+
+          # Create 2x2 subplot grid
+          fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+          # Plot in each subplot
+          axes[0, 0].plot(x, np.sin(x))
+          axes[0, 0].set_title('Sine')
+
+          axes[0, 1].plot(x, np.cos(x), 'r')
+          axes[0, 1].set_title('Cosine')
+
+          axes[1, 0].plot(x, np.sin(x) * np.cos(x), 'g')
+          axes[1, 0].set_title('Sin × Cos')
+
+          axes[1, 1].plot(x, x**2, 'purple')
+          axes[1, 1].set_title('Quadratic')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [A 2x2 grid showing:
+          - Top-left: Blue sine wave
+          - Top-right: Red cosine wave
+          - Bottom-left: Green sin×cos curve
+          - Bottom-right: Purple quadratic curve]
+
+      - title: "Single Row of Subplots"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+
+          # Create 1 row, 3 columns
+          fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+          # axes is a 1D array
+          axes[0].plot(x, x)
+          axes[0].set_title('Linear')
+
+          axes[1].plot(x, x**2)
+          axes[1].set_title('Quadratic')
+
+          axes[2].plot(x, x**3)
+          axes[2].set_title('Cubic')
+
+          # Add common labels
+          for ax in axes:
+              ax.set_xlabel('x')
+              ax.set_ylabel('y')
+              ax.grid(True)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Three side-by-side plots showing linear, quadratic, and cubic functions]
+
+      - title: "Shared Axes for Comparison"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data1 = np.random.normal(0, 1, 1000)
+          data2 = np.random.normal(2, 1.5, 1000)
+          data3 = np.random.normal(-1, 0.5, 1000)
+
+          # Share y-axis to compare distributions
+          fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=True)
+
+          axes[0].hist(data1, bins=30, alpha=0.7)
+          axes[0].set_title('Dataset 1 (μ=0, σ=1)')
+
+          axes[1].hist(data2, bins=30, alpha=0.7, color='orange')
+          axes[1].set_title('Dataset 2 (μ=2, σ=1.5)')
+
+          axes[2].hist(data3, bins=30, alpha=0.7, color='green')
+          axes[2].set_title('Dataset 3 (μ=-1, σ=0.5)')
+
+          axes[0].set_ylabel('Frequency')
+          for ax in axes:
+              ax.set_xlabel('Value')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Three histograms with shared y-axis showing different normal distributions]
+
+      - title: "Different Plot Types in Subplots"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          x = np.linspace(0, 10, 50)
+          y1 = np.sin(x) + np.random.normal(0, 0.1, 50)
+          y2 = np.random.normal(0, 1, 100)
+
+          categories = ['A', 'B', 'C', 'D']
+          values = [23, 45, 31, 28]
+
+          # Create 2x2 grid with different plot types
+          fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+          # Line plot
+          axes[0, 0].plot(x, y1, 'o-')
+          axes[0, 0].set_title('Line Plot with Markers')
+          axes[0, 0].grid(True)
+
+          # Scatter plot
+          axes[0, 1].scatter(x, y1, c=y1, cmap='viridis', s=50)
+          axes[0, 1].set_title('Scatter Plot with Color Map')
+
+          # Bar chart
+          axes[1, 0].bar(categories, values, color=['red', 'blue', 'green', 'orange'])
+          axes[1, 0].set_title('Bar Chart')
+          axes[1, 0].set_ylabel('Count')
+
+          # Histogram
+          axes[1, 1].hist(y2, bins=20, alpha=0.7, color='purple')
+          axes[1, 1].set_title('Histogram')
+          axes[1, 1].set_xlabel('Value')
+          axes[1, 1].set_ylabel('Frequency')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [A 2x2 grid showing:
+          - Top-left: Line plot with markers
+          - Top-right: Colored scatter plot
+          - Bottom-left: Multi-colored bar chart
+          - Bottom-right: Purple histogram]
+
+      - title: "Iterating Over Subplots"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data for different functions
+          x = np.linspace(0, 2*np.pi, 100)
+          functions = [
+              ('sin(x)', np.sin(x)),
+              ('cos(x)', np.cos(x)),
+              ('sin(2x)', np.sin(2*x)),
+              ('cos(2x)', np.cos(2*x)),
+              ('sin(x) + cos(x)', np.sin(x) + np.cos(x)),
+              ('sin(x) × cos(x)', np.sin(x) * np.cos(x))
+          ]
+
+          # Create 2x3 grid
+          fig, axes = plt.subplots(2, 3, figsize=(15, 8))
+
+          # Flatten for easy iteration
+          for ax, (title, y) in zip(axes.flat, functions):
+              ax.plot(x, y)
+              ax.set_title(title)
+              ax.grid(True, alpha=0.3)
+              ax.set_xlabel('x')
+              ax.set_ylabel('y')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [A 2x3 grid showing six different trigonometric functions]
+
+      - title: "Manual Spacing Adjustment"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+
+          fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+          for i in range(2):
+              for j in range(2):
+                  axes[i, j].plot(x, np.sin(x * (i+j+1)))
+                  axes[i, j].set_title(f'Plot ({i}, {j})')
+
+          # Adjust spacing manually
+          # hspace = height spacing, wspace = width spacing
+          plt.subplots_adjust(hspace=0.4, wspace=0.3)
+          plt.show()
+
+        output: |
+          [A 2x2 grid with custom spacing between subplots]
+
+  exercise:
+    title: "Create Sales Dashboard"
+
+    instruction: |
+      Create a 2x2 subplot grid showing different views of sales data.
+
+      **Requirements:**
+      - Top-left (axes[0,0]): Line plot of monthly_sales
+      - Top-right (axes[0,1]): Bar chart of category_sales (values)
+      - Bottom-left (axes[1,0]): Scatter plot (x=months, y=monthly_sales)
+      - Bottom-right (axes[1,1]): Horizontal bar chart of category_sales
+
+      Use figsize=(12, 10) and apply tight_layout().
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      months = np.arange(1, 13)
+      monthly_sales = [100, 120, 115, 135, 150, 160, 155, 170, 165, 180, 190, 200]
+      categories = ['Electronics', 'Clothing', 'Food', 'Books']
+      category_sales = [450, 320, 280, 150]
+
+    starter_code: |
+      # Your code here
+      fig, axes =
+
+    solution: |
+      fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+      # Top-left: Line plot
+      axes[0, 0].plot(months, monthly_sales)
+      axes[0, 0].set_title('Monthly Sales Trend')
+
+      # Top-right: Bar chart
+      axes[0, 1].bar(categories, category_sales)
+      axes[0, 1].set_title('Sales by Category')
+
+      # Bottom-left: Scatter plot
+      axes[1, 0].scatter(months, monthly_sales)
+      axes[1, 0].set_title('Monthly Sales (Scatter)')
+
+      # Bottom-right: Horizontal bar
+      axes[1, 1].barh(categories, category_sales)
+      axes[1, 1].set_title('Category Sales (Horizontal)')
+
+      plt.tight_layout()
+
+    validation:
+      type: "plot_check"
+      checks:
+        - type: "subplot_count"
+          expected: 4
+
+    hints:
+      - level: 1
+        text: |
+          Use plt.subplots(2, 2, figsize=(12, 10)) to create the grid.
+          Access each subplot with axes[row, col] and use appropriate plot methods.
+          Don't forget plt.tight_layout() at the end!
+
+      - level: 2
+        text: |
+          axes[0, 0].plot(months, monthly_sales)
+          axes[0, 1].bar(categories, category_sales)
+          axes[1, 0].scatter(months, monthly_sales)
+          axes[1, 1].barh(categories, category_sales)
+
+      - level: 3
+        code: |
+          fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+          axes[0, 0].plot(months, monthly_sales)
+          axes[0, 0].set_title('Monthly Sales Trend')
+
+          axes[0, 1].bar(categories, category_sales)
+          axes[0, 1].set_title('Sales by Category')
+
+          axes[1, 0].scatter(months, monthly_sales)
+          axes[1, 0].set_title('Monthly Sales (Scatter)')
+
+          axes[1, 1].barh(categories, category_sales)
+          axes[1, 1].set_title('Category Sales (Horizontal)')
+
+          plt.tight_layout()
+
+  follow_up:
+    challenges:
+      - "Create a 3x3 grid with 9 different plots"
+      - "Use sharex and sharey for comparison plots"
+      - "Add a main title to the entire figure"
+      - "Create subplots with different sizes (GridSpec)"
+
+    next_lesson: "matplotlib_05"
+
+    additional_resources:
+      - title: "Matplotlib Subplots Documentation"
+        url: "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html"

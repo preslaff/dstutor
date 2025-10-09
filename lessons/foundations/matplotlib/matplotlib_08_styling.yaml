@@ -1,0 +1,425 @@
+lesson:
+  id: "matplotlib_08"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Styling and Customization"
+  order: 8
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["matplotlib_01", "matplotlib_04"]
+    learning_objectives:
+      - "Apply built-in Matplotlib styles"
+      - "Customize colors, fonts, and line styles"
+      - "Create publication-ready plots"
+      - "Use style sheets for consistent visualization"
+
+  content:
+    introduction: |
+      # Styling and Customization
+
+      Make your plots professional and publication-ready! Learn to control every
+      aspect of your visualizations - from colors and fonts to complete style themes.
+
+      **What you'll learn:**
+      - Built-in Matplotlib styles
+      - Customizing colors, fonts, and lines
+      - Creating consistent visual themes
+      - Professional plot formatting
+
+    concept: |
+      ## Customizing Plot Appearance
+
+      **1. Built-in Styles**
+
+      Apply predefined styles:
+      ```python
+      plt.style.use('seaborn-v0_8')
+      plt.style.use('ggplot')
+      plt.style.use('dark_background')
+      ```
+
+      View available styles:
+      ```python
+      print(plt.style.available)
+      ```
+
+      **Popular styles:**
+      - `'seaborn-v0_8'` - Clean, statistical
+      - `'ggplot'` - R's ggplot2 style
+      - `'fivethirtyeight'` - FiveThirtyEight style
+      - `'bmh'` - Bayesian Methods for Hackers
+      - `'dark_background'` - Dark theme
+      - `'grayscale'` - Black and white
+
+      **2. Color Customization**
+
+      **Named colors:**
+      ```python
+      plt.plot(x, y, color='red')
+      plt.plot(x, y, color='steelblue')
+      ```
+
+      **Hex codes:**
+      ```python
+      plt.plot(x, y, color='#FF5733')
+      ```
+
+      **RGB tuples:**
+      ```python
+      plt.plot(x, y, color=(0.2, 0.4, 0.6))
+      ```
+
+      **Color maps:**
+      ```python
+      colors = plt.cm.viridis(np.linspace(0, 1, 10))
+      ```
+
+      **3. Line Styles and Markers**
+
+      ```python
+      plt.plot(x, y,
+               linestyle='--',    # or '-', '-.', ':'
+               linewidth=2,
+               marker='o',        # or 's', '^', 'D', '*'
+               markersize=8,
+               markerfacecolor='red',
+               markeredgecolor='black')
+      ```
+
+      **Line styles:**
+      - `'-'` solid
+      - `'--'` dashed
+      - `'-.'` dash-dot
+      - `':'` dotted
+
+      **Common markers:**
+      - `'o'` circle
+      - `'s'` square
+      - `'^'` triangle up
+      - `'D'` diamond
+      - `'*'` star
+      - `'+'` plus
+
+      **4. Font Customization**
+
+      ```python
+      plt.title('Title', fontsize=16, fontweight='bold', fontfamily='serif')
+      plt.xlabel('X axis', fontsize=12)
+
+      # Or use rc params
+      plt.rcParams['font.size'] = 12
+      plt.rcParams['font.family'] = 'sans-serif'
+      ```
+
+      **5. Figure and Axes Customization**
+
+      ```python
+      fig, ax = plt.subplots(figsize=(10, 6))
+      ax.set_facecolor('#f0f0f0')
+      fig.patch.set_facecolor('white')
+      ax.spines['top'].set_visible(False)
+      ax.spines['right'].set_visible(False)
+      ```
+
+      **6. Grid Customization**
+
+      ```python
+      plt.grid(True, linestyle='--', alpha=0.5, color='gray')
+      ```
+
+      **Best Practices:**
+      - Use consistent color schemes across related plots
+      - Choose high-contrast colors for accessibility
+      - Limit to 3-5 distinct colors per plot
+      - Use colorblind-friendly palettes
+      - Match style to audience (scientific, business, etc.)
+
+    examples:
+      - title: "Comparing Built-in Styles"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y1 = np.sin(x)
+          y2 = np.cos(x)
+
+          styles = ['default', 'seaborn-v0_8', 'ggplot', 'fivethirtyeight']
+          fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+          for ax, style in zip(axes.flat, styles):
+              with plt.style.context(style):
+                  ax.plot(x, y1, label='sin(x)')
+                  ax.plot(x, y2, label='cos(x)')
+                  ax.set_title(f'Style: {style}')
+                  ax.legend()
+                  ax.grid(True)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Four subplots showing the same data in different visual styles]
+
+      - title: "Custom Colors and Line Styles"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+
+          plt.figure(figsize=(10, 6))
+
+          # Solid line with hex color
+          plt.plot(x, np.sin(x), color='#FF6B6B', linewidth=2.5,
+                   label='sin(x)')
+
+          # Dashed line
+          plt.plot(x, np.cos(x), color='#4ECDC4', linestyle='--',
+                   linewidth=2, label='cos(x)')
+
+          # Dash-dot with markers
+          plt.plot(x, np.sin(x) * np.cos(x), color='#45B7D1',
+                   linestyle='-.', marker='o', markersize=4,
+                   markevery=10, label='sin(x)×cos(x)')
+
+          # Dotted line
+          plt.plot(x, np.sin(2*x)/2, color='#FFA07A', linestyle=':',
+                   linewidth=3, label='sin(2x)/2')
+
+          plt.xlabel('x', fontsize=12)
+          plt.ylabel('y', fontsize=12)
+          plt.title('Custom Line Styles and Colors', fontsize=14, fontweight='bold')
+          plt.legend(fontsize=10)
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Plot showing multiple line styles with custom colors]
+
+      - title: "Publication-Ready Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Use seaborn style
+          plt.style.use('seaborn-v0_8-darkgrid')
+
+          x = np.linspace(0, 10, 100)
+          y1 = np.sin(x)
+          y2 = np.cos(x)
+
+          fig, ax = plt.subplots(figsize=(10, 6))
+
+          # Plot with custom styling
+          ax.plot(x, y1, color='#2E86AB', linewidth=2.5, label='sin(x)')
+          ax.plot(x, y2, color='#A23B72', linewidth=2.5, label='cos(x)')
+
+          # Customize labels
+          ax.set_xlabel('Time (seconds)', fontsize=13, fontweight='bold')
+          ax.set_ylabel('Amplitude', fontsize=13, fontweight='bold')
+          ax.set_title('Trigonometric Functions', fontsize=15,
+                       fontweight='bold', pad=20)
+
+          # Customize legend
+          ax.legend(fontsize=11, frameon=True, shadow=True, loc='upper right')
+
+          # Remove top and right spines
+          ax.spines['top'].set_visible(False)
+          ax.spines['right'].set_visible(False)
+
+          # Customize ticks
+          ax.tick_params(labelsize=11)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Professional-looking plot with clean styling and no top/right borders]
+
+      - title: "Custom Color Palette"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Define custom color palette
+          colors = ['#264653', '#2A9D8F', '#E9C46A', '#F4A261', '#E76F51']
+
+          x = np.linspace(0, 10, 100)
+          functions = [
+              ('Linear', x),
+              ('Quadratic', x**2/10),
+              ('Cubic', x**3/100),
+              ('Log', np.log(x+1)*5),
+              ('Sqrt', np.sqrt(x)*3)
+          ]
+
+          plt.figure(figsize=(12, 6))
+
+          for (name, y), color in zip(functions, colors):
+              plt.plot(x, y, color=color, linewidth=2.5, label=name)
+
+          plt.xlabel('x', fontsize=12)
+          plt.ylabel('f(x)', fontsize=12)
+          plt.title('Custom Color Palette', fontsize=14, fontweight='bold')
+          plt.legend(fontsize=10, ncol=5, loc='upper left')
+          plt.grid(True, alpha=0.3, linestyle='--')
+          plt.show()
+
+        output: |
+          [Plot with cohesive custom color palette]
+
+      - title: "Dark Background Style"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          plt.style.use('dark_background')
+
+          x = np.linspace(0, 10, 100)
+
+          fig, ax = plt.subplots(figsize=(10, 6))
+
+          ax.plot(x, np.sin(x), color='#00D9FF', linewidth=2.5, label='sin(x)')
+          ax.plot(x, np.cos(x), color='#FF00FF', linewidth=2.5, label='cos(x)')
+
+          ax.set_xlabel('x', fontsize=13, color='white')
+          ax.set_ylabel('y', fontsize=13, color='white')
+          ax.set_title('Dark Background Theme', fontsize=15,
+                       fontweight='bold', color='white')
+
+          ax.legend(fontsize=11)
+          ax.grid(True, alpha=0.2, color='white')
+
+          plt.tight_layout()
+          plt.show()
+
+          # Reset style
+          plt.style.use('default')
+
+        output: |
+          [Plot with dark background and bright neon colors]
+
+      - title: "Marker Customization"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          x = np.arange(10)
+
+          markers = ['o', 's', '^', 'D', '*', 'p', 'h', 'v', '<', '>']
+          colors = plt.cm.tab10(np.linspace(0, 1, 10))
+
+          fig, ax = plt.subplots(figsize=(12, 6))
+
+          for i, (marker, color) in enumerate(zip(markers, colors)):
+              y = np.random.rand(10) + i * 0.5
+              ax.plot(x, y, marker=marker, markersize=10,
+                      markerfacecolor=color, markeredgecolor='black',
+                      markeredgewidth=1.5, linestyle='-', linewidth=1.5,
+                      alpha=0.7, label=f'Marker: {marker}')
+
+          ax.set_xlabel('X', fontsize=12)
+          ax.set_ylabel('Y', fontsize=12)
+          ax.set_title('Different Marker Styles', fontsize=14, fontweight='bold')
+          ax.legend(fontsize=9, ncol=5, loc='upper left')
+          ax.grid(True, alpha=0.3)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Plot showcasing 10 different marker styles]
+
+  exercise:
+    title: "Create Styled Plot"
+
+    instruction: |
+      Create a professionally styled plot with custom formatting.
+
+      **Requirements:**
+      1. Apply 'seaborn-v0_8' style
+      2. Create figure with figsize=(10, 6)
+      3. Plot y1 with color='#E63946', linewidth=2.5, label='Dataset 1'
+      4. Plot y2 with color='#457B9D', linewidth=2.5, label='Dataset 2'
+      5. Set xlabel to 'Time' with fontsize=12
+      6. Set ylabel to 'Value' with fontsize=12
+      7. Set title to 'Comparison of Two Datasets' with fontsize=14, fontweight='bold'
+      8. Add legend with fontsize=11
+      9. Enable grid with alpha=0.3
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      x = np.linspace(0, 10, 100)
+      y1 = np.sin(x) + 2
+      y2 = np.cos(x) + 2
+
+    starter_code: |
+      # Your code here
+      plt.style.use('seaborn-v0_8')
+
+    solution: |
+      plt.style.use('seaborn-v0_8')
+      plt.figure(figsize=(10, 6))
+      plt.plot(x, y1, color='#E63946', linewidth=2.5, label='Dataset 1')
+      plt.plot(x, y2, color='#457B9D', linewidth=2.5, label='Dataset 2')
+      plt.xlabel('Time', fontsize=12)
+      plt.ylabel('Value', fontsize=12)
+      plt.title('Comparison of Two Datasets', fontsize=14, fontweight='bold')
+      plt.legend(fontsize=11)
+      plt.grid(True, alpha=0.3)
+
+    validation:
+      type: "plot_check"
+      checks:
+        - type: "has_lines"
+          expected: 2
+
+    hints:
+      - level: 1
+        text: |
+          Use plt.style.use('seaborn-v0_8') at the beginning.
+          Plot both lines with custom colors and linewidth=2.5.
+          Add labels, title, legend, and grid as specified.
+
+      - level: 2
+        text: |
+          plt.plot(x, y1, color='#E63946', linewidth=2.5, label='Dataset 1')
+          plt.plot(x, y2, color='#457B9D', linewidth=2.5, label='Dataset 2')
+          plt.xlabel('Time', fontsize=12)
+          plt.ylabel('Value', fontsize=12)
+          plt.title('Comparison of Two Datasets', fontsize=14, fontweight='bold')
+          plt.legend(fontsize=11)
+          plt.grid(True, alpha=0.3)
+
+      - level: 3
+        code: |
+          plt.style.use('seaborn-v0_8')
+          plt.figure(figsize=(10, 6))
+          plt.plot(x, y1, color='#E63946', linewidth=2.5, label='Dataset 1')
+          plt.plot(x, y2, color='#457B9D', linewidth=2.5, label='Dataset 2')
+          plt.xlabel('Time', fontsize=12)
+          plt.ylabel('Value', fontsize=12)
+          plt.title('Comparison of Two Datasets', fontsize=14, fontweight='bold')
+          plt.legend(fontsize=11)
+          plt.grid(True, alpha=0.3)
+
+  follow_up:
+    challenges:
+      - "Try different built-in styles"
+      - "Create plot with custom marker styles"
+      - "Remove top and right spines"
+      - "Use dark_background style"
+
+    next_lesson: "matplotlib_09"
+
+    additional_resources:
+      - title: "Matplotlib Style Sheets"
+        url: "https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html"
+      - title: "Customizing Matplotlib"
+        url: "https://matplotlib.org/stable/tutorials/introductory/customizing.html"

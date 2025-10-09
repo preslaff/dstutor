@@ -1,0 +1,452 @@
+lesson:
+  id: "pandas_15"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Advanced Filtering"
+  order: 15
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_03", "pandas_07"]
+    learning_objectives:
+      - "Use .query() for SQL-like filtering"
+      - "Filter with .isin() for membership testing"
+      - "Combine multiple complex conditions"
+      - "Use between() for range filtering"
+
+  content:
+    introduction: |
+      # Advanced Filtering
+
+      Master powerful filtering techniques to slice and dice your data with precision.
+      Learn cleaner, more readable ways to filter complex conditions!
+
+      **What you'll learn:**
+      - .query() for readable filtering
+      - .isin() for multiple values
+      - between() for range filtering
+      - Complex boolean combinations
+
+    concept: |
+      ## Advanced Filtering Techniques
+
+      **1. .query() Method - SQL-Like Filtering**
+
+      More readable alternative to boolean indexing:
+      ```python
+      # Traditional way
+      df[(df['Age'] > 25) & (df['Salary'] > 50000)]
+
+      # Using query (cleaner!)
+      df.query('Age > 25 and Salary > 50000')
+      ```
+
+      **Query Syntax:**
+      - Use column names directly (no quotes needed)
+      - Use `and`, `or`, `not` instead of `&`, `|`, `~`
+      - Can reference variables with `@variable`
+      - String comparison: `City == "NYC"`
+
+      **2. .isin() - Membership Testing**
+
+      Check if values are in a list:
+      ```python
+      # Filter for multiple cities
+      df[df['City'].isin(['NYC', 'LA', 'Chicago'])]
+
+      # Negate with ~
+      df[~df['City'].isin(['NYC', 'LA'])]
+      ```
+
+      **3. .between() - Range Filtering**
+
+      Check if values are in a range (inclusive by default):
+      ```python
+      # Ages between 25 and 40
+      df[df['Age'].between(25, 40)]
+
+      # Exclusive of bounds
+      df[df['Age'].between(25, 40, inclusive='neither')]
+      ```
+
+      **4. String Filtering**
+
+      Combine with .str methods:
+      ```python
+      # Contains pattern
+      df[df['Name'].str.contains('Smith')]
+
+      # Starts with
+      df[df['Email'].str.startswith('admin')]
+
+      # Multiple string conditions
+      df.query('Name.str.contains("Smith") and City == "NYC"')
+      ```
+
+      **5. Complex Conditions**
+
+      Combine multiple filters:
+      ```python
+      df.query('(Age > 25 and Salary > 50000) or (City == "NYC")')
+      ```
+
+      **Why Use These Methods?**
+      - ✅ More readable code
+      - ✅ Fewer parentheses and symbols
+      - ✅ Easier to debug
+      - ✅ Better for complex conditions
+
+    examples:
+      - title: "Query vs Traditional Filtering"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'],
+              'Age': [25, 35, 45, 28, 32],
+              'Salary': [50000, 75000, 100000, 55000, 68000],
+              'City': ['NYC', 'LA', 'NYC', 'Chicago', 'LA']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Traditional boolean indexing
+          traditional = df[(df['Age'] > 30) & (df['Salary'] > 60000)]
+          print("Traditional filtering:")
+          print(traditional)
+          print()
+
+          # Using query (cleaner!)
+          query_result = df.query('Age > 30 and Salary > 60000')
+          print("Using .query():")
+          print(query_result)
+
+        output: |
+          Original:
+                Name  Age  Salary     City
+          0    Alice   25   50000      NYC
+          1      Bob   35   75000       LA
+          2  Charlie   45  100000      NYC
+          3    Diana   28   55000  Chicago
+          4      Eve   32   68000       LA
+
+          Traditional filtering:
+                Name  Age  Salary City
+          1      Bob   35   75000   LA
+          2  Charlie   45  100000  NYC
+          4      Eve   32   68000   LA
+
+          Using .query():
+                Name  Age  Salary City
+          1      Bob   35   75000   LA
+          2  Charlie   45  100000  NYC
+          4      Eve   32   68000   LA
+
+      - title: "Using .isin() for Multiple Values"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['Laptop', 'Phone', 'Tablet', 'Monitor', 'Keyboard'],
+              'Category': ['Electronics', 'Electronics', 'Electronics', 'Accessories', 'Accessories'],
+              'Price': [999, 699, 499, 299, 79]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Filter for specific products
+          selected_products = df[df['Product'].isin(['Laptop', 'Phone', 'Tablet'])]
+          print("Selected products:")
+          print(selected_products)
+          print()
+
+          # Filter for multiple price points
+          price_filter = df[df['Price'].isin([699, 299, 79])]
+          print("Specific prices:")
+          print(price_filter)
+          print()
+
+          # Negate with ~ (NOT in list)
+          not_electronics = df[~df['Category'].isin(['Electronics'])]
+          print("Not electronics:")
+          print(not_electronics)
+
+        output: |
+          Original:
+              Product      Category  Price
+          0    Laptop   Electronics    999
+          1     Phone   Electronics    699
+          2    Tablet   Electronics    499
+          3   Monitor   Accessories    299
+          4  Keyboard   Accessories     79
+
+          Selected products:
+            Product      Category  Price
+          0  Laptop   Electronics    999
+          1   Phone   Electronics    699
+          2  Tablet   Electronics    499
+
+          Specific prices:
+              Product      Category  Price
+          1     Phone   Electronics    699
+          3   Monitor   Accessories    299
+          4  Keyboard   Accessories     79
+
+          Not electronics:
+              Product      Category  Price
+          3   Monitor   Accessories    299
+          4  Keyboard   Accessories     79
+
+      - title: "Range Filtering with .between()"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Student': ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'],
+              'Score': [92, 78, 85, 95, 88]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Scores between 80 and 90 (inclusive)
+          middle_range = df[df['Score'].between(80, 90)]
+          print("Scores 80-90:")
+          print(middle_range)
+          print()
+
+          # Traditional equivalent
+          traditional = df[(df['Score'] >= 80) & (df['Score'] <= 90)]
+          print("Same with traditional:")
+          print(traditional)
+
+        output: |
+          Original:
+            Student  Score
+          0   Alice     92
+          1     Bob     78
+          2  Charlie     85
+          3   Diana     95
+          4     Eve     88
+
+          Scores 80-90:
+            Student  Score
+          2  Charlie     85
+          4     Eve     88
+
+          Same with traditional:
+            Student  Score
+          2  Charlie     85
+          4     Eve     88
+
+      - title: "Query with Variables"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['Laptop', 'Phone', 'Tablet', 'Monitor'],
+              'Price': [999, 699, 499, 299],
+              'Stock': [15, 30, 20, 50]
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Define thresholds
+          max_price = 700
+          min_stock = 20
+
+          # Use variables in query with @
+          filtered = df.query('Price < @max_price and Stock >= @min_stock')
+          print(f"Price < {max_price} and Stock >= {min_stock}:")
+          print(filtered)
+
+        output: |
+          Original:
+            Product  Price  Stock
+          0  Laptop    999     15
+          1   Phone    699     30
+          2  Tablet    499     20
+          3  Monitor   299     50
+
+          Price < 700 and Stock >= 20:
+            Product  Price  Stock
+          1   Phone    699     30
+          2  Tablet    499     20
+          3  Monitor   299     50
+
+      - title: "Complex Conditions with Query"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'],
+              'Age': [25, 35, 45, 28, 32],
+              'Salary': [50000, 75000, 100000, 55000, 68000],
+              'City': ['NYC', 'LA', 'NYC', 'Chicago', 'LA']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Complex condition: (High salary OR NYC) AND Age > 30
+          filtered = df.query('(Salary > 70000 or City == "NYC") and Age > 30')
+          print("Complex filter:")
+          print(filtered)
+          print()
+
+          # Multiple OR conditions
+          cities_of_interest = df.query('City == "NYC" or City == "LA"')
+          print("NYC or LA:")
+          print(cities_of_interest)
+
+        output: |
+          Original:
+                Name  Age  Salary     City
+          0    Alice   25   50000      NYC
+          1      Bob   35   75000       LA
+          2  Charlie   45  100000      NYC
+          3    Diana   28   55000  Chicago
+          4      Eve   32   68000       LA
+
+          Complex filter:
+                Name  Age  Salary City
+          1      Bob   35   75000   LA
+          2  Charlie   45  100000  NYC
+
+          NYC or LA:
+             Name  Age  Salary City
+          0  Alice   25   50000  NYC
+          1    Bob   35   75000   LA
+          2  Charlie   45  100000  NYC
+          4    Eve   32   68000   LA
+
+      - title: "String Filtering in Query"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice Smith', 'Bob Jones', 'Charlie Smith', 'Diana Brown'],
+              'Email': ['alice@company.com', 'bob@company.com',
+                       'charlie@gmail.com', 'diana@company.com'],
+              'Department': ['Sales', 'Engineering', 'Sales', 'Engineering']
+          })
+
+          print("Original:")
+          print(df)
+          print()
+
+          # Filter by department
+          sales = df.query('Department == "Sales"')
+          print("Sales department:")
+          print(sales)
+          print()
+
+          # String contains (requires .str in query)
+          company_emails = df[df['Email'].str.contains('company')]
+          print("Company emails:")
+          print(company_emails)
+
+        output: |
+          Original:
+                     Name               Email   Department
+          0   Alice Smith  alice@company.com        Sales
+          1     Bob Jones    bob@company.com  Engineering
+          2  Charlie Smith  charlie@gmail.com        Sales
+          3   Diana Brown  diana@company.com  Engineering
+
+          Sales department:
+                     Name               Email Department
+          0   Alice Smith  alice@company.com      Sales
+          2  Charlie Smith  charlie@gmail.com      Sales
+
+          Company emails:
+                  Name               Email   Department
+          0  Alice Smith  alice@company.com        Sales
+          1    Bob Jones    bob@company.com  Engineering
+          3  Diana Brown  diana@company.com  Engineering
+
+  exercise:
+    title: "Filter High-Value Orders"
+
+    instruction: |
+      Filter orders based on multiple criteria.
+
+      **Find orders where:**
+      - Amount is between 100 and 500 (inclusive), AND
+      - Status is either 'Completed' or 'Shipped'
+
+      Use .query() or .between() and .isin() methods.
+
+      Store the filtered DataFrame in `result`.
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'OrderID': [101, 102, 103, 104, 105, 106],
+          'Amount': [150, 600, 250, 80, 450, 300],
+          'Status': ['Completed', 'Pending', 'Shipped', 'Completed', 'Shipped', 'Cancelled']
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df[
+          df['Amount'].between(100, 500) &
+          df['Status'].isin(['Completed', 'Shipped'])
+      ]
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [4, 3]
+        - type: "columns"
+          expected: ['OrderID', 'Amount', 'Status']
+
+    hints:
+      - level: 1
+        text: |
+          Use .between(100, 500) for the amount range.
+          Use .isin(['Completed', 'Shipped']) for status.
+          Combine with & (and remember parentheses!)
+
+      - level: 2
+        text: |
+          result = df[
+              df['Amount'].between(100, 500) &
+              df['Status'].isin(['Completed', 'Shipped'])
+          ]
+
+      - level: 3
+        code: |
+          result = df[
+              df['Amount'].between(100, 500) &
+              df['Status'].isin(['Completed', 'Shipped'])
+          ]
+
+  follow_up:
+    challenges:
+      - "Use .query() instead of boolean indexing"
+      - "Filter for amounts NOT in a specific range"
+      - "Combine with string filtering (.str.contains)"
+      - "Use query with variable thresholds"
+
+    next_lesson: "matplotlib_01"
+
+    additional_resources:
+      - title: "Pandas Query Documentation"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html"
+      - title: "Pandas Indexing and Selecting"
+        url: "https://pandas.pydata.org/docs/user_guide/indexing.html"

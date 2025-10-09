@@ -1,0 +1,362 @@
+lesson:
+  id: "numpy_10"
+  level: "intermediate"
+  topic: "numpy"
+  subtopic: "Linear Algebra Basics"
+  order: 10
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["numpy_04", "numpy_05"]
+    learning_objectives:
+      - "Perform matrix multiplication"
+      - "Calculate dot products"
+      - "Compute matrix transpose and inverse"
+      - "Understand basic linear algebra operations"
+
+  content:
+    introduction: |
+      # Linear Algebra with NumPy
+
+      Linear algebra is the mathematical foundation of machine learning and data science.
+      NumPy makes it easy to work with vectors and matrices!
+
+      **What you'll learn:**
+      - Matrix multiplication and dot products
+      - Transpose and inverse operations
+      - Determinants and eigenvalues
+      - Solving linear equations
+
+    concept: |
+      ## Core Linear Algebra Operations
+
+      **Matrix Multiplication:**
+      - Element-wise: `A * B` (requires same shape)
+      - Matrix product: `A @ B` or `np.dot(A, B)`
+      - Matrix dimensions must be compatible: (m, n) @ (n, p) = (m, p)
+
+      **Transpose:**
+      - Flip rows and columns
+      - `A.T` or `np.transpose(A)`
+      - (m, n) → (n, m)
+
+      **Dot Product:**
+      - Sum of element-wise products
+      - For vectors: scalar result
+      - For matrices: matrix multiplication
+
+      **Other Operations:**
+      - `np.linalg.inv(A)` - Matrix inverse
+      - `np.linalg.det(A)` - Determinant
+      - `np.linalg.eig(A)` - Eigenvalues and eigenvectors
+      - `np.linalg.solve(A, b)` - Solve Ax = b
+
+      **Why Learn This?**
+      - 🤖 **ML Models**: Neural networks, regression, PCA
+      - 📊 **Data Processing**: Transformations, projections
+      - 🔬 **Scientific Computing**: Simulations, optimization
+
+    examples:
+      - title: "Matrix Multiplication"
+        code: |
+          import numpy as np
+
+          # Two matrices
+          A = np.array([[1, 2],
+                        [3, 4]])
+
+          B = np.array([[5, 6],
+                        [7, 8]])
+
+          print("Matrix A:")
+          print(A)
+          print("\nMatrix B:")
+          print(B)
+          print()
+
+          # Element-wise multiplication
+          print("Element-wise (A * B):")
+          print(A * B)
+          print()
+
+          # Matrix multiplication (dot product)
+          print("Matrix multiplication (A @ B):")
+          print(A @ B)
+          print()
+
+          # Verify: (2, 2) @ (2, 2) = (2, 2)
+          print("Result shape:", (A @ B).shape)
+
+        output: |
+          Matrix A:
+          [[1 2]
+           [3 4]]
+
+          Matrix B:
+          [[5 6]
+           [7 8]]
+
+          Element-wise (A * B):
+          [[ 5 12]
+           [21 32]]
+
+          Matrix multiplication (A @ B):
+          [[19 22]
+           [43 50]]
+
+          Result shape: (2, 2)
+
+      - title: "Dot Product and Transpose"
+        code: |
+          import numpy as np
+
+          # Vectors
+          v1 = np.array([1, 2, 3])
+          v2 = np.array([4, 5, 6])
+
+          print("Vector v1:", v1)
+          print("Vector v2:", v2)
+          print()
+
+          # Dot product of vectors
+          dot_product = np.dot(v1, v2)
+          print("Dot product:", dot_product)
+          print("Calculated: 1*4 + 2*5 + 3*6 =", 1*4 + 2*5 + 3*6)
+          print()
+
+          # Matrix transpose
+          matrix = np.array([[1, 2, 3],
+                             [4, 5, 6]])
+
+          print("Original matrix (2, 3):")
+          print(matrix)
+          print("\nTransposed (3, 2):")
+          print(matrix.T)
+
+        output: |
+          Vector v1: [1 2 3]
+          Vector v2: [4 5 6]
+
+          Dot product: 32
+          Calculated: 1*4 + 2*5 + 3*6 = 32
+
+          Original matrix (2, 3):
+          [[1 2 3]
+           [4 5 6]]
+
+          Transposed (3, 2):
+          [[1 4]
+           [2 5]
+           [3 6]]
+
+      - title: "Matrix Inverse and Determinant"
+        code: |
+          import numpy as np
+
+          # Square matrix
+          A = np.array([[4, 7],
+                        [2, 6]])
+
+          print("Matrix A:")
+          print(A)
+          print()
+
+          # Determinant
+          det = np.linalg.det(A)
+          print("Determinant:", det)
+          print()
+
+          # Inverse (only for non-singular matrices)
+          A_inv = np.linalg.inv(A)
+          print("Inverse of A:")
+          print(A_inv)
+          print()
+
+          # Verify: A @ A_inv = Identity
+          identity = A @ A_inv
+          print("A @ A_inv (should be identity):")
+          print(identity.round(10))  # Round to avoid floating point errors
+
+        output: |
+          Matrix A:
+          [[4 7]
+           [2 6]]
+
+          Determinant: 10.0
+
+          Inverse of A:
+          [[ 0.6 -0.7]
+           [-0.2  0.4]]
+
+          A @ A_inv (should be identity):
+          [[1. 0.]
+           [0. 1.]]
+
+      - title: "Solving Linear Equations"
+        code: |
+          import numpy as np
+
+          # Solve: 2x + 3y = 8
+          #        5x + 4y = 13
+
+          # In matrix form: Ax = b
+          A = np.array([[2, 3],
+                        [5, 4]])
+
+          b = np.array([8, 13])
+
+          print("System of equations:")
+          print("2x + 3y = 8")
+          print("5x + 4y = 13")
+          print()
+
+          # Solve for x
+          x = np.linalg.solve(A, b)
+          print("Solution:", x)
+          print(f"x = {x[0]}, y = {x[1]}")
+          print()
+
+          # Verify
+          print("Verification (A @ x):", A @ x)
+          print("Should equal b:", b)
+
+        output: |
+          System of equations:
+          2x + 3y = 8
+          5x + 4y = 13
+
+          Solution: [1. 2.]
+          x = 1.0, y = 2.0
+
+          Verification (A @ x): [ 8. 13.]
+          Should equal b: [ 8 13]
+
+      - title: "Practical ML Example: Linear Regression"
+        code: |
+          import numpy as np
+
+          # Simple linear regression using linear algebra
+          # y = mx + b
+
+          # Data points
+          x = np.array([1, 2, 3, 4, 5])
+          y = np.array([2, 4, 5, 4, 5])
+
+          print("Data:")
+          print("x:", x)
+          print("y:", y)
+          print()
+
+          # Create design matrix [ones, x]
+          # To solve: [b, m]
+          X = np.vstack([np.ones(len(x)), x]).T
+          print("Design matrix X:")
+          print(X)
+          print()
+
+          # Solve using normal equation: (X^T X)^-1 X^T y
+          coeffs = np.linalg.inv(X.T @ X) @ X.T @ y
+          b, m = coeffs
+
+          print(f"Best fit line: y = {m:.2f}x + {b:.2f}")
+          print()
+
+          # Make predictions
+          y_pred = m * x + b
+          print("Predictions:", y_pred)
+          print("Actual:     ", y)
+
+        output: |
+          Data:
+          x: [1 2 3 4 5]
+          y: [2 4 5 4 5]
+
+          Design matrix X:
+          [[1. 1.]
+           [1. 2.]
+           [1. 3.]
+           [1. 4.]
+           [1. 5.]]
+
+          Best fit line: y = 0.60x + 2.20
+
+          Predictions: [2.8 3.4 4.  4.6 5.2]
+          Actual:      [2 4 5 4 5]
+
+  exercise:
+    title: "Matrix Multiplication"
+
+    instruction: |
+      Given two matrices A and B, compute their matrix product (not element-wise).
+
+      **Matrices:**
+      ```
+      A = [[1, 2, 3],
+           [4, 5, 6]]
+
+      B = [[7,  8],
+           [9, 10],
+           [11, 12]]
+      ```
+
+      **Requirements:**
+      - Use matrix multiplication (@ or np.dot)
+      - Store result in `result`
+
+      **Note:** A is (2, 3) and B is (3, 2), so result will be (2, 2)
+
+    setup_code: |
+      import numpy as np
+
+      A = np.array([[1, 2, 3],
+                    [4, 5, 6]])
+
+      B = np.array([[7, 8],
+                    [9, 10],
+                    [11, 12]])
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = A @ B
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [2, 2]
+        - type: "values"
+          expected: [[58, 64], [139, 154]]
+
+    hints:
+      - level: 1
+        text: |
+          Use the @ operator for matrix multiplication: A @ B
+          Make sure you understand: (2, 3) @ (3, 2) = (2, 2)
+
+      - level: 2
+        text: |
+          result = A @ B
+          Or equivalently: result = np.dot(A, B)
+
+      - level: 3
+        code: |
+          result = A @ B
+
+  follow_up:
+    challenges:
+      - "Transpose a matrix and verify (A^T)^T = A"
+      - "Compute the inverse of a 3x3 matrix"
+      - "Calculate eigenvalues of a matrix"
+      - "Solve a system of 3 linear equations"
+
+    next_lesson: "pandas_01"
+
+    additional_resources:
+      - title: "NumPy Linear Algebra Documentation"
+        url: "https://numpy.org/doc/stable/reference/routines.linalg.html"
+      - title: "Linear Algebra for ML"
+        url: "https://numpy.org/doc/stable/user/tutorial-svd.html"

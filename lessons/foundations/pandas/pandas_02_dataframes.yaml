@@ -1,0 +1,255 @@
+lesson:
+  id: "pandas_02"
+  level: "beginner"
+  topic: "pandas"
+  subtopic: "DataFrame Basics"
+  order: 2
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: ["pandas_01"]
+    learning_objectives:
+      - "Understand DataFrames as 2D labeled data"
+      - "Create DataFrames from dictionaries and lists"
+      - "Inspect DataFrame structure"
+      - "Access rows and columns"
+
+  content:
+    introduction: |
+      # Pandas DataFrames - The Core Data Structure
+
+      The DataFrame is **the** fundamental structure in Pandas - a 2D labeled table,
+      like an Excel spreadsheet or SQL table.
+
+      **What you'll learn:**
+      - Create DataFrames from different sources
+      - Inspect DataFrame properties
+      - Access columns and rows
+      - Basic DataFrame operations
+
+    concept: |
+      ## What is a DataFrame?
+
+      A **DataFrame** is a 2D labeled data structure with columns of potentially different types.
+
+      **Think of it as:**
+      - A dictionary of Series (columns)
+      - An Excel spreadsheet
+      - A SQL table
+      - A collection of related data
+
+      **Key Features:**
+      - **2D**: Rows and columns
+      - **Labeled**: Both row and column labels
+      - **Heterogeneous**: Different types in different columns
+      - **Size Mutable**: Can add/remove columns and rows
+
+      **Structure:**
+      ```
+                  Name    Age    City
+      Index
+      0           Alice   25     NYC
+      1           Bob     30     LA
+      2           Charlie 35     Chicago
+      ```
+
+    examples:
+      - title: "Creating DataFrames"
+        code: |
+          import pandas as pd
+
+          # From a dictionary (most common)
+          data = {
+              'Name': ['Alice', 'Bob', 'Charlie'],
+              'Age': [25, 30, 35],
+              'City': ['NYC', 'LA', 'Chicago']
+          }
+          df = pd.DataFrame(data)
+
+          print("DataFrame from dict:")
+          print(df)
+          print()
+
+          # Check shape and info
+          print("Shape:", df.shape)  # (rows, columns)
+          print("Columns:", df.columns.tolist())
+          print("Data types:")
+          print(df.dtypes)
+
+        output: |
+          DataFrame from dict:
+                  Name  Age     City
+          0     Alice   25      NYC
+          1       Bob   30       LA
+          2   Charlie   35  Chicago
+
+          Shape: (3, 3)
+          Columns: ['Name', 'Age', 'City']
+          Data types:
+          Name    object
+          Age      int64
+          City    object
+          dtype: object
+
+      - title: "Inspecting DataFrames"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Product': ['Laptop', 'Mouse', 'Keyboard', 'Monitor', 'Headphones'],
+              'Price': [999, 25, 75, 350, 120],
+              'Stock': [15, 50, 30, 12, 25]
+          })
+
+          # First few rows
+          print("First 3 rows:")
+          print(df.head(3))
+          print()
+
+          # Last few rows
+          print("Last 2 rows:")
+          print(df.tail(2))
+          print()
+
+          # Summary statistics
+          print("Summary stats:")
+          print(df.describe())
+
+        output: |
+          First 3 rows:
+              Product  Price  Stock
+          0    Laptop    999     15
+          1     Mouse     25     50
+          2  Keyboard     75     30
+
+          Last 2 rows:
+                 Product  Price  Stock
+          3      Monitor    350     12
+          4  Headphones    120     25
+
+          Summary stats:
+                  Price      Stock
+          count    5.00       5.00
+          mean   313.80      26.40
+          std    396.48      15.13
+          min     25.00      12.00
+          25%     75.00      15.00
+          50%    120.00      25.00
+          75%    350.00      30.00
+          max    999.00      50.00
+
+      - title: "Accessing Columns and Rows"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie'],
+              'Age': [25, 30, 35],
+              'Salary': [70000, 80000, 90000]
+          })
+
+          # Access column (returns Series)
+          print("Ages:")
+          print(df['Age'])
+          print()
+
+          # Access multiple columns
+          print("Name and Age:")
+          print(df[['Name', 'Age']])
+          print()
+
+          # Access row by position
+          print("First row:")
+          print(df.iloc[0])
+
+        output: |
+          Ages:
+          0    25
+          1    30
+          2    35
+          Name: Age, dtype: int64
+
+          Name and Age:
+                  Name  Age
+          0     Alice   25
+          1       Bob   30
+          2   Charlie   35
+
+          First row:
+          Name       Alice
+          Age           25
+          Salary     70000
+          Name: 0, dtype: object
+
+  exercise:
+    title: "Create a Student DataFrame"
+
+    instruction: |
+      Create a DataFrame with student information:
+
+      **Data:**
+      - Students: Emma, Liam, Olivia
+      - Scores: 88, 92, 85
+      - Grade: B, A, B
+
+      **Requirements:**
+      - Column names: 'Student', 'Score', 'Grade'
+      - Use a dictionary to create the DataFrame
+      - Store in `result`
+
+    setup_code: |
+      import pandas as pd
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = pd.DataFrame({
+          'Student': ['Emma', 'Liam', 'Olivia'],
+          'Score': [88, 92, 85],
+          'Grade': ['B', 'A', 'B']
+      })
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [3, 3]
+        - type: "columns"
+          expected: ['Student', 'Score', 'Grade']
+
+    hints:
+      - level: 1
+        text: |
+          Use pd.DataFrame() with a dictionary where keys are column names
+          and values are lists of data.
+
+      - level: 2
+        text: |
+          Structure: pd.DataFrame({
+              'Student': [...],
+              'Score': [...],
+              'Grade': [...]
+          })
+
+      - level: 3
+        code: |
+          result = pd.DataFrame({
+              'Student': ['Emma', 'Liam', 'Olivia'],
+              'Score': [88, 92, 85],
+              'Grade': ['B', 'A', 'B']
+          })
+
+  follow_up:
+    challenges:
+      - "Add a new column 'Passed' (True/False based on score >= 60)"
+      - "Filter students with score > 85"
+      - "Calculate average score"
+
+    next_lesson: "pandas_03"
+
+    additional_resources:
+      - title: "Pandas DataFrame Documentation"
+        url: "https://pandas.pydata.org/docs/reference/frame.html"

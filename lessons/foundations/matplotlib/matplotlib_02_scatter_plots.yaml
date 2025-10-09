@@ -1,0 +1,193 @@
+lesson:
+  id: "matplotlib_02"
+  level: "beginner"
+  topic: "matplotlib"
+  subtopic: "Scatter Plots"
+  order: 2
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["matplotlib_01"]
+    learning_objectives:
+      - "Create scatter plots"
+      - "Customize marker size and color"
+      - "Visualize relationships between variables"
+      - "Add color mapping to represent third dimension"
+
+  content:
+    introduction: |
+      # Scatter Plots - Visualizing Relationships
+
+      Scatter plots are perfect for exploring relationships between two variables.
+      Essential for correlation analysis and pattern detection!
+
+    concept: |
+      ## Scatter Plots
+
+      **When to use:**
+      - Show relationship between two continuous variables
+      - Identify correlations and patterns
+      - Detect outliers
+      - Compare groups
+
+      **Syntax:**
+      ```python
+      plt.scatter(x, y, s=size, c=color, alpha=transparency)
+      ```
+
+      **Key Parameters:**
+      - `s` - Marker size (can be array for varying sizes)
+      - `c` - Color (can be array for color mapping)
+      - `alpha` - Transparency (0-1)
+      - `marker` - Marker style ('o', 's', '^', etc.)
+      - `cmap` - Colormap for color array
+
+    examples:
+      - title: "Basic Scatter Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Generate data
+          x = np.random.rand(50) * 10
+          y = 2 * x + np.random.randn(50) * 2
+
+          # Create scatter plot
+          plt.scatter(x, y)
+
+          plt.xlabel('X values')
+          plt.ylabel('Y values')
+          plt.title('Scatter Plot Example')
+          plt.grid(True, alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Scatter plot showing positive correlation with noise]
+
+      - title: "Customized Scatter Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.random.rand(100)
+          y = np.random.rand(100)
+          colors = np.random.rand(100)  # Color for each point
+          sizes = 100 * np.random.rand(100)  # Size for each point
+
+          # Custom scatter plot
+          plt.scatter(x, y,
+                      s=sizes,
+                      c=colors,
+                      alpha=0.6,
+                      cmap='viridis',
+                      edgecolors='black',
+                      linewidth=0.5)
+
+          plt.colorbar(label='Color Value')
+          plt.xlabel('X')
+          plt.ylabel('Y')
+          plt.title('Customized Scatter Plot')
+
+          plt.show()
+
+        output: |
+          [Colorful scatter plot with varying sizes and colors]
+
+      - title: "Multiple Groups"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Generate data for two groups
+          np.random.seed(42)
+
+          # Group 1
+          x1 = np.random.normal(2, 0.5, 50)
+          y1 = np.random.normal(3, 0.5, 50)
+
+          # Group 2
+          x2 = np.random.normal(5, 0.5, 50)
+          y2 = np.random.normal(6, 0.5, 50)
+
+          # Plot both groups
+          plt.scatter(x1, y1, label='Group A', color='blue', alpha=0.6)
+          plt.scatter(x2, y2, label='Group B', color='red', alpha=0.6)
+
+          plt.xlabel('Feature 1')
+          plt.ylabel('Feature 2')
+          plt.title('Two Groups Comparison')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Scatter plot with two distinct clusters]
+
+  exercise:
+    title: "Create a Scatter Plot"
+
+    instruction: |
+      Create a scatter plot showing the relationship between study hours and exam scores.
+
+      **Data:**
+      - hours = [1, 2, 3, 4, 5, 6, 7, 8]
+      - scores = [50, 55, 65, 70, 75, 85, 90, 95]
+
+      **Requirements:**
+      - Use plt.scatter()
+      - xlabel: 'Study Hours'
+      - ylabel: 'Exam Score'
+      - title: 'Study Hours vs Exam Score'
+      - Set marker size to 100
+      - Set color to 'green'
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      plt.clf()
+
+      hours = [1, 2, 3, 4, 5, 6, 7, 8]
+      scores = [50, 55, 65, 70, 75, 85, 90, 95]
+
+    starter_code: |
+      # Your code here
+
+      result = plt.gcf()
+
+    solution: |
+      plt.scatter(hours, scores, s=100, color='green')
+      plt.xlabel('Study Hours')
+      plt.ylabel('Exam Score')
+      plt.title('Study Hours vs Exam Score')
+
+      result = plt.gcf()
+
+    validation:
+      type: "type_check"
+      expected_type: "object"
+
+    hints:
+      - level: 1
+        text: "Use plt.scatter(hours, scores) with s=100 and color='green'"
+
+      - level: 2
+        text: |
+          plt.scatter(hours, scores, s=100, color='green')
+          plt.xlabel('Study Hours')
+          plt.ylabel('Exam Score')
+          plt.title('Study Hours vs Exam Score')
+
+      - level: 3
+        code: |
+          plt.scatter(hours, scores, s=100, color='green')
+          plt.xlabel('Study Hours')
+          plt.ylabel('Exam Score')
+          plt.title('Study Hours vs Exam Score')
+          result = plt.gcf()
+
+  follow_up:
+    next_lesson: "matplotlib_03"

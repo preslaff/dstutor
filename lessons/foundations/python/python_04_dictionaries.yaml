@@ -1,0 +1,411 @@
+lesson:
+  id: "python_04"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Dictionaries and Key-Value Pairs"
+  order: 4
+
+  metadata:
+    duration: "25 min"
+    difficulty: "easy"
+    prerequisites: ["python_01", "python_03"]
+    learning_objectives:
+      - "Create and manipulate dictionaries"
+      - "Access, add, and remove key-value pairs"
+      - "Use dictionary methods"
+      - "Iterate over dictionaries"
+
+  content:
+    introduction: |
+      # Dictionaries and Key-Value Pairs
+
+      Dictionaries are Python's most powerful data structure! Store data with
+      meaningful keys instead of numeric indices.
+
+      **What you'll learn:**
+      - Creating dictionaries
+      - Accessing and modifying values
+      - Dictionary methods
+      - Looping through dictionaries
+
+    concept: |
+      ## Working with Dictionaries
+
+      **1. Creating Dictionaries**
+
+      Use curly braces `{}` with key:value pairs:
+      ```python
+      student = {
+          "name": "Alice",
+          "age": 25,
+          "major": "Computer Science"
+      }
+
+      # Empty dictionary
+      empty = {}
+      empty = dict()
+      ```
+
+      **2. Accessing Values**
+
+      Use keys instead of indices:
+      ```python
+      name = student["name"]        # "Alice"
+      age = student.get("age")      # 25
+      grade = student.get("grade", "N/A")  # Default value if missing
+      ```
+
+      **Key difference:**
+      - `dict["key"]` - Raises error if key doesn't exist
+      - `dict.get("key")` - Returns None (or default) if key doesn't exist
+
+      **3. Adding/Modifying Values**
+
+      ```python
+      # Add new key-value pair
+      student["gpa"] = 3.8
+
+      # Modify existing value
+      student["age"] = 26
+
+      # Update multiple values
+      student.update({"age": 27, "year": "Senior"})
+      ```
+
+      **4. Removing Items**
+
+      ```python
+      del student["age"]           # Delete key-value pair
+      gpa = student.pop("gpa")     # Remove and return value
+      student.clear()              # Remove all items
+      ```
+
+      **5. Dictionary Methods**
+
+      ```python
+      # Get all keys
+      keys = student.keys()        # dict_keys(['name', 'age', 'major'])
+
+      # Get all values
+      values = student.values()    # dict_values(['Alice', 25, 'CS'])
+
+      # Get all key-value pairs
+      items = student.items()      # dict_items([('name', 'Alice'), ...])
+
+      # Check if key exists
+      if "name" in student:
+          print("Name exists")
+      ```
+
+      **6. Looping Through Dictionaries**
+
+      ```python
+      # Loop through keys
+      for key in student:
+          print(key)
+
+      # Loop through keys and values
+      for key, value in student.items():
+          print(f"{key}: {value}")
+
+      # Loop through values only
+      for value in student.values():
+          print(value)
+      ```
+
+      **7. Nested Dictionaries**
+
+      ```python
+      students = {
+          "alice": {"age": 25, "gpa": 3.8},
+          "bob": {"age": 23, "gpa": 3.5}
+      }
+
+      # Access nested values
+      alice_gpa = students["alice"]["gpa"]
+      ```
+
+      **When to Use Dictionaries:**
+      - ✅ Need to look up values by meaningful keys
+      - ✅ Storing configuration or settings
+      - ✅ Representing real-world objects (JSON-like data)
+      - ✅ Counting or grouping items
+
+    examples:
+      - title: "Creating and Accessing Dictionaries"
+        code: |
+          # Create dictionary
+          person = {
+              "name": "Alice",
+              "age": 25,
+              "city": "New York"
+          }
+
+          print("Person:", person)
+          print("Name:", person["name"])
+          print("Age:", person["age"])
+
+          # Using get() method (safer)
+          city = person.get("city")
+          country = person.get("country", "USA")  # Default value
+
+          print("City:", city)
+          print("Country:", country)
+
+        output: |
+          Person: {'name': 'Alice', 'age': 25, 'city': 'New York'}
+          Name: Alice
+          Age: 25
+          City: New York
+          Country: USA
+
+      - title: "Adding and Modifying"
+        code: |
+          student = {"name": "Bob", "age": 23}
+          print("Original:", student)
+
+          # Add new key
+          student["major"] = "Physics"
+          print("After add:", student)
+
+          # Modify existing
+          student["age"] = 24
+          print("After modify:", student)
+
+          # Update multiple
+          student.update({"gpa": 3.7, "year": "Junior"})
+          print("After update:", student)
+
+        output: |
+          Original: {'name': 'Bob', 'age': 23}
+          After add: {'name': 'Bob', 'age': 23, 'major': 'Physics'}
+          After modify: {'name': 'Bob', 'age': 24, 'major': 'Physics'}
+          After update: {'name': 'Bob', 'age': 24, 'major': 'Physics', 'gpa': 3.7, 'year': 'Junior'}
+
+      - title: "Dictionary Methods"
+        code: |
+          scores = {"Math": 95, "Science": 88, "English": 92}
+
+          # Get keys
+          print("Keys:", list(scores.keys()))
+
+          # Get values
+          print("Values:", list(scores.values()))
+
+          # Get items (key-value pairs)
+          print("Items:", list(scores.items()))
+
+          # Check membership
+          print("Math in scores:", "Math" in scores)
+          print("History in scores:", "History" in scores)
+
+          # Length
+          print("Number of subjects:", len(scores))
+
+        output: |
+          Keys: ['Math', 'Science', 'English']
+          Values: [95, 88, 92]
+          Items: [('Math', 95), ('Science', 88), ('English', 92)]
+          Math in scores: True
+          History in scores: False
+          Number of subjects: 3
+
+      - title: "Removing Items"
+        code: |
+          inventory = {
+              "apples": 50,
+              "bananas": 30,
+              "oranges": 40,
+              "grapes": 25
+          }
+
+          print("Original:", inventory)
+
+          # Pop (remove and return)
+          banana_count = inventory.pop("bananas")
+          print(f"Removed {banana_count} bananas")
+          print("After pop:", inventory)
+
+          # Delete
+          del inventory["grapes"]
+          print("After del:", inventory)
+
+        output: |
+          Original: {'apples': 50, 'bananas': 30, 'oranges': 40, 'grapes': 25}
+          Removed 30 bananas
+          After pop: {'apples': 50, 'oranges': 40, 'grapes': 25}
+          After del: {'apples': 50, 'oranges': 40}
+
+      - title: "Looping Through Dictionaries"
+        code: |
+          scores = {"Math": 95, "Science": 88, "English": 92}
+
+          # Loop through keys (default)
+          print("Subjects:")
+          for subject in scores:
+              print(f"  - {subject}")
+
+          print("\nScores:")
+          # Loop through key-value pairs
+          for subject, score in scores.items():
+              print(f"  {subject}: {score}")
+
+          print("\nAll scores:")
+          # Loop through values only
+          for score in scores.values():
+              print(f"  {score}")
+
+        output: |
+          Subjects:
+            - Math
+            - Science
+            - English
+
+          Scores:
+            Math: 95
+            Science: 88
+            English: 92
+
+          All scores:
+            95
+            88
+            92
+
+      - title: "Nested Dictionaries"
+        code: |
+          # Store multiple students
+          students = {
+              "alice": {
+                  "age": 25,
+                  "major": "CS",
+                  "gpa": 3.8
+              },
+              "bob": {
+                  "age": 23,
+                  "major": "Math",
+                  "gpa": 3.5
+              }
+          }
+
+          print("All students:", students)
+          print("\nAlice's info:", students["alice"])
+          print("Alice's GPA:", students["alice"]["gpa"])
+
+          # Loop through nested dict
+          print("\nStudent summaries:")
+          for name, info in students.items():
+              print(f"{name.title()}: {info['major']}, GPA {info['gpa']}")
+
+        output: |
+          All students: {'alice': {'age': 25, 'major': 'CS', 'gpa': 3.8}, 'bob': {'age': 23, 'major': 'Math', 'gpa': 3.5}}
+
+          Alice's info: {'age': 25, 'major': 'CS', 'gpa': 3.8}
+          Alice's GPA: 3.8
+
+          Student summaries:
+          Alice: CS, GPA 3.8
+          Bob: Math, GPA 3.5
+
+      - title: "Practical Example - Word Counter"
+        code: |
+          # Count word frequencies
+          text = "python is fun python is powerful python rocks"
+          words = text.split()
+
+          word_count = {}
+          for word in words:
+              if word in word_count:
+                  word_count[word] += 1
+              else:
+                  word_count[word] = 1
+
+          print("Word frequencies:")
+          for word, count in word_count.items():
+              print(f"  {word}: {count}")
+
+        output: |
+          Word frequencies:
+            python: 3
+            is: 2
+            fun: 1
+            powerful: 1
+            rocks: 1
+
+  exercise:
+    title: "Create Student Record"
+
+    instruction: |
+      Create and manipulate a student dictionary.
+
+      **Tasks:**
+      1. Create a dictionary `student` with:
+         - "name": "Charlie"
+         - "age": 22
+         - "major": "Biology"
+      2. Add a new key "gpa" with value 3.6
+      3. Update "age" to 23
+      4. Store the final dictionary in `result`
+
+    setup_code: |
+      # Your code will create the dictionary
+
+    starter_code: |
+      # Your code here
+      student =
+      # Add gpa and update age
+      result =
+
+    solution: |
+      student = {
+          "name": "Charlie",
+          "age": 22,
+          "major": "Biology"
+      }
+      student["gpa"] = 3.6
+      student["age"] = 23
+      result = student
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          expected: {"name": "Charlie", "age": 23, "major": "Biology", "gpa": 3.6}
+          type: "dict"
+
+    hints:
+      - level: 1
+        text: |
+          Create a dictionary with curly braces and key:value pairs.
+          Add a new key using: dict["new_key"] = value
+          Modify existing key the same way: dict["existing_key"] = new_value
+
+      - level: 2
+        text: |
+          student = {"name": "Charlie", "age": 22, "major": "Biology"}
+          student["gpa"] = 3.6
+          student["age"] = 23
+          result = student
+
+      - level: 3
+        code: |
+          student = {
+              "name": "Charlie",
+              "age": 22,
+              "major": "Biology"
+          }
+          student["gpa"] = 3.6
+          student["age"] = 23
+          result = student
+
+  follow_up:
+    challenges:
+      - "Create a dictionary from two lists (keys and values)"
+      - "Merge two dictionaries"
+      - "Find the key with the maximum value"
+      - "Count letter frequencies in a string"
+
+    next_lesson: "python_05"
+
+    additional_resources:
+      - title: "Python Dictionaries Documentation"
+        url: "https://docs.python.org/3/tutorial/datastructures.html#dictionaries"

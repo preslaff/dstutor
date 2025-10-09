@@ -1,0 +1,211 @@
+lesson:
+  id: "matplotlib_03"
+  level: "beginner"
+  topic: "matplotlib"
+  subtopic: "Bar Charts"
+  order: 3
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["matplotlib_01"]
+    learning_objectives:
+      - "Create vertical and horizontal bar charts"
+      - "Customize bar colors and width"
+      - "Create grouped and stacked bar charts"
+      - "Visualize categorical data"
+
+  content:
+    introduction: |
+      # Bar Charts - Comparing Categories
+
+      Bar charts are perfect for comparing values across categories. One of the most
+      common and effective visualization types!
+
+    concept: |
+      ## Bar Charts
+
+      **When to use:**
+      - Compare values across categories
+      - Show frequency distributions
+      - Visualize survey results
+      - Display grouped comparisons
+
+      **Types:**
+      - **Vertical bars** - `plt.bar(x, height)`
+      - **Horizontal bars** - `plt.barh(y, width)`
+      - **Grouped bars** - Multiple datasets side-by-side
+      - **Stacked bars** - Values stacked on top
+
+      **Key Parameters:**
+      - `width` - Bar width (default: 0.8)
+      - `color` - Bar color
+      - `edgecolor` - Border color
+      - `alpha` - Transparency
+
+    examples:
+      - title: "Simple Bar Chart"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Data
+          categories = ['A', 'B', 'C', 'D', 'E']
+          values = [23, 45, 56, 78, 32]
+
+          # Create bar chart
+          plt.bar(categories, values)
+
+          plt.xlabel('Categories')
+          plt.ylabel('Values')
+          plt.title('Simple Bar Chart')
+          plt.grid(axis='y', alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Vertical bar chart with 5 bars]
+
+      - title: "Horizontal Bar Chart"
+        code: |
+          import matplotlib.pyplot as plt
+
+          products = ['Laptop', 'Phone', 'Tablet', 'Watch']
+          sales = [120, 95, 75, 45]
+
+          # Horizontal bars
+          plt.barh(products, sales, color='steelblue')
+
+          plt.xlabel('Sales (units)')
+          plt.ylabel('Products')
+          plt.title('Product Sales')
+          plt.grid(axis='x', alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Horizontal bar chart]
+
+      - title: "Customized Bar Chart"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          categories = ['Q1', 'Q2', 'Q3', 'Q4']
+          values = [23, 45, 56, 78]
+          colors = ['red', 'blue', 'green', 'orange']
+
+          # Custom bars
+          bars = plt.bar(categories, values,
+                         color=colors,
+                         edgecolor='black',
+                         linewidth=2,
+                         alpha=0.7)
+
+          # Add value labels on bars
+          for bar in bars:
+              height = bar.get_height()
+              plt.text(bar.get_x() + bar.get_width()/2., height,
+                       f'{int(height)}',
+                       ha='center', va='bottom')
+
+          plt.ylabel('Revenue ($K)')
+          plt.title('Quarterly Revenue')
+          plt.grid(axis='y', alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Colorful bar chart with value labels]
+
+      - title: "Grouped Bar Chart"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          categories = ['A', 'B', 'C', 'D']
+          group1 = [20, 35, 30, 25]
+          group2 = [25, 32, 34, 20]
+
+          x = np.arange(len(categories))
+          width = 0.35
+
+          # Create grouped bars
+          plt.bar(x - width/2, group1, width, label='Group 1', color='skyblue')
+          plt.bar(x + width/2, group2, width, label='Group 2', color='lightcoral')
+
+          plt.xlabel('Categories')
+          plt.ylabel('Values')
+          plt.title('Grouped Bar Chart')
+          plt.xticks(x, categories)
+          plt.legend()
+          plt.grid(axis='y', alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Two groups of bars side by side]
+
+  exercise:
+    title: "Create a Bar Chart"
+
+    instruction: |
+      Create a bar chart showing sales for different products.
+
+      **Data:**
+      - products = ['Laptop', 'Mouse', 'Keyboard', 'Monitor']
+      - sales = [45, 89, 67, 52]
+
+      **Requirements:**
+      - Use plt.bar()
+      - xlabel: 'Products'
+      - ylabel: 'Sales'
+      - title: 'Product Sales'
+      - Set color to 'skyblue'
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+
+      plt.clf()
+
+      products = ['Laptop', 'Mouse', 'Keyboard', 'Monitor']
+      sales = [45, 89, 67, 52]
+
+    starter_code: |
+      # Your code here
+
+      result = plt.gcf()
+
+    solution: |
+      plt.bar(products, sales, color='skyblue')
+      plt.xlabel('Products')
+      plt.ylabel('Sales')
+      plt.title('Product Sales')
+
+      result = plt.gcf()
+
+    validation:
+      type: "type_check"
+      expected_type: "object"
+
+    hints:
+      - level: 1
+        text: "Use plt.bar(products, sales, color='skyblue') and add labels"
+
+      - level: 2
+        text: |
+          plt.bar(products, sales, color='skyblue')
+          plt.xlabel('Products')
+          plt.ylabel('Sales')
+          plt.title('Product Sales')
+
+      - level: 3
+        code: |
+          plt.bar(products, sales, color='skyblue')
+          plt.xlabel('Products')
+          plt.ylabel('Sales')
+          plt.title('Product Sales')
+          result = plt.gcf()
+
+  follow_up:
+    next_lesson: "matplotlib_04"

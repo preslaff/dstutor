@@ -1,0 +1,232 @@
+lesson:
+  id: "numpy_03"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Indexing and Slicing"
+  order: 3
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["numpy_01", "numpy_02"]
+    learning_objectives:
+      - "Access individual elements in arrays"
+      - "Extract subarrays using slicing"
+      - "Understand negative indexing"
+      - "Work with multi-dimensional array indexing"
+
+  content:
+    introduction: |
+      # NumPy Indexing and Slicing
+
+      Accessing and extracting data from arrays is fundamental to working with NumPy.
+      Master indexing and slicing to manipulate your data efficiently.
+
+      **What you'll learn:**
+      - Access single elements
+      - Extract subarrays with slicing
+      - Index multi-dimensional arrays
+      - Modify arrays through indexing
+
+    concept: |
+      ## Array Indexing Fundamentals
+
+      **1D Array Indexing:**
+      - Indexes start at 0 (like Python lists)
+      - Negative indexes count from the end
+      - Syntax: `arr[index]`
+
+      **Slicing Syntax:**
+      - `arr[start:stop:step]`
+      - `start` - inclusive (default: 0)
+      - `stop` - exclusive (default: end)
+      - `step` - increment (default: 1)
+
+      **2D Array Indexing:**
+      - Syntax: `arr[row, col]` or `arr[row][col]`
+      - First index = row, second = column
+      - Can slice rows and columns independently
+
+      **Key Differences from Python Lists:**
+      - ✅ Multi-dimensional indexing: `arr[i, j]` (not `arr[i][j]`)
+      - ✅ Slices return views (not copies)
+      - ✅ More powerful boolean and fancy indexing
+
+    examples:
+      - title: "1D Array Indexing"
+        code: |
+          import numpy as np
+
+          arr = np.array([10, 20, 30, 40, 50, 60, 70])
+
+          # Single element access
+          print("First element:", arr[0])
+          print("Third element:", arr[2])
+          print("Last element:", arr[-1])
+          print("Second from end:", arr[-2])
+
+          # Slicing
+          print("\nFirst 3 elements:", arr[0:3])  # or arr[:3]
+          print("Elements 2-5:", arr[2:5])
+          print("Last 3 elements:", arr[-3:])
+          print("Every other element:", arr[::2])
+          print("Reverse array:", arr[::-1])
+
+        output: |
+          First element: 10
+          Third element: 30
+          Last element: 70
+          Second from end: 60
+
+          First 3 elements: [10 20 30]
+          Elements 2-5: [30 40 50]
+          Last 3 elements: [50 60 70]
+          Every other element: [10 30 50 70]
+          Reverse array: [70 60 50 40 30 20 10]
+
+      - title: "2D Array Indexing"
+        code: |
+          import numpy as np
+
+          arr_2d = np.array([[1, 2, 3, 4],
+                             [5, 6, 7, 8],
+                             [9, 10, 11, 12]])
+
+          print("Original array:")
+          print(arr_2d)
+
+          # Single element: arr[row, col]
+          print("\nElement at row 0, col 2:", arr_2d[0, 2])  # 3
+          print("Element at row 1, col 1:", arr_2d[1, 1])  # 6
+
+          # Entire row
+          print("\nFirst row:", arr_2d[0])        # or arr_2d[0, :]
+          print("Second row:", arr_2d[1, :])
+
+          # Entire column
+          print("\nFirst column:", arr_2d[:, 0])
+          print("Last column:", arr_2d[:, -1])
+
+          # Subarray
+          print("\nTop-left 2x2:")
+          print(arr_2d[:2, :2])
+
+        output: |
+          Original array:
+          [[ 1  2  3  4]
+           [ 5  6  7  8]
+           [ 9 10 11 12]]
+
+          Element at row 0, col 2: 3
+          Element at row 1, col 1: 6
+
+          First row: [1 2 3 4]
+          Second row: [5 6 7 8]
+
+          First column: [1 5 9]
+          Last column: [ 4  8 12]
+
+          Top-left 2x2:
+          [[1 2]
+           [5 6]]
+
+      - title: "Modifying Arrays Through Indexing"
+        code: |
+          import numpy as np
+
+          arr = np.array([1, 2, 3, 4, 5])
+          print("Original:", arr)
+
+          # Modify single element
+          arr[0] = 10
+          print("After arr[0] = 10:", arr)
+
+          # Modify slice
+          arr[1:4] = [20, 30, 40]
+          print("After slice modification:", arr)
+
+          # Broadcast single value to slice
+          arr[2:] = 99
+          print("After arr[2:] = 99:", arr)
+
+        output: |
+          Original: [1 2 3 4 5]
+          After arr[0] = 10: [10  2  3  4  5]
+          After slice modification: [10 20 30 40  5]
+          After arr[2:] = 99: [10 20 99 99 99]
+
+  exercise:
+    title: "Extract a Subarray"
+
+    instruction: |
+      Given a 2D array, extract the **middle 2x2 subarray**.
+
+      From this array:
+      ```
+      [[1, 2, 3, 4],
+       [5, 6, 7, 8],
+       [9, 10, 11, 12],
+       [13, 14, 15, 16]]
+      ```
+
+      Extract:
+      ```
+      [[6, 7],
+       [10, 11]]
+      ```
+
+      **Requirements:**
+      - Use slicing (not individual element selection)
+      - Store the result in `result`
+
+    setup_code: |
+      import numpy as np
+
+      arr = np.array([[1, 2, 3, 4],
+                      [5, 6, 7, 8],
+                      [9, 10, 11, 12],
+                      [13, 14, 15, 16]])
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = arr[1:3, 1:3]
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [2, 2]
+        - type: "values"
+          expected: [[6, 7], [10, 11]]
+
+    hints:
+      - level: 1
+        text: |
+          You need to slice both rows and columns. The syntax is arr[row_slice, col_slice].
+          The values 6, 7, 10, 11 are in the middle rows (indices 1-2) and middle columns (indices 1-2).
+
+      - level: 2
+        text: |
+          Rows: You want rows at index 1 and 2 → arr[1:3, ...]
+          Columns: You want columns at index 1 and 2 → arr[..., 1:3]
+          Combine them: arr[1:3, 1:3]
+
+      - level: 3
+        code: |
+          result = arr[1:3, 1:3]
+
+  follow_up:
+    challenges:
+      - "Extract every other row from a 2D array"
+      - "Extract the last column"
+      - "Reverse the order of rows"
+      - "Get the diagonal elements (indices [0,0], [1,1], [2,2], ...)"
+
+    next_lesson: "numpy_04"
+
+    additional_resources:
+      - title: "NumPy Indexing Documentation"
+        url: "https://numpy.org/doc/stable/user/basics.indexing.html"

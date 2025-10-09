@@ -1,0 +1,178 @@
+lesson:
+  id: "numpy_07"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Boolean Indexing"
+  order: 7
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["numpy_04", "numpy_06"]
+    learning_objectives:
+      - "Filter arrays using boolean masks"
+      - "Combine multiple conditions"
+      - "Modify arrays conditionally"
+
+  content:
+    introduction: |
+      # Boolean Indexing and Filtering
+
+      One of NumPy's most powerful features - select array elements based on conditions.
+      Essential for data filtering and analysis!
+
+    concept: |
+      ## Boolean Indexing
+
+      **Creating Boolean Masks:**
+      - Comparison operations return boolean arrays
+      - Use these as "masks" to filter data
+
+      **Filtering:**
+      - `arr[boolean_mask]` returns elements where mask is True
+      - Can assign values: `arr[boolean_mask] = new_value`
+
+      **Combining Conditions:**
+      - AND: `&` (not `and`)
+      - OR: `|` (not `or`)
+      - NOT: `~` (not `not`)
+      - **Must use parentheses!**
+
+      **Use Cases:**
+      - Filter outliers
+      - Find values in range
+      - Data cleaning
+      - Conditional updates
+
+    examples:
+      - title: "Basic Boolean Indexing"
+        code: |
+          import numpy as np
+
+          scores = np.array([45, 78, 92, 63, 88, 55, 95])
+
+          print("Scores:", scores)
+
+          # Create boolean mask
+          passing = scores >= 60
+          print("\nPassing mask:", passing)
+
+          # Filter array
+          passing_scores = scores[passing]
+          print("Passing scores:", passing_scores)
+
+          # Can do in one line
+          high_scores = scores[scores >= 90]
+          print("High scores (>=90):", high_scores)
+
+          # Count
+          print("\nNumber passing:", np.sum(scores >= 60))
+
+        output: |
+          Scores: [45 78 92 63 88 55 95]
+
+          Passing mask: [False  True  True  True  True False  True]
+          Passing scores: [78 92 63 88 95]
+          High scores (>=90): [92 95]
+
+          Number passing: 5
+
+      - title: "Combining Conditions"
+        code: |
+          import numpy as np
+
+          temps = np.array([15, 22, 28, 35, 18, 30, 25])
+
+          print("Temperatures:", temps)
+
+          # AND condition - comfortable range
+          comfortable = (temps >= 20) & (temps <= 30)
+          print("\nComfortable (20-30):", temps[comfortable])
+
+          # OR condition - extreme temps
+          extreme = (temps < 18) | (temps > 32)
+          print("Extreme (<18 or >32):", temps[extreme])
+
+          # NOT condition
+          not_hot = ~(temps > 30)
+          print("Not hot (<=30):", temps[not_hot])
+
+        output: |
+          Temperatures: [15 22 28 35 18 30 25]
+
+          Comfortable (20-30): [22 28 30 25]
+          Extreme (<18 or >32): [15 35]
+          Not hot (<=30): [15 22 28 18 30 25]
+
+      - title: "Conditional Modification"
+        code: |
+          import numpy as np
+
+          values = np.array([5, 12, -3, 8, -7, 15, -1])
+          print("Original:", values)
+
+          # Replace negative values with 0
+          values_clean = values.copy()
+          values_clean[values_clean < 0] = 0
+          print("Negatives → 0:", values_clean)
+
+          # Cap maximum value
+          values_capped = values.copy()
+          values_capped[values_capped > 10] = 10
+          print("Capped at 10:", values_capped)
+
+        output: |
+          Original: [ 5 12 -3  8 -7 15 -1]
+          Negatives → 0: [ 5 12  0  8  0 15  0]
+          Capped at 10: [ 5 10 -3  8 -7 10 -1]
+
+  exercise:
+    title: "Filter Array by Range"
+
+    instruction: |
+      Given an array of numbers, filter out values that are **between 10 and 50 (inclusive)**.
+
+      For example:
+      - Input: `[5, 15, 60, 25, 75, 30, 8]`
+      - Output: `[15, 25, 30]` (values between 10 and 50)
+
+    setup_code: |
+      import numpy as np
+
+      numbers = np.array([5, 15, 60, 25, 75, 30, 8, 45, 100, 22])
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = numbers[(numbers >= 10) & (numbers <= 50)]
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "values"
+          expected: [15, 25, 30, 45, 22]
+
+    hints:
+      - level: 1
+        text: |
+          Use boolean indexing with a combined condition. You need values >= 10 AND <= 50.
+          Remember to use & for AND and wrap each condition in parentheses.
+
+      - level: 2
+        text: |
+          Create a boolean mask: (numbers >= 10) & (numbers <= 50)
+          Then use it to index: numbers[mask]
+
+      - level: 3
+        code: |
+          result = numbers[(numbers >= 10) & (numbers <= 50)]
+
+  follow_up:
+    challenges:
+      - "Find all even numbers in an array"
+      - "Replace values > 100 with 100"
+      - "Find elements divisible by both 3 and 5"
+
+    next_lesson: "numpy_08"

@@ -1,0 +1,199 @@
+lesson:
+  id: "numpy_02"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Array Creation Functions"
+  order: 2
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["numpy_01"]
+    learning_objectives:
+      - "Use NumPy functions to create arrays efficiently"
+      - "Create arrays filled with zeros, ones, or specific values"
+      - "Generate ranges and sequences of numbers"
+
+  content:
+    introduction: |
+      # NumPy Array Creation Functions
+
+      While you can create arrays from lists, NumPy provides specialized functions that are more efficient for creating common array patterns.
+
+      **What you'll learn:**
+      - Create arrays filled with zeros or ones
+      - Generate sequences with `arange()` and `linspace()`
+      - Create identity matrices
+      - Initialize arrays with random values
+
+    concept: |
+      ## Efficient Array Creation
+
+      NumPy provides several functions for creating arrays without manually typing values:
+
+      **Constant Value Functions:**
+      - `np.zeros()` - Array filled with zeros
+      - `np.ones()` - Array filled with ones
+      - `np.full()` - Array filled with a specific value
+      - `np.empty()` - Uninitialized array (faster but contains garbage)
+
+      **Sequence Functions:**
+      - `np.arange()` - Like Python's range(), but returns array
+      - `np.linspace()` - Evenly spaced values over an interval
+
+      **Special Matrices:**
+      - `np.eye()` or `np.identity()` - Identity matrix
+      - `np.diag()` - Diagonal matrix
+
+      **Why use these?**
+      - 🚀 Much faster than loops
+      - 💾 More memory efficient
+      - 📝 More readable code
+
+    examples:
+      - title: "Creating Arrays of Zeros and Ones"
+        code: |
+          import numpy as np
+
+          # 1D array of zeros
+          zeros_1d = np.zeros(5)
+          print("1D zeros:", zeros_1d)
+
+          # 2D array of zeros (3 rows, 4 columns)
+          zeros_2d = np.zeros((3, 4))
+          print("\n2D zeros:")
+          print(zeros_2d)
+
+          # Array of ones
+          ones = np.ones((2, 3))
+          print("\n2D ones:")
+          print(ones)
+
+          # Custom fill value
+          fives = np.full((2, 3), 5)
+          print("\nArray filled with 5:")
+          print(fives)
+
+        output: |
+          1D zeros: [0. 0. 0. 0. 0.]
+
+          2D zeros:
+          [[0. 0. 0. 0.]
+           [0. 0. 0. 0.]
+           [0. 0. 0. 0.]]
+
+          2D ones:
+          [[1. 1. 1.]
+           [1. 1. 1.]]
+
+          Array filled with 5:
+          [[5 5 5]
+           [5 5 5]]
+
+      - title: "Generating Sequences"
+        code: |
+          import numpy as np
+
+          # arange: start, stop, step (like range)
+          seq1 = np.arange(0, 10, 2)  # 0, 2, 4, 6, 8
+          print("arange(0, 10, 2):", seq1)
+
+          # arange with floats
+          seq2 = np.arange(0, 1, 0.2)
+          print("arange(0, 1, 0.2):", seq2)
+
+          # linspace: start, stop, num_points
+          seq3 = np.linspace(0, 1, 5)  # 5 evenly spaced values
+          print("linspace(0, 1, 5):", seq3)
+
+          # linspace is better for inclusive ranges
+          seq4 = np.linspace(0, 10, 11)  # 0 to 10 inclusive
+          print("linspace(0, 10, 11):", seq4)
+
+        output: |
+          arange(0, 10, 2): [0 2 4 6 8]
+          arange(0, 1, 0.2): [0.  0.2 0.4 0.6 0.8]
+          linspace(0, 1, 5): [0.   0.25 0.5  0.75 1.  ]
+          linspace(0, 10, 11): [ 0.  1.  2.  3.  4.  5.  6.  7.  8.  9. 10.]
+
+      - title: "Special Matrices"
+        code: |
+          import numpy as np
+
+          # Identity matrix (3x3)
+          identity = np.eye(3)
+          print("Identity matrix:")
+          print(identity)
+
+          # Diagonal matrix
+          diag = np.diag([1, 2, 3, 4])
+          print("\nDiagonal matrix:")
+          print(diag)
+
+        output: |
+          Identity matrix:
+          [[1. 0. 0.]
+           [0. 1. 0.]
+           [0. 0. 1.]]
+
+          Diagonal matrix:
+          [[1 0 0 0]
+           [0 2 0 0]
+           [0 0 3 0]
+           [0 0 0 4]]
+
+  exercise:
+    title: "Create a Zero Matrix"
+
+    instruction: |
+      Create a 2D NumPy array filled with zeros, with shape **(4, 6)** (4 rows, 6 columns).
+
+      Store the result in a variable called `result`.
+
+      **Hint:** You need to pass the shape as a tuple!
+
+    setup_code: |
+      import numpy as np
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = np.zeros((4, 6))
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [4, 6]
+        - type: "dtype"
+          expected: "float64"
+
+    hints:
+      - level: 1
+        text: |
+          Use the `np.zeros()` function. It takes a tuple as an argument
+          representing the shape of the array.
+
+      - level: 2
+        text: |
+          The shape should be (4, 6) - that's 4 rows and 6 columns.
+          Remember to pass it as a tuple: np.zeros((4, 6))
+
+      - level: 3
+        code: |
+          result = np.zeros((4, 6))
+
+  follow_up:
+    challenges:
+      - "Create a 5x5 identity matrix using np.eye()"
+      - "Use np.arange() to create an array [0, 3, 6, 9, 12]"
+      - "Use np.linspace() to create 10 evenly spaced values from 0 to 100"
+      - "Create a 3x3 array filled with the number 7 using np.full()"
+
+    next_lesson: "numpy_03"
+
+    additional_resources:
+      - title: "NumPy Array Creation Routines"
+        url: "https://numpy.org/doc/stable/reference/routines.array-creation.html"

@@ -1,0 +1,379 @@
+lesson:
+  id: "sklearn_04"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Logistic Regression"
+  order: 4
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_02", "sklearn_03"]
+    learning_objectives:
+      - "Understand logistic regression for classification"
+      - "Build binary and multiclass classifiers"
+      - "Interpret probability predictions"
+      - "Evaluate classification models"
+
+  content:
+    introduction: |
+      # Logistic Regression
+
+      Classify with confidence! Despite its name, Logistic Regression is for
+      classification - learn to predict categories and probabilities.
+
+      **What you'll learn:**
+      - How logistic regression works
+      - Binary and multiclass classification
+      - Probability predictions
+      - Model evaluation
+
+    concept: |
+      ## Classification with Probabilities
+
+      **1. What is Logistic Regression?**
+
+      **Not linear!** It predicts:
+      - **Class labels**: 0 or 1, spam or not spam
+      - **Probabilities**: 0.85 = 85% likely to be spam
+
+      **How it works:**
+      - Uses sigmoid function to convert scores to probabilities (0-1)
+      - Threshold at 0.5: >0.5 → class 1, <0.5 → class 0
+
+      **2. sklearn Logistic Regression**
+
+      ```python
+      from sklearn.linear_model import LogisticRegression
+
+      # Create model
+      model = LogisticRegression()
+
+      # Train
+      model.fit(X_train, y_train)
+
+      # Predict classes
+      predictions = model.predict(X_test)
+
+      # Predict probabilities
+      probabilities = model.predict_proba(X_test)
+      ```
+
+      **3. Binary vs Multiclass**
+
+      **Binary Classification** (2 classes):
+      - Spam vs Not Spam (0 or 1)
+      - Pass vs Fail
+      - Fraud vs Legitimate
+
+      **Multiclass Classification** (3+ classes):
+      - Iris species: setosa, versicolor, virginica
+      - Digit recognition: 0-9
+      - Automatically handled by sklearn!
+
+      **4. Prediction Methods**
+
+      **predict()** - Get class labels:
+      ```python
+      predictions = model.predict(X_test)
+      # [0, 1, 1, 0, 1]
+      ```
+
+      **predict_proba()** - Get probabilities:
+      ```python
+      probabilities = model.predict_proba(X_test)
+      # [[0.8, 0.2],   # 80% class 0, 20% class 1
+      #  [0.3, 0.7],   # 30% class 0, 70% class 1
+      #  ...]
+      ```
+
+      **5. Key Parameters**
+
+      **C** (Regularization strength):
+      - Smaller C = stronger regularization (simpler model)
+      - Larger C = weaker regularization (complex model)
+      - Default: C=1.0
+
+      **max_iter** (Maximum iterations):
+      - Number of iterations to converge
+      - Increase if you get convergence warnings
+      - Default: 100
+
+      **random_state**:
+      - For reproducible results
+
+      **6. Model Evaluation**
+
+      **Accuracy**: Overall correctness
+      ```python
+      accuracy = model.score(X_test, y_test)
+      ```
+
+      **Confusion Matrix**: Detailed breakdown
+      ```python
+      from sklearn.metrics import confusion_matrix
+      cm = confusion_matrix(y_test, predictions)
+      ```
+
+      **Classification Report**: Precision, recall, F1
+      ```python
+      from sklearn.metrics import classification_report
+      print(classification_report(y_test, predictions))
+      ```
+
+      **When to Use Logistic Regression:**
+      - ✅ Binary or multiclass classification
+      - ✅ Need probability estimates
+      - ✅ Interpretable model
+      - ✅ Linearly separable data
+      - ✅ Fast training and prediction
+
+    examples:
+      - title: "Binary Classification - Spam Detection"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import accuracy_score
+
+          # Create synthetic email data
+          np.random.seed(42)
+
+          # Features: word counts, link count
+          # Spam emails have more specific words and links
+          spam_features = np.random.randint(5, 20, (50, 2)) + [10, 5]
+          not_spam_features = np.random.randint(0, 10, (50, 2))
+
+          X = np.vstack([spam_features, not_spam_features])
+          y = np.array([1]*50 + [0]*50)  # 1=spam, 0=not spam
+
+          # Split
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Train model
+          model = LogisticRegression()
+          model.fit(X_train, y_train)
+
+          # Predict
+          predictions = model.predict(X_test)
+
+          # Evaluate
+          accuracy = accuracy_score(y_test, predictions)
+          print(f"Accuracy: {accuracy:.2%}")
+          print()
+
+          # Example predictions
+          print("Sample predictions:")
+          for i in range(3):
+              prob = model.predict_proba([X_test[i]])[0]
+              pred = predictions[i]
+              actual = y_test[i]
+              print(f"  Email {i+1}: Predicted={pred}, Actual={actual}, "
+                    f"Prob(spam)={prob[1]:.2%}")
+
+        output: |
+          Accuracy: 95.00%
+
+          Sample predictions:
+            Email 1: Predicted=1, Actual=1, Prob(spam)=99.87%
+            Email 2: Predicted=0, Actual=0, Prob(spam)=0.13%
+            Email 3: Predicted=0, Actual=0, Prob(spam)=0.01%
+
+      - title: "Multiclass Classification - Iris"
+        code: |
+          from sklearn.datasets import load_iris
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import accuracy_score, classification_report
+
+          # Load iris dataset (3 classes)
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Split
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.3, random_state=42
+          )
+
+          # Train
+          model = LogisticRegression(max_iter=200)
+          model.fit(X_train, y_train)
+
+          # Predict
+          predictions = model.predict(X_test)
+
+          # Evaluate
+          accuracy = accuracy_score(y_test, predictions)
+          print(f"Accuracy: {accuracy:.2%}")
+          print()
+
+          # Show probabilities for first sample
+          sample_probs = model.predict_proba([X_test[0]])[0]
+          print("Probability for first test sample:")
+          for i, prob in enumerate(sample_probs):
+              print(f"  {iris.target_names[i]}: {prob:.2%}")
+
+        output: |
+          Accuracy: 97.78%
+
+          Probability for first test sample:
+            setosa: 0.00%
+            versicolor: 5.33%
+            virginica: 94.67%
+
+      - title: "Probability Predictions"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LogisticRegression
+
+          # Simple dataset
+          X = np.array([[1], [2], [3], [4], [5], [6]])
+          y = np.array([0, 0, 0, 1, 1, 1])
+
+          # Train
+          model = LogisticRegression()
+          model.fit(X, y)
+
+          # Predict classes and probabilities
+          test_X = np.array([[1.5], [3.5], [5.5]])
+
+          classes = model.predict(test_X)
+          probs = model.predict_proba(test_X)
+
+          print("Predictions:")
+          for i, x in enumerate(test_X):
+              print(f"  X={x[0]:.1f}: Class={classes[i]}, "
+                    f"P(0)={probs[i][0]:.2%}, P(1)={probs[i][1]:.2%}")
+
+        output: |
+          Predictions:
+            X=1.5: Class=0, P(0)=93.62%, P(1)=6.38%
+            X=3.5: Class=0, P(0)=50.00%, P(1)=50.00%
+            X=5.5: Class=1, P(0)=6.38%, P(1)=93.62%
+
+      - title: "Model Evaluation Metrics"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import (accuracy_score, precision_score,
+                                        recall_score, f1_score)
+
+          # Load cancer dataset
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LogisticRegression(max_iter=10000)
+          model.fit(X_train, y_train)
+
+          # Predictions
+          predictions = model.predict(X_test)
+
+          # Calculate metrics
+          accuracy = accuracy_score(y_test, predictions)
+          precision = precision_score(y_test, predictions)
+          recall = recall_score(y_test, predictions)
+          f1 = f1_score(y_test, predictions)
+
+          print("Model Performance:")
+          print(f"  Accuracy:  {accuracy:.3f}")
+          print(f"  Precision: {precision:.3f}")
+          print(f"  Recall:    {recall:.3f}")
+          print(f"  F1 Score:  {f1:.3f}")
+
+        output: |
+          Model Performance:
+            Accuracy:  0.974
+            Precision: 0.986
+            Recall:    0.972
+            F1 Score:  0.979
+
+  exercise:
+    title: "Build a Pass/Fail Classifier"
+
+    instruction: |
+      Create a logistic regression model to predict if students pass or fail.
+
+      **Given:**
+      - Study hours and previous score as features
+      - Pass (1) or Fail (0) as target
+
+      **Tasks:**
+      1. Train a LogisticRegression model
+      2. Predict the probability of passing for a student with [6, 75]
+      3. Store the probability of passing (class 1) in `prob_pass`
+
+    setup_code: |
+      import numpy as np
+      from sklearn.linear_model import LogisticRegression
+
+      # Training data
+      X_train = np.array([
+          [2, 50], [4, 60], [6, 70], [8, 85],
+          [3, 55], [5, 65], [7, 80], [9, 90]
+      ])
+      y_train = np.array([0, 0, 1, 1, 0, 1, 1, 1])
+
+    starter_code: |
+      # Your code here
+      model = LogisticRegression()
+      # Train the model
+
+      # Predict probability for student with [6, 75]
+      prob_pass =
+
+    solution: |
+      model = LogisticRegression()
+      model.fit(X_train, y_train)
+      student = [[6, 75]]
+      probs = model.predict_proba(student)
+      prob_pass = probs[0][1]
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "prob_pass"
+          type: "float"
+          min: 0.5
+          max: 1.0
+
+    hints:
+      - level: 1
+        text: |
+          Use model.fit(X_train, y_train) to train.
+          Use model.predict_proba([[6, 75]]) to get probabilities.
+          The probability of class 1 (pass) is in the second column [0][1].
+
+      - level: 2
+        text: |
+          model.fit(X_train, y_train)
+          probs = model.predict_proba([[6, 75]])
+          prob_pass = probs[0][1]
+
+      - level: 3
+        code: |
+          model = LogisticRegression()
+          model.fit(X_train, y_train)
+          student = [[6, 75]]
+          probs = model.predict_proba(student)
+          prob_pass = probs[0][1]
+
+  follow_up:
+    challenges:
+      - "Calculate accuracy on the training set"
+      - "Predict class label (not probability) for [6, 75]"
+      - "Try different C values (0.1, 1, 10)"
+      - "Create confusion matrix for predictions"
+
+    next_lesson: "sklearn_05"
+
+    additional_resources:
+      - title: "Logistic Regression Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"

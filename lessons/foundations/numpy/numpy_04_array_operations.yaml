@@ -1,0 +1,133 @@
+lesson:
+  id: "numpy_04"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Array Operations"
+  order: 4
+
+  metadata:
+    duration: "15 min"
+    difficulty: "easy"
+    prerequisites: ["numpy_03"]
+    learning_objectives:
+      - "Perform element-wise arithmetic operations"
+      - "Use comparison operators with arrays"
+      - "Understand vectorization benefits"
+
+  content:
+    introduction: |
+      # NumPy Array Operations
+
+      NumPy's power comes from vectorized operations - apply operations to entire arrays
+      without writing loops!
+
+    concept: |
+      ## Vectorized Operations
+
+      **Arithmetic Operations:**
+      - Element-wise: `+`, `-`, `*`, `/`, `**`, `%`
+      - Work on entire arrays at once
+      - Much faster than Python loops
+
+      **Comparison Operations:**
+      - Return boolean arrays: `>`, `<`, `>=`, `<=`, `==`, `!=`
+      - Can be used for filtering (boolean indexing)
+
+      **Universal Functions (ufuncs):**
+      - `np.sqrt()`, `np.exp()`, `np.log()`, `np.sin()`, etc.
+      - Operate element-wise
+
+    examples:
+      - title: "Arithmetic Operations"
+        code: |
+          import numpy as np
+
+          arr = np.array([1, 2, 3, 4, 5])
+
+          print("Original:", arr)
+          print("Add 10:", arr + 10)
+          print("Multiply by 2:", arr * 2)
+          print("Square:", arr ** 2)
+          print("Divide by 2:", arr / 2)
+
+          # Array with array
+          arr2 = np.array([10, 20, 30, 40, 50])
+          print("\narr + arr2:", arr + arr2)
+          print("arr * arr2:", arr * arr2)
+
+        output: |
+          Original: [1 2 3 4 5]
+          Add 10: [11 12 13 14 15]
+          Multiply by 2: [ 2  4  6  8 10]
+          Square: [ 1  4  9 16 25]
+          Divide by 2: [0.5 1.  1.5 2.  2.5]
+
+          arr + arr2: [11 22 33 44 55]
+          arr * arr2: [ 10  40  90 160 250]
+
+      - title: "Comparison Operations"
+        code: |
+          import numpy as np
+
+          arr = np.array([1, 5, 10, 15, 20])
+
+          print("Array:", arr)
+          print("arr > 10:", arr > 10)
+          print("arr == 10:", arr == 10)
+          print("arr <= 10:", arr <= 10)
+
+          # Count how many satisfy condition
+          print("\nCount arr > 10:", np.sum(arr > 10))
+
+        output: |
+          Array: [ 1  5 10 15 20]
+          arr > 10: [False False False  True  True]
+          arr == 10: [False False  True False False]
+          arr <= 10: [ True  True  True False False]
+
+          Count arr > 10: 2
+
+  exercise:
+    title: "Temperature Conversion"
+
+    instruction: |
+      Convert an array of temperatures from Celsius to Fahrenheit.
+
+      Formula: `F = (C * 9/5) + 32`
+
+      Given: `temperatures_c = np.array([0, 10, 20, 30, 100])`
+
+      Calculate the Fahrenheit values and store in `result`.
+
+    setup_code: |
+      import numpy as np
+
+      temperatures_c = np.array([0, 10, 20, 30, 100])
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = (temperatures_c * 9/5) + 32
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [5]
+        - type: "values"
+          expected: [32.0, 50.0, 68.0, 86.0, 212.0]
+
+    hints:
+      - level: 1
+        text: "Use the formula F = (C * 9/5) + 32. Apply it to the entire array at once!"
+
+      - level: 2
+        text: "result = (temperatures_c * 9/5) + 32"
+
+      - level: 3
+        code: "result = (temperatures_c * 9/5) + 32"
+
+  follow_up:
+    next_lesson: "numpy_05"

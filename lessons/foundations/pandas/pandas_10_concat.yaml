@@ -1,0 +1,329 @@
+lesson:
+  id: "pandas_10"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Concatenating DataFrames"
+  order: 10
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_09"]
+    learning_objectives:
+      - "Concatenate DataFrames vertically and horizontally"
+      - "Understand axis parameter in concatenation"
+      - "Handle index alignment"
+      - "Combine multiple DataFrames efficiently"
+
+  content:
+    introduction: |
+      # Concatenating DataFrames
+
+      Stack DataFrames on top of each other or side-by-side. Perfect for combining
+      data from multiple sources or time periods!
+
+    concept: |
+      ## pd.concat() vs pd.merge()
+
+      **pd.concat()** - Stack/Append DataFrames
+      - Combines along an axis (rows or columns)
+      - Like stacking blocks
+      - Doesn't need a key column
+
+      **pd.merge()** - Join DataFrames
+      - Combines based on matching keys
+      - Like SQL JOIN
+      - Needs common columns
+
+      **Concatenation Types:**
+
+      **Vertical (axis=0)** - Stack rows
+      ```python
+      pd.concat([df1, df2], axis=0)
+      ```
+      - Adds rows from df2 below df1
+      - Columns must match (or use join parameter)
+
+      **Horizontal (axis=1)** - Stack columns
+      ```python
+      pd.concat([df1, df2], axis=1)
+      ```
+      - Adds columns from df2 beside df1
+      - Aligns on index
+
+      **Key Parameters:**
+      - `axis` - 0 for rows, 1 for columns
+      - `ignore_index` - Renumber index from 0
+      - `join` - 'outer' (default) or 'inner'
+      - `keys` - Add hierarchical index
+
+    examples:
+      - title: "Vertical Concatenation (Stacking Rows)"
+        code: |
+          import pandas as pd
+
+          # Q1 sales
+          q1 = pd.DataFrame({
+              'Month': ['Jan', 'Feb', 'Mar'],
+              'Sales': [100, 120, 110]
+          })
+
+          # Q2 sales
+          q2 = pd.DataFrame({
+              'Month': ['Apr', 'May', 'Jun'],
+              'Sales': [130, 140, 135]
+          })
+
+          print("Q1:")
+          print(q1)
+          print("\nQ2:")
+          print(q2)
+          print()
+
+          # Concatenate vertically
+          combined = pd.concat([q1, q2], axis=0)
+          print("Combined (vertical):")
+          print(combined)
+          print()
+
+          # With reset index
+          combined_reset = pd.concat([q1, q2], axis=0, ignore_index=True)
+          print("With reset index:")
+          print(combined_reset)
+
+        output: |
+          Q1:
+            Month  Sales
+          0   Jan    100
+          1   Feb    120
+          2   Mar    110
+
+          Q2:
+            Month  Sales
+          0   Apr    130
+          1   May    140
+          2   Jun    135
+
+          Combined (vertical):
+            Month  Sales
+          0   Jan    100
+          1   Feb    120
+          2   Mar    110
+          0   Apr    130
+          1   May    140
+          2   Jun    135
+
+          With reset index:
+            Month  Sales
+          0   Jan    100
+          1   Feb    120
+          2   Mar    110
+          3   Apr    130
+          4   May    140
+          5   Jun    135
+
+      - title: "Horizontal Concatenation (Stacking Columns)"
+        code: |
+          import pandas as pd
+
+          # Student names
+          names = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie']
+          })
+
+          # Student scores
+          scores = pd.DataFrame({
+              'Math': [85, 90, 78],
+              'Science': [88, 92, 85]
+          })
+
+          print("Names:")
+          print(names)
+          print("\nScores:")
+          print(scores)
+          print()
+
+          # Concatenate horizontally
+          combined = pd.concat([names, scores], axis=1)
+          print("Combined (horizontal):")
+          print(combined)
+
+        output: |
+          Names:
+                Name
+          0    Alice
+          1      Bob
+          2  Charlie
+
+          Scores:
+             Math  Science
+          0    85       88
+          1    90       92
+          2    78       85
+
+          Combined (horizontal):
+                Name  Math  Science
+          0    Alice    85       88
+          1      Bob    90       92
+          2  Charlie    78       85
+
+      - title: "Concatenating with Hierarchical Index"
+        code: |
+          import pandas as pd
+
+          east = pd.DataFrame({
+              'Product': ['A', 'B'],
+              'Sales': [100, 150]
+          })
+
+          west = pd.DataFrame({
+              'Product': ['A', 'B'],
+              'Sales': [120, 180]
+          })
+
+          print("East:")
+          print(east)
+          print("\nWest:")
+          print(west)
+          print()
+
+          # Concatenate with keys (hierarchical index)
+          combined = pd.concat([east, west],
+                               keys=['East', 'West'],
+                               names=['Region', 'ID'])
+
+          print("Combined with hierarchical index:")
+          print(combined)
+
+        output: |
+          East:
+            Product  Sales
+          0       A    100
+          1       B    150
+
+          West:
+            Product  Sales
+          0       A    120
+          1       B    180
+
+          Combined with hierarchical index:
+                       Product  Sales
+          Region ID
+          East   0          A    100
+                 1          B    150
+          West   0          A    120
+                 1          B    180
+
+      - title: "Inner vs Outer Join in Concat"
+        code: |
+          import pandas as pd
+
+          df1 = pd.DataFrame({
+              'A': [1, 2],
+              'B': [3, 4]
+          })
+
+          df2 = pd.DataFrame({
+              'B': [5, 6],
+              'C': [7, 8]
+          })
+
+          print("DF1:")
+          print(df1)
+          print("\nDF2:")
+          print(df2)
+          print()
+
+          # Outer join (default) - keep all columns
+          outer = pd.concat([df1, df2], axis=0, join='outer')
+          print("Outer join (all columns):")
+          print(outer)
+          print()
+
+          # Inner join - only common columns
+          inner = pd.concat([df1, df2], axis=0, join='inner')
+          print("Inner join (common columns only):")
+          print(inner)
+
+        output: |
+          DF1:
+             A  B
+          0  1  3
+          1  2  4
+
+          DF2:
+             B  C
+          0  5  7
+          1  6  8
+
+          Outer join (all columns):
+               A  B    C
+          0  1.0  3  NaN
+          1  2.0  4  NaN
+          0  NaN  5  7.0
+          1  NaN  6  8.0
+
+          Inner join (common columns only):
+             B
+          0  3
+          1  4
+          0  5
+          1  6
+
+  exercise:
+    title: "Combine Monthly Data"
+
+    instruction: |
+      You have sales data for 3 months in separate DataFrames.
+      Combine them vertically into a single DataFrame.
+
+      **Requirements:**
+      - Stack all three DataFrames vertically
+      - Reset the index to be sequential (0, 1, 2, ...)
+      - Store in `result`
+
+    setup_code: |
+      import pandas as pd
+
+      jan = pd.DataFrame({'Product': ['A', 'B'], 'Sales': [100, 150]})
+      feb = pd.DataFrame({'Product': ['A', 'B'], 'Sales': [120, 160]})
+      mar = pd.DataFrame({'Product': ['A', 'B'], 'Sales': [110, 170]})
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = pd.concat([jan, feb, mar], axis=0, ignore_index=True)
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [6, 2]
+
+    hints:
+      - level: 1
+        text: |
+          Use pd.concat() with a list of DataFrames.
+          Set axis=0 for vertical and ignore_index=True to reset index.
+
+      - level: 2
+        text: |
+          result = pd.concat([jan, feb, mar], axis=0, ignore_index=True)
+
+      - level: 3
+        code: |
+          result = pd.concat([jan, feb, mar], axis=0, ignore_index=True)
+
+  follow_up:
+    challenges:
+      - "Concatenate horizontally instead"
+      - "Use keys to create hierarchical index"
+      - "Try inner join vs outer join"
+
+    next_lesson: "pandas_11"
+
+    additional_resources:
+      - title: "Pandas Concat Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/merging.html#concatenating-objects"

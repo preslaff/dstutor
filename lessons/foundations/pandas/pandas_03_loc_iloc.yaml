@@ -1,0 +1,282 @@
+lesson:
+  id: "pandas_03"
+  level: "beginner"
+  topic: "pandas"
+  subtopic: "DataFrame Indexing (loc & iloc)"
+  order: 3
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02"]
+    learning_objectives:
+      - "Master .loc[] for label-based indexing"
+      - "Master .iloc[] for position-based indexing"
+      - "Select rows and columns efficiently"
+      - "Understand when to use each method"
+
+  content:
+    introduction: |
+      # DataFrame Indexing with .loc and .iloc
+
+      The most important DataFrame skills - selecting exactly the data you need!
+      Master these and you'll be a Pandas pro.
+
+      **What you'll learn:**
+      - `.loc[]` - Selection by labels
+      - `.iloc[]` - Selection by integer position
+      - Combining row and column selection
+      - Boolean indexing with .loc
+
+    concept: |
+      ## .loc vs .iloc
+
+      **`.loc[]` - Label-based**
+      - Uses row/column names
+      - Syntax: `df.loc[rows, columns]`
+      - Slices are **inclusive** of the end
+      - Best for named indices
+
+      **`.iloc[]` - Position-based**
+      - Uses integer positions (0-indexed)
+      - Syntax: `df.iloc[rows, columns]`
+      - Slices are **exclusive** of the end (like Python lists)
+      - Best for positional access
+
+      **When to use which?**
+      - `.loc[]` → "Get the 'NYC' row and 'Age' column"
+      - `.iloc[]` → "Get the 2nd row and 3rd column"
+
+      **Selection patterns:**
+      ```python
+      df.loc[row_label, col_label]      # Single cell
+      df.loc[row_labels, col_labels]    # Multiple
+      df.loc[:, col_label]              # All rows, one column
+      df.loc[row_label, :]              # One row, all columns
+      df.loc[boolean_mask, columns]     # Conditional rows
+      ```
+
+    examples:
+      - title: "Using .loc[] - Label-based"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+              'Age': [25, 30, 35, 40],
+              'City': ['NYC', 'LA', 'Chicago', 'Boston'],
+              'Salary': [70000, 80000, 90000, 95000]
+          }, index=['A', 'B', 'C', 'D'])
+
+          print("DataFrame:")
+          print(df)
+          print()
+
+          # Single row
+          print("Row 'A':")
+          print(df.loc['A'])
+          print()
+
+          # Multiple rows
+          print("Rows 'A' and 'C':")
+          print(df.loc[['A', 'C']])
+          print()
+
+          # Row and column
+          print("Age of 'B':", df.loc['B', 'Age'])
+          print()
+
+          # Multiple rows and columns
+          print("Names and Ages of A and B:")
+          print(df.loc[['A', 'B'], ['Name', 'Age']])
+
+        output: |
+          DataFrame:
+                  Name  Age     City  Salary
+          A     Alice   25      NYC   70000
+          B       Bob   30       LA   80000
+          C   Charlie   35  Chicago   90000
+          D     David   40   Boston   95000
+
+          Row 'A':
+          Name      Alice
+          Age          25
+          City        NYC
+          Salary    70000
+          Name: A, dtype: object
+
+          Rows 'A' and 'C':
+                  Name  Age     City  Salary
+          A     Alice   25      NYC   70000
+          C   Charlie   35  Chicago   90000
+
+          Age of 'B': 30
+
+          Names and Ages of A and B:
+               Name  Age
+          A  Alice   25
+          B    Bob   30
+
+      - title: "Using .iloc[] - Position-based"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie'],
+              'Age': [25, 30, 35],
+              'City': ['NYC', 'LA', 'Chicago']
+          })
+
+          print("DataFrame:")
+          print(df)
+          print()
+
+          # First row
+          print("First row (iloc[0]):")
+          print(df.iloc[0])
+          print()
+
+          # First two rows
+          print("First 2 rows:")
+          print(df.iloc[0:2])  # 0 and 1, NOT 2
+          print()
+
+          # Specific cell (row 1, col 2)
+          print("Row 1, Col 2:", df.iloc[1, 2])
+          print()
+
+          # Last row, all columns
+          print("Last row:")
+          print(df.iloc[-1])
+
+        output: |
+          DataFrame:
+                  Name  Age     City
+          0     Alice   25      NYC
+          1       Bob   30       LA
+          2   Charlie   35  Chicago
+
+          First row (iloc[0]):
+          Name    Alice
+          Age        25
+          City      NYC
+          Name: 0, dtype: object
+
+          First 2 rows:
+               Name  Age City
+          0  Alice   25  NYC
+          1    Bob   30   LA
+
+          Row 1, Col 2: LA
+
+          Last row:
+          Name    Charlie
+          Age          35
+          City    Chicago
+          Name: 2, dtype: object
+
+      - title: "Boolean Indexing with .loc"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+              'Age': [25, 30, 35, 40],
+              'Salary': [70000, 80000, 90000, 95000]
+          })
+
+          # Filter: people over 30
+          print("People over 30:")
+          print(df.loc[df['Age'] > 30])
+          print()
+
+          # Filter with column selection
+          print("Names of people with salary > 75000:")
+          print(df.loc[df['Salary'] > 75000, ['Name', 'Salary']])
+
+        output: |
+          People over 30:
+                  Name  Age  Salary
+          2   Charlie   35   90000
+          3     David   40   95000
+
+          Names of people with salary > 75000:
+                  Name  Salary
+          1       Bob   80000
+          2   Charlie   90000
+          3     David   95000
+
+  exercise:
+    title: "Select Specific Data"
+
+    instruction: |
+      Given this DataFrame:
+      ```
+           Product   Price  Stock  Category
+      0    Laptop     999     15    Electronics
+      1     Mouse      25     50    Electronics
+      2      Desk     350     10    Furniture
+      3     Chair     200     20    Furniture
+      ```
+
+      Select **all rows where Stock > 15**, returning only the **'Product' and 'Price'** columns.
+
+      **Expected output:**
+      ```
+        Product  Price
+      1   Mouse     25
+      3   Chair    200
+      ```
+
+    setup_code: |
+      import pandas as pd
+
+      df = pd.DataFrame({
+          'Product': ['Laptop', 'Mouse', 'Desk', 'Chair'],
+          'Price': [999, 25, 350, 200],
+          'Stock': [15, 50, 10, 20],
+          'Category': ['Electronics', 'Electronics', 'Furniture', 'Furniture']
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = df.loc[df['Stock'] > 15, ['Product', 'Price']]
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [2, 2]
+        - type: "columns"
+          expected: ['Product', 'Price']
+
+    hints:
+      - level: 1
+        text: |
+          Use .loc[] with a boolean condition for rows and a list of column names.
+          Structure: df.loc[condition, [columns]]
+
+      - level: 2
+        text: |
+          The condition is: df['Stock'] > 15
+          The columns are: ['Product', 'Price']
+          Combine: df.loc[df['Stock'] > 15, ['Product', 'Price']]
+
+      - level: 3
+        code: |
+          result = df.loc[df['Stock'] > 15, ['Product', 'Price']]
+
+  follow_up:
+    challenges:
+      - "Select the first 3 rows using .iloc"
+      - "Get all Electronics products using .loc"
+      - "Select Price and Stock for items with Price < 300"
+
+    next_lesson: "pandas_04"
+
+    additional_resources:
+      - title: "Pandas Indexing Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/indexing.html"

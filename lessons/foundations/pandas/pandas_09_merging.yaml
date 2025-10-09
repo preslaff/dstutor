@@ -1,0 +1,343 @@
+lesson:
+  id: "pandas_09"
+  level: "intermediate"
+  topic: "pandas"
+  subtopic: "Merging DataFrames"
+  order: 9
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["pandas_02", "pandas_03"]
+    learning_objectives:
+      - "Merge DataFrames using different join types"
+      - "Understand inner, outer, left, and right joins"
+      - "Merge on single and multiple columns"
+      - "Handle merge conflicts and duplicates"
+
+  content:
+    introduction: |
+      # Merging DataFrames
+
+      Real data is scattered across multiple tables. Learn to combine them like SQL joins!
+      Essential for working with relational data.
+
+      **What you'll learn:**
+      - Different types of joins
+      - Merge on columns
+      - Handle merge keys
+      - Resolve conflicts
+
+    concept: |
+      ## DataFrame Merging
+
+      **What is Merging?**
+      Combining DataFrames based on common columns (like SQL JOIN).
+
+      **Join Types:**
+
+      **1. Inner Join** (default)
+      - Keep only rows that match in BOTH DataFrames
+      - Most restrictive
+
+      **2. Left Join**
+      - Keep ALL rows from left DataFrame
+      - Add matching rows from right (NaN if no match)
+
+      **3. Right Join**
+      - Keep ALL rows from right DataFrame
+      - Add matching rows from left (NaN if no match)
+
+      **4. Outer Join**
+      - Keep ALL rows from BOTH DataFrames
+      - Fill with NaN where no match
+      - Most inclusive
+
+      **Syntax:**
+      ```python
+      pd.merge(left, right, on='key', how='inner')
+      ```
+
+      **Parameters:**
+      - `on` - Column(s) to merge on
+      - `how` - Join type ('inner', 'outer', 'left', 'right')
+      - `left_on`, `right_on` - Different column names
+      - `suffixes` - Handle duplicate column names
+
+      **When to Use Each:**
+      - **Inner**: Only want matching records
+      - **Left**: Keep all from primary table
+      - **Right**: Keep all from secondary table
+      - **Outer**: Keep everything, see all data
+
+    examples:
+      - title: "Inner Join - Only Matching Rows"
+        code: |
+          import pandas as pd
+
+          # Employee data
+          employees = pd.DataFrame({
+              'emp_id': [1, 2, 3, 4],
+              'name': ['Alice', 'Bob', 'Charlie', 'David'],
+              'dept_id': [10, 20, 10, 30]
+          })
+
+          # Department data
+          departments = pd.DataFrame({
+              'dept_id': [10, 20, 40],
+              'dept_name': ['Sales', 'Engineering', 'Marketing']
+          })
+
+          print("Employees:")
+          print(employees)
+          print("\nDepartments:")
+          print(departments)
+          print()
+
+          # Inner join - only matching dept_id
+          result = pd.merge(employees, departments, on='dept_id', how='inner')
+          print("Inner Join (only matching):")
+          print(result)
+
+        output: |
+          Employees:
+             emp_id     name  dept_id
+          0       1    Alice       10
+          1       2      Bob       20
+          2       3  Charlie       10
+          3       4    David       30
+
+          Departments:
+             dept_id    dept_name
+          0       10        Sales
+          1       20  Engineering
+          2       40    Marketing
+
+          Inner Join (only matching):
+             emp_id     name  dept_id    dept_name
+          0       1    Alice       10        Sales
+          1       3  Charlie       10        Sales
+          2       2      Bob       20  Engineering
+
+      - title: "Left Join - Keep All from Left"
+        code: |
+          import pandas as pd
+
+          employees = pd.DataFrame({
+              'emp_id': [1, 2, 3, 4],
+              'name': ['Alice', 'Bob', 'Charlie', 'David'],
+              'dept_id': [10, 20, 10, 30]
+          })
+
+          departments = pd.DataFrame({
+              'dept_id': [10, 20, 40],
+              'dept_name': ['Sales', 'Engineering', 'Marketing']
+          })
+
+          # Left join - keep all employees
+          result = pd.merge(employees, departments, on='dept_id', how='left')
+          print("Left Join (all employees, matched with dept):")
+          print(result)
+
+        output: |
+          Left Join (all employees, matched with dept):
+             emp_id     name  dept_id    dept_name
+          0       1    Alice       10        Sales
+          1       2      Bob       20  Engineering
+          2       3  Charlie       10        Sales
+          3       4    David       30          NaN
+
+      - title: "Outer Join - Keep Everything"
+        code: |
+          import pandas as pd
+
+          employees = pd.DataFrame({
+              'emp_id': [1, 2, 3, 4],
+              'name': ['Alice', 'Bob', 'Charlie', 'David'],
+              'dept_id': [10, 20, 10, 30]
+          })
+
+          departments = pd.DataFrame({
+              'dept_id': [10, 20, 40],
+              'dept_name': ['Sales', 'Engineering', 'Marketing']
+          })
+
+          # Outer join - keep all from both
+          result = pd.merge(employees, departments, on='dept_id', how='outer')
+          print("Outer Join (everything):")
+          print(result)
+
+        output: |
+          Outer Join (everything):
+             emp_id     name  dept_id    dept_name
+          0     1.0    Alice       10        Sales
+          1     3.0  Charlie       10        Sales
+          2     2.0      Bob       20  Engineering
+          3     4.0    David       30          NaN
+          4     NaN      NaN       40    Marketing
+
+      - title: "Merge on Different Column Names"
+        code: |
+          import pandas as pd
+
+          orders = pd.DataFrame({
+              'order_id': [1, 2, 3],
+              'customer_id': [101, 102, 101],
+              'amount': [250, 175, 300]
+          })
+
+          customers = pd.DataFrame({
+              'id': [101, 102, 103],
+              'name': ['Alice', 'Bob', 'Charlie']
+          })
+
+          print("Orders:")
+          print(orders)
+          print("\nCustomers:")
+          print(customers)
+          print()
+
+          # Merge with different column names
+          result = pd.merge(orders, customers,
+                           left_on='customer_id',
+                           right_on='id',
+                           how='left')
+          print("Merged (customer_id = id):")
+          print(result)
+
+        output: |
+          Orders:
+             order_id  customer_id  amount
+          0         1          101     250
+          1         2          102     175
+          2         3          101     300
+
+          Customers:
+              id     name
+          0  101    Alice
+          1  102      Bob
+          2  103  Charlie
+
+          Merged (customer_id = id):
+             order_id  customer_id  amount   id   name
+          0         1          101     250  101  Alice
+          1         2          102     175  102    Bob
+          2         3          101     300  101  Alice
+
+      - title: "Merge on Multiple Columns"
+        code: |
+          import pandas as pd
+
+          sales_2023 = pd.DataFrame({
+              'region': ['East', 'West', 'East'],
+              'product': ['A', 'A', 'B'],
+              'sales_2023': [1000, 1500, 1200]
+          })
+
+          sales_2024 = pd.DataFrame({
+              'region': ['East', 'West', 'East'],
+              'product': ['A', 'A', 'C'],
+              'sales_2024': [1100, 1600, 1300]
+          })
+
+          print("Sales 2023:")
+          print(sales_2023)
+          print("\nSales 2024:")
+          print(sales_2024)
+          print()
+
+          # Merge on multiple columns
+          result = pd.merge(sales_2023, sales_2024,
+                           on=['region', 'product'],
+                           how='outer')
+          print("Merged (on region AND product):")
+          print(result)
+
+        output: |
+          Sales 2023:
+            region product  sales_2023
+          0   East       A        1000
+          1   West       A        1500
+          2   East       B        1200
+
+          Sales 2024:
+            region product  sales_2024
+          0   East       A        1100
+          1   West       A        1600
+          2   East       C        1300
+
+          Merged (on region AND product):
+            region product  sales_2023  sales_2024
+          0   East       A      1000.0      1100.0
+          1   West       A      1500.0      1600.0
+          2   East       B      1200.0         NaN
+          3   East       C         NaN      1300.0
+
+  exercise:
+    title: "Merge Sales and Products"
+
+    instruction: |
+      You have two DataFrames:
+      - `sales`: order_id, product_id, quantity
+      - `products`: product_id, product_name, price
+
+      Perform a **left join** to add product information to sales data.
+      Merge on 'product_id' column.
+
+      Store result in `result`.
+
+    setup_code: |
+      import pandas as pd
+
+      sales = pd.DataFrame({
+          'order_id': [1, 2, 3, 4],
+          'product_id': [101, 102, 101, 103],
+          'quantity': [2, 1, 3, 1]
+      })
+
+      products = pd.DataFrame({
+          'product_id': [101, 102, 104],
+          'product_name': ['Laptop', 'Mouse', 'Keyboard'],
+          'price': [999, 25, 75]
+      })
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = pd.merge(sales, products, on='product_id', how='left')
+
+    validation:
+      type: "dataframe_check"
+      checks:
+        - type: "shape"
+          expected: [4, 5]
+        - type: "columns"
+          expected: ['order_id', 'product_id', 'quantity', 'product_name', 'price']
+
+    hints:
+      - level: 1
+        text: |
+          Use pd.merge() with how='left' to keep all sales records.
+          Merge on='product_id'
+
+      - level: 2
+        text: |
+          result = pd.merge(sales, products, on='product_id', how='left')
+
+      - level: 3
+        code: |
+          result = pd.merge(sales, products, on='product_id', how='left')
+
+  follow_up:
+    challenges:
+      - "Try inner join and see the difference"
+      - "Merge on multiple columns"
+      - "Use suffixes to handle duplicate column names"
+
+    next_lesson: "pandas_10"
+
+    additional_resources:
+      - title: "Pandas Merge Documentation"
+        url: "https://pandas.pydata.org/docs/user_guide/merging.html"

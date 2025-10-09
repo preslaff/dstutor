@@ -1,0 +1,418 @@
+lesson:
+  id: "python_10"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Error Handling (try/except)"
+  order: 10
+
+  metadata:
+    duration: "25 min"
+    difficulty: "easy"
+    prerequisites: ["python_07"]
+    learning_objectives:
+      - "Handle errors with try/except blocks"
+      - "Use multiple except clauses"
+      - "Understand common exception types"
+      - "Write robust error-handling code"
+
+  content:
+    introduction: |
+      # Error Handling (try/except)
+
+      Make your programs resilient! Learn to handle errors gracefully instead
+      of letting your program crash.
+
+      **What you'll learn:**
+      - try/except for error handling
+      - Different exception types
+      - finally and else clauses
+      - Raising exceptions
+
+    concept: |
+      ## Handling Errors Gracefully
+
+      **1. Basic try/except**
+
+      Catch errors before they crash your program:
+      ```python
+      try:
+          # Code that might fail
+          number = int("abc")
+      except:
+          # What to do if error occurs
+          print("That's not a number!")
+      ```
+
+      **2. Specific Exception Types**
+
+      Catch specific errors:
+      ```python
+      try:
+          result = 10 / 0
+      except ZeroDivisionError:
+          print("Cannot divide by zero!")
+      ```
+
+      **Common Exception Types:**
+      - `ValueError` - Invalid value (e.g., int("abc"))
+      - `ZeroDivisionError` - Division by zero
+      - `TypeError` - Wrong type (e.g., "2" + 2)
+      - `KeyError` - Dictionary key not found
+      - `IndexError` - List index out of range
+      - `FileNotFoundError` - File doesn't exist
+      - `AttributeError` - Attribute doesn't exist
+
+      **3. Multiple except Clauses**
+
+      Handle different errors differently:
+      ```python
+      try:
+          number = int(input("Enter a number: "))
+          result = 10 / number
+      except ValueError:
+          print("Please enter a valid number")
+      except ZeroDivisionError:
+          print("Cannot divide by zero")
+      ```
+
+      **4. Catching Multiple Exceptions**
+
+      ```python
+      try:
+          # some code
+      except (ValueError, TypeError):
+          print("Value or type error occurred")
+      ```
+
+      **5. Getting Error Details**
+
+      Access the error message:
+      ```python
+      try:
+          number = int("abc")
+      except ValueError as e:
+          print(f"Error: {e}")
+      ```
+
+      **6. else Clause**
+
+      Runs if NO error occurred:
+      ```python
+      try:
+          number = int("10")
+      except ValueError:
+          print("Invalid number")
+      else:
+          print("Success! Number is:", number)
+      ```
+
+      **7. finally Clause**
+
+      Always runs, whether error or not:
+      ```python
+      try:
+          file = open("data.txt")
+          # process file
+      except FileNotFoundError:
+          print("File not found")
+      finally:
+          print("Cleanup code always runs")
+      ```
+
+      **8. Raising Exceptions**
+
+      Trigger your own errors:
+      ```python
+      def divide(a, b):
+          if b == 0:
+              raise ValueError("Divisor cannot be zero")
+          return a / b
+      ```
+
+      **Best Practices:**
+      - ✅ Catch specific exceptions, not all exceptions
+      - ✅ Handle errors appropriately (don't just ignore them)
+      - ✅ Use finally for cleanup (closing files, etc.)
+      - ❌ Don't use bare `except:` (too broad)
+      - ❌ Don't catch exceptions you can't handle
+
+    examples:
+      - title: "Basic try/except"
+        code: |
+          # Without error handling (would crash)
+          # number = int("abc")  # ValueError!
+
+          # With error handling
+          try:
+              number = int("abc")
+              print("Conversion successful")
+          except ValueError:
+              print("Cannot convert 'abc' to integer")
+
+          print("Program continues...")
+
+        output: |
+          Cannot convert 'abc' to integer
+          Program continues...
+
+      - title: "Specific Exception Types"
+        code: |
+          # Division by zero
+          try:
+              result = 10 / 0
+          except ZeroDivisionError:
+              print("Error: Cannot divide by zero")
+
+          # Invalid conversion
+          try:
+              number = int("hello")
+          except ValueError:
+              print("Error: Invalid number format")
+
+          # List index out of range
+          try:
+              numbers = [1, 2, 3]
+              print(numbers[10])
+          except IndexError:
+              print("Error: Index out of range")
+
+        output: |
+          Error: Cannot divide by zero
+          Error: Invalid number format
+          Error: Index out of range
+
+      - title: "Multiple except Clauses"
+        code: |
+          def safe_divide(a, b):
+              try:
+                  # Convert to numbers
+                  num1 = float(a)
+                  num2 = float(b)
+                  # Perform division
+                  result = num1 / num2
+                  return result
+              except ValueError:
+                  return "Error: Invalid number format"
+              except ZeroDivisionError:
+                  return "Error: Cannot divide by zero"
+
+          print(safe_divide(10, 2))      # 5.0
+          print(safe_divide(10, 0))      # Error message
+          print(safe_divide("abc", 2))   # Error message
+
+        output: |
+          5.0
+          Error: Cannot divide by zero
+          Error: Invalid number format
+
+      - title: "Accessing Error Details"
+        code: |
+          try:
+              numbers = [1, 2, 3]
+              print(numbers[10])
+          except IndexError as e:
+              print(f"IndexError occurred: {e}")
+
+          try:
+              result = int("not a number")
+          except ValueError as e:
+              print(f"ValueError occurred: {e}")
+
+        output: |
+          IndexError occurred: list index out of range
+          ValueError occurred: invalid literal for int() with base 10: 'not a number'
+
+      - title: "else and finally Clauses"
+        code: |
+          def process_number(value):
+              try:
+                  number = int(value)
+                  result = 100 / number
+              except ValueError:
+                  print("Invalid number format")
+              except ZeroDivisionError:
+                  print("Cannot divide by zero")
+              else:
+                  # Runs if no error occurred
+                  print(f"Success! Result: {result}")
+              finally:
+                  # Always runs
+                  print("Processing complete\n")
+
+          process_number("10")    # Success case
+          process_number("0")     # ZeroDivisionError
+          process_number("abc")   # ValueError
+
+        output: |
+          Success! Result: 10.0
+          Processing complete
+
+          Cannot divide by zero
+          Processing complete
+
+          Invalid number format
+          Processing complete
+
+      - title: "Practical Example - Safe User Input"
+        code: |
+          def get_integer_input(prompt):
+              """Keep asking until user enters valid integer."""
+              while True:
+                  try:
+                      value = int(input(prompt))
+                      return value
+                  except ValueError:
+                      print("Invalid input. Please enter a number.")
+
+          # Simulating with predefined values
+          def simulate_input():
+              try:
+                  # First attempt: invalid
+                  result = int("abc")
+              except ValueError:
+                  print("Invalid input. Please enter a number.")
+                  # Second attempt: valid
+                  result = int("42")
+                  print(f"You entered: {result}")
+                  return result
+
+          simulate_input()
+
+        output: |
+          Invalid input. Please enter a number.
+          You entered: 42
+
+      - title: "Raising Custom Exceptions"
+        code: |
+          def check_age(age):
+              """Validate age is in reasonable range."""
+              if age < 0:
+                  raise ValueError("Age cannot be negative")
+              if age > 150:
+                  raise ValueError("Age seems unrealistic")
+              return f"Age {age} is valid"
+
+          # Test with different values
+          try:
+              print(check_age(25))
+          except ValueError as e:
+              print(f"Error: {e}")
+
+          try:
+              print(check_age(-5))
+          except ValueError as e:
+              print(f"Error: {e}")
+
+          try:
+              print(check_age(200))
+          except ValueError as e:
+              print(f"Error: {e}")
+
+        output: |
+          Age 25 is valid
+          Error: Age cannot be negative
+          Error: Age seems unrealistic
+
+      - title: "Real-World Example - Safe Dictionary Access"
+        code: |
+          student_grades = {
+              "Alice": 85,
+              "Bob": 92,
+              "Charlie": 78
+          }
+
+          def get_grade(name):
+              try:
+                  grade = student_grades[name]
+                  return f"{name}'s grade: {grade}"
+              except KeyError:
+                  return f"Student '{name}' not found"
+
+          print(get_grade("Alice"))    # Found
+          print(get_grade("Diana"))    # Not found
+
+          # Alternative: use .get() method
+          grade = student_grades.get("Diana", "Not found")
+          print(f"Diana's grade: {grade}")
+
+        output: |
+          Alice's grade: 85
+          Student 'Diana' not found
+          Diana's grade: Not found
+
+  exercise:
+    title: "Safe Division Function"
+
+    instruction: |
+      Create a safe division function that handles errors.
+
+      **Requirements:**
+      - Function name: `safe_divide`
+      - Parameters: `a` and `b`
+      - Return result if successful
+      - Return "Error: Division by zero" if b is 0
+      - Call function with 10 and 2, store in `result`
+
+    setup_code: |
+      # Your code will define the function
+
+    starter_code: |
+      # Your code here
+      def safe_divide(a, b):
+          # Complete this function
+
+      result = safe_divide(10, 2)
+
+    solution: |
+      def safe_divide(a, b):
+          try:
+              return a / b
+          except ZeroDivisionError:
+              return "Error: Division by zero"
+
+      result = safe_divide(10, 2)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          expected: 5.0
+          type: "float"
+
+    hints:
+      - level: 1
+        text: |
+          Use try/except to catch ZeroDivisionError.
+          In try block: return a / b
+          In except block: return the error message
+
+      - level: 2
+        text: |
+          def safe_divide(a, b):
+              try:
+                  return a / b
+              except ZeroDivisionError:
+                  return "Error: Division by zero"
+
+      - level: 3
+        code: |
+          def safe_divide(a, b):
+              try:
+                  return a / b
+              except ZeroDivisionError:
+                  return "Error: Division by zero"
+
+          result = safe_divide(10, 2)
+
+  follow_up:
+    challenges:
+      - "Create function that safely converts string to int"
+      - "Handle file not found error when reading files"
+      - "Create custom exception class"
+      - "Write function with both else and finally clauses"
+
+    next_lesson: "numpy_01"
+
+    additional_resources:
+      - title: "Python Exceptions Documentation"
+        url: "https://docs.python.org/3/tutorial/errors.html"

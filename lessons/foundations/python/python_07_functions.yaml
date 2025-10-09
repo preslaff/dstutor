@@ -1,0 +1,407 @@
+lesson:
+  id: "python_07"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Functions"
+  order: 7
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["python_01", "python_05"]
+    learning_objectives:
+      - "Define and call functions"
+      - "Use parameters and return values"
+      - "Understand default arguments"
+      - "Work with *args and **kwargs"
+
+  content:
+    introduction: |
+      # Functions
+
+      Write reusable code! Functions let you organize your code into named blocks
+      that you can call whenever needed.
+
+      **What you'll learn:**
+      - Defining and calling functions
+      - Parameters and arguments
+      - Return values
+      - Default and keyword arguments
+
+    concept: |
+      ## Creating Reusable Code Blocks
+
+      **1. Defining a Function**
+
+      Use `def` keyword:
+      ```python
+      def greet():
+          print("Hello!")
+
+      # Call the function
+      greet()  # Prints: Hello!
+      ```
+
+      **2. Parameters and Arguments**
+
+      Functions can accept input:
+      ```python
+      def greet(name):
+          print(f"Hello, {name}!")
+
+      greet("Alice")  # Hello, Alice!
+      ```
+
+      **Multiple parameters:**
+      ```python
+      def add(a, b):
+          result = a + b
+          print(result)
+
+      add(5, 3)  # 8
+      ```
+
+      **3. Return Values**
+
+      Send data back to the caller:
+      ```python
+      def add(a, b):
+          return a + b
+
+      result = add(5, 3)
+      print(result)  # 8
+      ```
+
+      **Multiple returns:**
+      ```python
+      def get_min_max(numbers):
+          return min(numbers), max(numbers)
+
+      minimum, maximum = get_min_max([1, 5, 3, 9, 2])
+      ```
+
+      **4. Default Arguments**
+
+      Provide default values:
+      ```python
+      def greet(name="World"):
+          print(f"Hello, {name}!")
+
+      greet()          # Hello, World!
+      greet("Alice")   # Hello, Alice!
+      ```
+
+      **5. Keyword Arguments**
+
+      Call functions with argument names:
+      ```python
+      def describe_pet(animal, name):
+          print(f"I have a {animal} named {name}")
+
+      # Positional arguments
+      describe_pet("dog", "Buddy")
+
+      # Keyword arguments (order doesn't matter)
+      describe_pet(name="Whiskers", animal="cat")
+      ```
+
+      **6. *args - Variable Number of Arguments**
+
+      Accept any number of positional arguments:
+      ```python
+      def sum_all(*numbers):
+          total = 0
+          for num in numbers:
+              total += num
+          return total
+
+      print(sum_all(1, 2, 3))        # 6
+      print(sum_all(1, 2, 3, 4, 5))  # 15
+      ```
+
+      **7. **kwargs - Variable Keyword Arguments**
+
+      Accept any number of keyword arguments:
+      ```python
+      def print_info(**info):
+          for key, value in info.items():
+              print(f"{key}: {value}")
+
+      print_info(name="Alice", age=25, city="NYC")
+      ```
+
+      **8. Docstrings**
+
+      Document your functions:
+      ```python
+      def add(a, b):
+          """
+          Add two numbers and return the result.
+
+          Args:
+              a: First number
+              b: Second number
+
+          Returns:
+              Sum of a and b
+          """
+          return a + b
+      ```
+
+      **Function Best Practices:**
+      - Give functions descriptive names (use verbs)
+      - Keep functions focused on one task
+      - Use docstrings to document
+      - Return values instead of printing when possible
+      - Avoid modifying global variables
+
+    examples:
+      - title: "Basic Function"
+        code: |
+          # Function without parameters
+          def say_hello():
+              print("Hello, World!")
+
+          # Call the function
+          say_hello()
+          say_hello()  # Can call multiple times
+
+        output: |
+          Hello, World!
+          Hello, World!
+
+      - title: "Function with Parameters"
+        code: |
+          # One parameter
+          def greet(name):
+              print(f"Hello, {name}!")
+
+          greet("Alice")
+          greet("Bob")
+
+          # Multiple parameters
+          def introduce(name, age):
+              print(f"My name is {name} and I'm {age} years old")
+
+          introduce("Charlie", 25)
+
+        output: |
+          Hello, Alice!
+          Hello, Bob!
+          My name is Charlie and I'm 25 years old
+
+      - title: "Return Values"
+        code: |
+          # Simple return
+          def square(x):
+              return x * x
+
+          result = square(5)
+          print(f"5 squared is {result}")
+
+          # Multiple returns
+          def divide_and_remainder(a, b):
+              quotient = a // b
+              remainder = a % b
+              return quotient, remainder
+
+          q, r = divide_and_remainder(17, 5)
+          print(f"17 ÷ 5 = {q} remainder {r}")
+
+        output: |
+          5 squared is 25
+          17 ÷ 5 = 3 remainder 2
+
+      - title: "Default Arguments"
+        code: |
+          def greet(name="World", greeting="Hello"):
+              print(f"{greeting}, {name}!")
+
+          # Use all defaults
+          greet()
+
+          # Override first parameter
+          greet("Alice")
+
+          # Override both
+          greet("Bob", "Hi")
+
+          # Use keyword arguments
+          greet(greeting="Hey", name="Charlie")
+
+        output: |
+          Hello, World!
+          Hello, Alice!
+          Hi, Bob!
+          Hey, Charlie!
+
+      - title: "Real-World Example - Temperature Converter"
+        code: |
+          def celsius_to_fahrenheit(celsius):
+              """Convert Celsius to Fahrenheit."""
+              fahrenheit = (celsius * 9/5) + 32
+              return fahrenheit
+
+          def fahrenheit_to_celsius(fahrenheit):
+              """Convert Fahrenheit to Celsius."""
+              celsius = (fahrenheit - 32) * 5/9
+              return celsius
+
+          # Test conversions
+          temp_c = 25
+          temp_f = celsius_to_fahrenheit(temp_c)
+          print(f"{temp_c}°C = {temp_f}°F")
+
+          temp_f = 77
+          temp_c = fahrenheit_to_celsius(temp_f)
+          print(f"{temp_f}°F = {temp_c}°C")
+
+        output: |
+          25°C = 77.0°F
+          77°F = 25.0°C
+
+      - title: "*args Example"
+        code: |
+          def calculate_average(*numbers):
+              """Calculate average of any number of values."""
+              if not numbers:
+                  return 0
+              total = sum(numbers)
+              return total / len(numbers)
+
+          print(f"Average of 5, 10, 15: {calculate_average(5, 10, 15)}")
+          print(f"Average of 1, 2, 3, 4, 5: {calculate_average(1, 2, 3, 4, 5)}")
+
+        output: |
+          Average of 5, 10, 15: 10.0
+          Average of 1, 2, 3, 4, 5: 3.0
+
+      - title: "**kwargs Example"
+        code: |
+          def create_profile(**details):
+              """Create user profile from keyword arguments."""
+              print("User Profile:")
+              for key, value in details.items():
+                  print(f"  {key.title()}: {value}")
+
+          create_profile(name="Alice", age=25, city="New York", job="Engineer")
+
+        output: |
+          User Profile:
+            Name: Alice
+            Age: 25
+            City: New York
+            Job: Engineer
+
+      - title: "Combining Everything"
+        code: |
+          def create_greeting(name, greeting="Hello", *adjectives, **details):
+              """
+              Create a personalized greeting.
+
+              Args:
+                  name: Person's name
+                  greeting: Greeting word (default: "Hello")
+                  *adjectives: Descriptive words
+                  **details: Additional information
+              """
+              # Build greeting
+              msg = f"{greeting}, {name}"
+
+              # Add adjectives
+              if adjectives:
+                  msg += " - " + ", ".join(adjectives)
+
+              msg += "!"
+
+              # Print details
+              if details:
+                  msg += "\n  Details:"
+                  for key, value in details.items():
+                      msg += f"\n    {key}: {value}"
+
+              return msg
+
+          result = create_greeting(
+              "Alice",
+              "Hi",
+              "smart", "creative",
+              age=25,
+              city="NYC"
+          )
+          print(result)
+
+        output: |
+          Hi, Alice - smart, creative!
+            Details:
+              age: 25
+              city: NYC
+
+  exercise:
+    title: "Create Calculator Function"
+
+    instruction: |
+      Create a function that adds two numbers and returns the result.
+
+      **Requirements:**
+      - Function name: `add_numbers`
+      - Parameters: `a` and `b`
+      - Returns: sum of a and b
+      - Call the function with 10 and 15, store result in `result`
+
+    setup_code: |
+      # Your code will define the function
+
+    starter_code: |
+      # Your code here
+      def add_numbers(a, b):
+          # Complete this function
+
+      result = add_numbers(10, 15)
+
+    solution: |
+      def add_numbers(a, b):
+          return a + b
+
+      result = add_numbers(10, 15)
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          expected: 25
+          type: "int"
+
+    hints:
+      - level: 1
+        text: |
+          Define a function that takes two parameters a and b.
+          Inside the function, return a + b.
+          Then call the function with 10 and 15.
+
+      - level: 2
+        text: |
+          def add_numbers(a, b):
+              return a + b
+
+          result = add_numbers(10, 15)
+
+      - level: 3
+        code: |
+          def add_numbers(a, b):
+              return a + b
+
+          result = add_numbers(10, 15)
+
+  follow_up:
+    challenges:
+      - "Create function to check if number is even"
+      - "Write function to find maximum of three numbers"
+      - "Create function to count vowels in a string"
+      - "Write function with default parameter for tax rate"
+
+    next_lesson: "python_08"
+
+    additional_resources:
+      - title: "Python Functions Documentation"
+        url: "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"

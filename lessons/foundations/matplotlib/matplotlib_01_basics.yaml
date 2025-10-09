@@ -1,0 +1,238 @@
+lesson:
+  id: "matplotlib_01"
+  level: "beginner"
+  topic: "matplotlib"
+  subtopic: "Basic Plotting"
+  order: 1
+
+  metadata:
+    duration: "20 min"
+    difficulty: "easy"
+    prerequisites: []
+    learning_objectives:
+      - "Create basic line plots"
+      - "Understand figure and axes"
+      - "Add labels and titles"
+      - "Customize plot appearance"
+
+  content:
+    introduction: |
+      # Matplotlib Basics - Your First Plots
+
+      Welcome to data visualization! Matplotlib is Python's fundamental plotting library.
+      Master it and you can create any visualization you need.
+
+      **What you'll learn:**
+      - Create simple line plots
+      - Add labels, titles, and legends
+      - Customize colors and styles
+      - Save plots to files
+
+    concept: |
+      ## Matplotlib Architecture
+
+      **Two Main Interfaces:**
+
+      **1. pyplot (Simple, MATLAB-style)**
+      ```python
+      import matplotlib.pyplot as plt
+      plt.plot(x, y)
+      plt.show()
+      ```
+
+      **2. Object-Oriented (More control)**
+      ```python
+      fig, ax = plt.subplots()
+      ax.plot(x, y)
+      ```
+
+      **Key Components:**
+      - **Figure** - The whole window/canvas
+      - **Axes** - The plot area (can have multiple)
+      - **Artist** - Everything you see (lines, text, etc.)
+
+      **Basic Workflow:**
+      1. Create figure and axes
+      2. Plot data
+      3. Customize (labels, title, style)
+      4. Show or save
+
+    examples:
+      - title: "Your First Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Data
+          x = np.array([1, 2, 3, 4, 5])
+          y = np.array([2, 4, 6, 8, 10])
+
+          # Create plot
+          plt.plot(x, y)
+
+          # Add labels
+          plt.xlabel('X values')
+          plt.ylabel('Y values')
+          plt.title('My First Plot')
+
+          # Display
+          plt.show()
+
+        output: |
+          [A line plot showing a linear relationship]
+
+      - title: "Customizing Appearance"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 10, 100)
+          y = np.sin(x)
+
+          # Plot with custom style
+          plt.plot(x, y,
+                   color='red',
+                   linestyle='--',
+                   linewidth=2,
+                   marker='o',
+                   markersize=3,
+                   label='sin(x)')
+
+          # Formatting
+          plt.xlabel('X axis', fontsize=12)
+          plt.ylabel('Y axis', fontsize=12)
+          plt.title('Sine Wave', fontsize=14, fontweight='bold')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [A styled sine wave plot with grid and legend]
+
+      - title: "Multiple Lines"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.linspace(0, 2*np.pi, 100)
+
+          # Multiple plots
+          plt.plot(x, np.sin(x), label='sin(x)', color='blue')
+          plt.plot(x, np.cos(x), label='cos(x)', color='red')
+          plt.plot(x, np.sin(x) + np.cos(x), label='sin(x) + cos(x)',
+                   color='green', linestyle='--')
+
+          plt.xlabel('Angle (radians)')
+          plt.ylabel('Value')
+          plt.title('Trigonometric Functions')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+
+          plt.show()
+
+        output: |
+          [Plot with three trigonometric functions]
+
+      - title: "Saving Plots"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          x = np.array([1, 2, 3, 4, 5])
+          y = x ** 2
+
+          plt.plot(x, y, marker='o')
+          plt.title('Quadratic Function')
+          plt.xlabel('X')
+          plt.ylabel('Y')
+
+          # Save to file
+          plt.savefig('my_plot.png', dpi=300, bbox_inches='tight')
+
+          plt.show()
+
+        output: |
+          [Creates a PNG file of the plot]
+
+  exercise:
+    title: "Create a Simple Line Plot"
+
+    instruction: |
+      Create a line plot of y = 2x + 1 for x values from 0 to 10.
+
+      **Requirements:**
+      - Use x = np.linspace(0, 10, 50)
+      - Calculate y = 2 * x + 1
+      - Plot with plt.plot()
+      - Add xlabel: 'X values'
+      - Add ylabel: 'Y values'
+      - Add title: 'Linear Function'
+      - Don't call plt.show() (for validation)
+
+      Store the figure in `result` using `result = plt.gcf()`
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      plt.clf()  # Clear any previous plots
+
+    starter_code: |
+      # Your code here
+
+      result = plt.gcf()  # Get current figure
+
+    solution: |
+      x = np.linspace(0, 10, 50)
+      y = 2 * x + 1
+
+      plt.plot(x, y)
+      plt.xlabel('X values')
+      plt.ylabel('Y values')
+      plt.title('Linear Function')
+
+      result = plt.gcf()
+
+    validation:
+      type: "type_check"
+      expected_type: "object"
+
+    hints:
+      - level: 1
+        text: |
+          Create x using np.linspace(0, 10, 50)
+          Calculate y = 2 * x + 1
+          Then use plt.plot(x, y) and add labels/title
+
+      - level: 2
+        text: |
+          x = np.linspace(0, 10, 50)
+          y = 2 * x + 1
+          plt.plot(x, y)
+          plt.xlabel('X values')
+          plt.ylabel('Y values')
+          plt.title('Linear Function')
+
+      - level: 3
+        code: |
+          x = np.linspace(0, 10, 50)
+          y = 2 * x + 1
+          plt.plot(x, y)
+          plt.xlabel('X values')
+          plt.ylabel('Y values')
+          plt.title('Linear Function')
+          result = plt.gcf()
+
+  follow_up:
+    challenges:
+      - "Plot a cosine wave"
+      - "Create a plot with multiple lines"
+      - "Customize line color and style"
+      - "Add a legend"
+
+    next_lesson: "matplotlib_02"
+
+    additional_resources:
+      - title: "Matplotlib Pyplot Tutorial"
+        url: "https://matplotlib.org/stable/tutorials/introductory/pyplot.html"

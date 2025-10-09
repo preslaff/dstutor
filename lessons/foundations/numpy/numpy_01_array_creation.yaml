@@ -1,0 +1,166 @@
+lesson:
+  id: "numpy_01"
+  level: "beginner"
+  topic: "numpy"
+  subtopic: "Array Creation"
+  order: 1
+
+  metadata:
+    duration: "10 min"
+    difficulty: "easy"
+    prerequisites: []
+    learning_objectives:
+      - "Understand what NumPy arrays are"
+      - "Create arrays from Python lists"
+      - "Inspect array properties (shape, dtype)"
+
+  content:
+    introduction: |
+      # NumPy Array Creation
+
+      Welcome to your first NumPy lesson! NumPy (Numerical Python) is the foundation of numerical computing in Python.
+
+      **What you'll learn:**
+      - What NumPy arrays are and why they're powerful
+      - How to create arrays from Python lists
+      - How to inspect array properties
+
+    concept: |
+      ## What are NumPy Arrays?
+
+      NumPy arrays are powerful n-dimensional array objects that form the core of scientific computing in Python.
+
+      **Key Benefits:**
+      - 🚀 **Fast**: Vectorized operations are much faster than Python loops
+      - 💾 **Memory Efficient**: Store data more compactly than Python lists
+      - 🔢 **Mathematical**: Intuitive syntax for mathematical operations
+      - 🏗️ **Foundation**: Used by pandas, scikit-learn, TensorFlow, and more
+
+      **Array vs List:**
+      ```python
+      # Python list
+      my_list = [1, 2, 3, 4, 5]  # Can contain mixed types
+
+      # NumPy array
+      my_array = np.array([1, 2, 3, 4, 5])  # Homogeneous type, optimized
+      ```
+
+    examples:
+      - title: "Creating 1D Arrays"
+        code: |
+          import numpy as np
+
+          # Create array from list
+          arr = np.array([1, 2, 3, 4, 5])
+          print("Array:", arr)
+          print("Type:", type(arr))
+
+          # Array properties
+          print(f"Shape: {arr.shape}")  # (5,) means 1D array with 5 elements
+          print(f"Dtype: {arr.dtype}")  # int64 or int32 depending on system
+          print(f"Size: {arr.size}")    # Total number of elements
+
+        output: |
+          Array: [1 2 3 4 5]
+          Type: <class 'numpy.ndarray'>
+          Shape: (5,)
+          Dtype: int64
+          Size: 5
+
+      - title: "Creating 2D Arrays"
+        code: |
+          import numpy as np
+
+          # Create 2D array (matrix)
+          arr_2d = np.array([[1, 2, 3],
+                             [4, 5, 6]])
+
+          print("2D Array:")
+          print(arr_2d)
+          print(f"Shape: {arr_2d.shape}")  # (2, 3) means 2 rows, 3 columns
+          print(f"Dimensions: {arr_2d.ndim}")  # Number of dimensions
+
+        output: |
+          2D Array:
+          [[1 2 3]
+           [4 5 6]]
+          Shape: (2, 3)
+          Dimensions: 2
+
+      - title: "Array with Specific Data Type"
+        code: |
+          import numpy as np
+
+          # Create array with float type
+          arr_float = np.array([1, 2, 3], dtype=float)
+          print("Float array:", arr_float)
+          print("Dtype:", arr_float.dtype)
+
+          # Create array with complex numbers
+          arr_complex = np.array([1+2j, 3+4j])
+          print("Complex array:", arr_complex)
+
+        output: |
+          Float array: [1. 2. 3.]
+          Dtype: float64
+          Complex array: [1.+2.j 3.+4.j]
+
+  exercise:
+    title: "Create Your First NumPy Array"
+
+    instruction: |
+      Create a 1D NumPy array containing the numbers **10, 20, 30, 40, 50**
+      and store it in a variable called `result`.
+
+      **Requirements:**
+      - Use `np.array()` function
+      - The array should have 5 elements
+      - Store the result in a variable named `result`
+
+    setup_code: |
+      import numpy as np
+
+    starter_code: |
+      # Your code here
+      result =
+
+    solution: |
+      result = np.array([10, 20, 30, 40, 50])
+
+    validation:
+      type: "array_check"
+      checks:
+        - type: "shape"
+          expected: [5]
+        - type: "values"
+          expected: [10, 20, 30, 40, 50]
+
+    hints:
+      - level: 1
+        text: |
+          You need to use the `np.array()` function. Pass a Python list
+          of the numbers [10, 20, 30, 40, 50] to this function.
+
+      - level: 2
+        text: |
+          The structure is: `result = np.array([10, 20, 30, 40, 50])`
+
+          Remember to include all five numbers in the list.
+
+      - level: 3
+        code: |
+          result = np.array([10, 20, 30, 40, 50])
+
+  follow_up:
+    challenges:
+      - "Try creating a 2D array with 2 rows and 3 columns"
+      - "Create an array with float numbers instead of integers"
+      - "Experiment with the dtype parameter"
+
+    next_lesson: "numpy_02"
+
+    additional_resources:
+      - title: "NumPy Array Documentation"
+        url: "https://numpy.org/doc/stable/reference/arrays.html"
+      - title: "NumPy Quickstart Tutorial"
+        url: "https://numpy.org/doc/stable/user/quickstart.html"

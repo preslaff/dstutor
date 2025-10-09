@@ -1,0 +1,397 @@
+lesson:
+  id: "python_05"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Control Flow (if/elif/else)"
+  order: 5
+
+  metadata:
+    duration: "25 min"
+    difficulty: "easy"
+    prerequisites: ["python_01"]
+    learning_objectives:
+      - "Use if statements for conditional execution"
+      - "Combine conditions with elif and else"
+      - "Use comparison and logical operators"
+      - "Write nested conditionals"
+
+  content:
+    introduction: |
+      # Control Flow (if/elif/else)
+
+      Make your programs smart! Learn to make decisions based on conditions
+      and execute different code paths.
+
+      **What you'll learn:**
+      - if statements
+      - elif (else if) for multiple conditions
+      - else for default cases
+      - Comparison and logical operators
+
+    concept: |
+      ## Making Decisions in Code
+
+      **1. Basic if Statement**
+
+      Execute code only if condition is True:
+      ```python
+      age = 18
+      if age >= 18:
+          print("You can vote!")
+      ```
+
+      **Indentation matters!** Python uses indentation to define code blocks.
+
+      **2. if-else Statement**
+
+      Execute one block if True, another if False:
+      ```python
+      age = 16
+      if age >= 18:
+          print("You can vote!")
+      else:
+          print("Too young to vote")
+      ```
+
+      **3. if-elif-else Statement**
+
+      Multiple conditions:
+      ```python
+      score = 85
+      if score >= 90:
+          grade = "A"
+      elif score >= 80:
+          grade = "B"
+      elif score >= 70:
+          grade = "C"
+      else:
+          grade = "F"
+      ```
+
+      **4. Comparison Operators**
+
+      ```python
+      ==    # Equal to
+      !=    # Not equal to
+      >     # Greater than
+      <     # Less than
+      >=    # Greater than or equal
+      <=    # Less than or equal
+      ```
+
+      Examples:
+      ```python
+      x == 5     # True if x is 5
+      x != 5     # True if x is not 5
+      x > 10     # True if x greater than 10
+      ```
+
+      **5. Logical Operators**
+
+      Combine multiple conditions:
+
+      **and** - Both must be True:
+      ```python
+      if age >= 18 and has_license:
+          print("Can drive")
+      ```
+
+      **or** - At least one must be True:
+      ```python
+      if day == "Saturday" or day == "Sunday":
+          print("Weekend!")
+      ```
+
+      **not** - Negates the condition:
+      ```python
+      if not is_raining:
+          print("Go outside")
+      ```
+
+      **6. Membership Operators**
+
+      ```python
+      if "apple" in fruits:
+          print("We have apples")
+
+      if 5 not in numbers:
+          print("5 is not in the list")
+      ```
+
+      **7. Nested Conditionals**
+
+      if statements inside if statements:
+      ```python
+      if age >= 18:
+          if has_license:
+              print("Can drive")
+          else:
+              print("Need a license")
+      else:
+          print("Too young")
+      ```
+
+      **8. Truthiness**
+
+      Values that are considered False:
+      - `False`, `None`
+      - `0`, `0.0`
+      - `""` (empty string)
+      - `[]` (empty list)
+      - `{}` (empty dict)
+
+      Everything else is True!
+
+      ```python
+      items = []
+      if items:
+          print("Has items")
+      else:
+          print("Empty list")  # This will print
+      ```
+
+    examples:
+      - title: "Basic if Statement"
+        code: |
+          # Simple condition
+          temperature = 75
+
+          if temperature > 70:
+              print("It's warm outside")
+
+          print("Program continues")
+
+        output: |
+          It's warm outside
+          Program continues
+
+      - title: "if-else Statement"
+        code: |
+          age = 16
+
+          if age >= 18:
+              print("You are an adult")
+          else:
+              print("You are a minor")
+
+          # Another example
+          number = 7
+          if number % 2 == 0:
+              print(f"{number} is even")
+          else:
+              print(f"{number} is odd")
+
+        output: |
+          You are a minor
+          7 is odd
+
+      - title: "if-elif-else Chain"
+        code: |
+          score = 85
+
+          if score >= 90:
+              grade = "A"
+          elif score >= 80:
+              grade = "B"
+          elif score >= 70:
+              grade = "C"
+          elif score >= 60:
+              grade = "D"
+          else:
+              grade = "F"
+
+          print(f"Score: {score}, Grade: {grade}")
+
+        output: |
+          Score: 85, Grade: B
+
+      - title: "Logical Operators"
+        code: |
+          age = 25
+          has_license = True
+
+          # AND operator
+          if age >= 18 and has_license:
+              print("Can drive a car")
+
+          # OR operator
+          day = "Saturday"
+          if day == "Saturday" or day == "Sunday":
+              print("It's the weekend!")
+
+          # NOT operator
+          is_raining = False
+          if not is_raining:
+              print("Good day for a walk")
+
+        output: |
+          Can drive a car
+          It's the weekend!
+          Good day for a walk
+
+      - title: "Comparison Operators"
+        code: |
+          x = 10
+          y = 5
+
+          print(f"x == y: {x == y}")
+          print(f"x != y: {x != y}")
+          print(f"x > y: {x > y}")
+          print(f"x < y: {x < y}")
+          print(f"x >= 10: {x >= 10}")
+          print(f"y <= 5: {y <= 5}")
+
+        output: |
+          x == y: False
+          x != y: True
+          x > y: True
+          x < y: False
+          x >= 10: True
+          y <= 5: True
+
+      - title: "Membership Testing"
+        code: |
+          fruits = ["apple", "banana", "cherry"]
+
+          if "apple" in fruits:
+              print("We have apples")
+
+          if "orange" not in fruits:
+              print("No oranges available")
+
+          # With strings
+          text = "Python programming"
+          if "Python" in text:
+              print("Found Python in text")
+
+        output: |
+          We have apples
+          No oranges available
+          Found Python in text
+
+      - title: "Nested Conditionals"
+        code: |
+          age = 20
+          has_ticket = True
+
+          if age >= 18:
+              if has_ticket:
+                  print("Welcome to the concert!")
+              else:
+                  print("You need a ticket")
+          else:
+              print("Sorry, you must be 18 or older")
+
+        output: |
+          Welcome to the concert!
+
+      - title: "Truthiness Example"
+        code: |
+          # Empty collections are False
+          items = []
+          if items:
+              print("List has items")
+          else:
+              print("List is empty")
+
+          # Non-empty collections are True
+          items = [1, 2, 3]
+          if items:
+              print("List has items")
+
+          # Zero is False
+          count = 0
+          if count:
+              print("Count is non-zero")
+          else:
+              print("Count is zero")
+
+        output: |
+          List is empty
+          List has items
+          Count is zero
+
+  exercise:
+    title: "Grade Calculator"
+
+    instruction: |
+      Write a grade calculator using if-elif-else.
+
+      **Given:** score = 78
+
+      **Tasks:**
+      Create a variable `grade` with the letter grade based on:
+      - 90 or above: "A"
+      - 80-89: "B"
+      - 70-79: "C"
+      - 60-69: "D"
+      - Below 60: "F"
+
+    setup_code: |
+      score = 78
+
+    starter_code: |
+      # Your code here
+      grade =
+
+    solution: |
+      if score >= 90:
+          grade = "A"
+      elif score >= 80:
+          grade = "B"
+      elif score >= 70:
+          grade = "C"
+      elif score >= 60:
+          grade = "D"
+      else:
+          grade = "F"
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "grade"
+          expected: "C"
+          type: "str"
+
+    hints:
+      - level: 1
+        text: |
+          Use if-elif-else chain to check score ranges.
+          Start with the highest score (>= 90) and work down.
+          For score 78, it should fall in the 70-79 range.
+
+      - level: 2
+        text: |
+          if score >= 90:
+              grade = "A"
+          elif score >= 80:
+              grade = "B"
+          elif score >= 70:
+              grade = "C"
+          ...
+
+      - level: 3
+        code: |
+          if score >= 90:
+              grade = "A"
+          elif score >= 80:
+              grade = "B"
+          elif score >= 70:
+              grade = "C"
+          elif score >= 60:
+              grade = "D"
+          else:
+              grade = "F"
+
+  follow_up:
+    challenges:
+      - "Check if a number is positive, negative, or zero"
+      - "Determine if a year is a leap year"
+      - "Check if a string is a palindrome"
+      - "Find the maximum of three numbers"
+
+    next_lesson: "python_06"
+
+    additional_resources:
+      - title: "Python Control Flow Documentation"
+        url: "https://docs.python.org/3/tutorial/controlflow.html"

@@ -1,0 +1,321 @@
+lesson:
+  id: "python_08"
+  level: "intermediate"
+  topic: "python"
+  subtopic: "List Comprehensions"
+  order: 8
+
+  metadata:
+    duration: "20 min"
+    difficulty: "medium"
+    prerequisites: ["python_03", "python_06"]
+    learning_objectives:
+      - "Create lists with list comprehensions"
+      - "Use conditional logic in comprehensions"
+      - "Understand dict and set comprehensions"
+      - "Know when to use comprehensions vs loops"
+
+  content:
+    introduction: |
+      # List Comprehensions
+
+      Write cleaner, more Pythonic code! Comprehensions let you create lists,
+      dictionaries, and sets in a single elegant line.
+
+      **What you'll learn:**
+      - List comprehensions
+      - Conditional comprehensions
+      - Dict and set comprehensions
+      - When to use them
+
+    concept: |
+      ## Creating Collections Concisely
+
+      **1. Basic List Comprehension**
+
+      Traditional loop:
+      ```python
+      squares = []
+      for x in range(5):
+          squares.append(x ** 2)
+      ```
+
+      List comprehension:
+      ```python
+      squares = [x ** 2 for x in range(5)]
+      ```
+
+      **Syntax:** `[expression for item in iterable]`
+
+      **2. With Conditional (Filter)**
+
+      Only include items that meet a condition:
+      ```python
+      # Even numbers only
+      evens = [x for x in range(10) if x % 2 == 0]
+      # [0, 2, 4, 6, 8]
+      ```
+
+      **Syntax:** `[expression for item in iterable if condition]`
+
+      **3. With if-else (Transform)**
+
+      Apply different transformations:
+      ```python
+      # Label numbers as even/odd
+      labels = ["even" if x % 2 == 0 else "odd" for x in range(5)]
+      # ["even", "odd", "even", "odd", "even"]
+      ```
+
+      **Syntax:** `[expression_if_true if condition else expression_if_false for item in iterable]`
+
+      **4. Nested Comprehensions**
+
+      ```python
+      # Flatten 2D list
+      matrix = [[1, 2, 3], [4, 5, 6]]
+      flat = [num for row in matrix for num in row]
+      # [1, 2, 3, 4, 5, 6]
+      ```
+
+      **5. Dictionary Comprehension**
+
+      ```python
+      # Square dictionary
+      squares = {x: x**2 for x in range(5)}
+      # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+      # From two lists
+      keys = ['a', 'b', 'c']
+      values = [1, 2, 3]
+      dictionary = {k: v for k, v in zip(keys, values)}
+      ```
+
+      **6. Set Comprehension**
+
+      ```python
+      # Unique squares
+      squares = {x**2 for x in range(-5, 6)}
+      # {0, 1, 4, 9, 16, 25}
+      ```
+
+      **When to Use Comprehensions:**
+      - ✅ Simple transformations or filters
+      - ✅ Creating new collections from existing ones
+      - ✅ One-line operations
+
+      **When NOT to Use:**
+      - ❌ Complex logic (use regular loops)
+      - ❌ Multiple statements needed
+      - ❌ Reduces readability
+
+      **Performance:**
+      Comprehensions are often faster than equivalent loops!
+
+    examples:
+      - title: "Basic List Comprehension"
+        code: |
+          # Traditional way
+          squares_traditional = []
+          for x in range(5):
+              squares_traditional.append(x ** 2)
+
+          print("Traditional:", squares_traditional)
+
+          # List comprehension
+          squares = [x ** 2 for x in range(5)]
+          print("Comprehension:", squares)
+
+          # Transform strings
+          names = ["alice", "bob", "charlie"]
+          uppercase = [name.upper() for name in names]
+          print("Uppercase:", uppercase)
+
+        output: |
+          Traditional: [0, 1, 4, 9, 16]
+          Comprehension: [0, 1, 4, 9, 16]
+          Uppercase: ['ALICE', 'BOB', 'CHARLIE']
+
+      - title: "Comprehension with Filter"
+        code: |
+          # Only even numbers
+          numbers = range(10)
+          evens = [x for x in numbers if x % 2 == 0]
+          print("Even numbers:", evens)
+
+          # Only positive numbers
+          mixed = [-2, -1, 0, 1, 2, 3]
+          positive = [x for x in mixed if x > 0]
+          print("Positive:", positive)
+
+          # Filter strings by length
+          words = ["hi", "hello", "hey", "goodbye"]
+          long_words = [word for word in words if len(word) > 3]
+          print("Long words:", long_words)
+
+        output: |
+          Even numbers: [0, 2, 4, 6, 8]
+          Positive: [1, 2, 3]
+          Long words: ['hello', 'goodbye']
+
+      - title: "Comprehension with if-else"
+        code: |
+          # Label even/odd
+          numbers = range(6)
+          labels = ["even" if x % 2 == 0 else "odd" for x in numbers]
+          print("Labels:", labels)
+
+          # Absolute values
+          numbers = [-2, -1, 0, 1, 2]
+          absolute = [x if x >= 0 else -x for x in numbers]
+          print("Absolute:", absolute)
+
+          # Grade pass/fail
+          scores = [45, 78, 92, 55, 88]
+          results = ["pass" if score >= 60 else "fail" for score in scores]
+          print("Results:", results)
+
+        output: |
+          Labels: ['even', 'odd', 'even', 'odd', 'even', 'odd']
+          Absolute: [2, 1, 0, 1, 2]
+          Results: ['fail', 'pass', 'pass', 'fail', 'pass']
+
+      - title: "Nested List Comprehension"
+        code: |
+          # Flatten 2D list
+          matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+          flat = [num for row in matrix for num in row]
+          print("Flattened:", flat)
+
+          # Pairs
+          list1 = [1, 2]
+          list2 = ['a', 'b']
+          pairs = [(x, y) for x in list1 for y in list2]
+          print("Pairs:", pairs)
+
+        output: |
+          Flattened: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          Pairs: [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]
+
+      - title: "Dictionary Comprehension"
+        code: |
+          # Squares dictionary
+          squares = {x: x**2 for x in range(5)}
+          print("Squares:", squares)
+
+          # From lists
+          fruits = ['apple', 'banana', 'cherry']
+          prices = [1.20, 0.80, 2.50]
+          fruit_prices = {fruit: price for fruit, price in zip(fruits, prices)}
+          print("Prices:", fruit_prices)
+
+          # Filter dictionary
+          original = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+          filtered = {k: v for k, v in original.items() if v > 2}
+          print("Filtered:", filtered)
+
+        output: |
+          Squares: {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+          Prices: {'apple': 1.2, 'banana': 0.8, 'cherry': 2.5}
+          Filtered: {'c': 3, 'd': 4}
+
+      - title: "Set Comprehension"
+        code: |
+          # Unique squares (including negative numbers)
+          numbers = range(-5, 6)
+          squares = {x**2 for x in numbers}
+          print("Unique squares:", sorted(squares))
+
+          # Unique first letters
+          words = ["apple", "apricot", "banana", "blueberry", "cherry"]
+          first_letters = {word[0] for word in words}
+          print("First letters:", sorted(first_letters))
+
+        output: |
+          Unique squares: [0, 1, 4, 9, 16, 25]
+          First letters: ['a', 'b', 'c']
+
+      - title: "Real-World Example - Data Processing"
+        code: |
+          # Student data processing
+          students = [
+              {"name": "Alice", "score": 85},
+              {"name": "Bob", "score": 72},
+              {"name": "Charlie", "score": 95},
+              {"name": "Diana", "score": 68}
+          ]
+
+          # Extract names
+          names = [s["name"] for s in students]
+          print("Names:", names)
+
+          # Filter passing students (>= 70)
+          passing = [s["name"] for s in students if s["score"] >= 70]
+          print("Passing:", passing)
+
+          # Create grade mapping
+          grades = {
+              s["name"]: "A" if s["score"] >= 90 else "B" if s["score"] >= 80 else "C"
+              for s in students
+          }
+          print("Grades:", grades)
+
+        output: |
+          Names: ['Alice', 'Bob', 'Charlie', 'Diana']
+          Passing: ['Alice', 'Bob', 'Charlie']
+          Grades: {'Alice': 'B', 'Bob': 'C', 'Charlie': 'A', 'Diana': 'C'}
+
+  exercise:
+    title: "Create Squared List"
+
+    instruction: |
+      Use a list comprehension to create a list of squares.
+
+      **Task:** Create a list `squares` containing the square of each
+      number from 1 to 5 (inclusive).
+
+      **Expected result:** [1, 4, 9, 16, 25]
+
+    setup_code: |
+      # Your code will create the list
+
+    starter_code: |
+      # Your code here (use list comprehension)
+      squares =
+
+    solution: |
+      squares = [x**2 for x in range(1, 6)]
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "squares"
+          expected: [1, 4, 9, 16, 25]
+          type: "list"
+
+    hints:
+      - level: 1
+        text: |
+          Use list comprehension: [expression for x in range(1, 6)]
+          The expression should square x (x**2).
+
+      - level: 2
+        text: |
+          squares = [x**2 for x in range(1, 6)]
+
+      - level: 3
+        code: |
+          squares = [x**2 for x in range(1, 6)]
+
+  follow_up:
+    challenges:
+      - "Create list of even numbers from 0 to 20"
+      - "Convert list of strings to lengths: [len(s) for s in strings]"
+      - "Filter list to only strings starting with 'a'"
+      - "Create dict mapping names to lengths"
+
+    next_lesson: "python_09"
+
+    additional_resources:
+      - title: "Python List Comprehensions"
+        url: "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions"

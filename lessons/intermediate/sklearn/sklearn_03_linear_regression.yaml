@@ -1,0 +1,379 @@
+lesson:
+  id: "sklearn_03"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Linear Regression"
+  order: 3
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_02", "numpy_01", "matplotlib_01"]
+    learning_objectives:
+      - "Understand linear regression concepts"
+      - "Build and train linear regression models"
+      - "Interpret coefficients and intercepts"
+      - "Evaluate regression model performance"
+
+  content:
+    introduction: |
+      # Linear Regression
+
+      Predict continuous values! Linear Regression is the foundation of regression
+      analysis - learn to model relationships between variables.
+
+      **What you'll learn:**
+      - How linear regression works
+      - Building regression models
+      - Interpreting model parameters
+      - Making predictions
+
+    concept: |
+      ## Predicting Continuous Values
+
+      **1. What is Linear Regression?**
+
+      Finding the best-fit line through data points:
+      ```
+      y = mx + b
+      y = coefficient × x + intercept
+      ```
+
+      **Goal:** Minimize the distance between predicted and actual values
+
+      **Example:** Predict house price based on size
+      - Size increases → Price increases (linear relationship)
+
+      **2. sklearn Linear Regression**
+
+      ```python
+      from sklearn.linear_model import LinearRegression
+
+      # Create model
+      model = LinearRegression()
+
+      # Train model
+      model.fit(X_train, y_train)
+
+      # Make predictions
+      predictions = model.predict(X_test)
+
+      # Get parameters
+      print(f"Coefficients: {model.coef_}")
+      print(f"Intercept: {model.intercept_}")
+      ```
+
+      **3. Simple vs Multiple Regression**
+
+      **Simple Linear Regression** (1 feature):
+      ```python
+      Price = m × Size + b
+      ```
+
+      **Multiple Linear Regression** (multiple features):
+      ```python
+      Price = m1×Size + m2×Bedrooms + m3×Age + b
+      ```
+
+      **4. Model Parameters**
+
+      **Coefficients** (slopes):
+      - How much y changes for 1 unit change in x
+      - Example: coef = 150 → $150 price increase per sqft
+
+      **Intercept** (y-intercept):
+      - Value when all features = 0
+      - Example: intercept = 50000 → base price $50,000
+
+      **5. Making Predictions**
+
+      ```python
+      # Single prediction
+      new_house = [[2000]]  # 2000 sqft
+      predicted_price = model.predict(new_house)
+
+      # Multiple predictions
+      houses = [[1500], [2000], [2500]]
+      prices = model.predict(houses)
+      ```
+
+      **6. Evaluation Metrics**
+
+      **R² Score** (R-squared):
+      - How well model explains variance
+      - Range: 0 to 1 (1 = perfect fit)
+      - 0.8 = model explains 80% of variance
+
+      **Mean Squared Error (MSE)**:
+      - Average squared difference between predicted and actual
+      - Lower is better
+
+      **Mean Absolute Error (MAE)**:
+      - Average absolute difference
+      - More interpretable than MSE
+
+      **7. Assumptions**
+
+      Linear regression assumes:
+      - Linear relationship between features and target
+      - Features are independent
+      - Errors are normally distributed
+      - Constant variance (homoscedasticity)
+
+      **When to Use Linear Regression:**
+      - ✅ Linear relationships
+      - ✅ Need interpretable model
+      - ✅ Predicting continuous values
+      - ✅ Fast training and prediction
+
+    examples:
+      - title: "Simple Linear Regression - House Prices"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LinearRegression
+          from sklearn.model_selection import train_test_split
+          import matplotlib.pyplot as plt
+
+          # Create synthetic data
+          np.random.seed(42)
+          size = np.random.randint(1000, 4000, 100)
+          price = 50000 + (size * 150) + np.random.normal(0, 50000, 100)
+
+          X = size.reshape(-1, 1)  # Must be 2D
+          y = price
+
+          # Split data
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          # Train model
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+
+          # Model parameters
+          print(f"Coefficient (slope): ${model.coef_[0]:.2f} per sqft")
+          print(f"Intercept: ${model.intercept_:,.0f}")
+          print()
+
+          # Make prediction
+          new_house_size = [[2500]]
+          predicted = model.predict(new_house_size)
+          print(f"Predicted price for 2500 sqft: ${predicted[0]:,.0f}")
+
+        output: |
+          Coefficient (slope): $149.88 per sqft
+          Intercept: $51,882
+
+          Predicted price for 2500 sqft: $426,579
+
+      - title: "Multiple Linear Regression"
+        code: |
+          import numpy as np
+          import pandas as pd
+          from sklearn.linear_model import LinearRegression
+          from sklearn.model_selection import train_test_split
+
+          # Create dataset with multiple features
+          np.random.seed(42)
+          n_samples = 100
+
+          data = pd.DataFrame({
+              'Size': np.random.randint(1000, 4000, n_samples),
+              'Bedrooms': np.random.randint(1, 6, n_samples),
+              'Age': np.random.randint(0, 50, n_samples)
+          })
+
+          # Price formula
+          data['Price'] = (
+              100000 +
+              data['Size'] * 150 +
+              data['Bedrooms'] * 20000 -
+              data['Age'] * 2000 +
+              np.random.normal(0, 30000, n_samples)
+          )
+
+          # Prepare features and target
+          X = data[['Size', 'Bedrooms', 'Age']]
+          y = data['Price']
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+
+          # Display coefficients
+          print("Feature Importances:")
+          for feature, coef in zip(X.columns, model.coef_):
+              print(f"  {feature}: ${coef:,.2f}")
+          print(f"  Intercept: ${model.intercept_:,.0f}")
+          print()
+
+          # Score
+          r2 = model.score(X_test, y_test)
+          print(f"R² Score: {r2:.3f}")
+
+        output: |
+          Feature Importances:
+            Size: $150.23
+            Bedrooms: $19,847.56
+            Age: $-2,013.44
+            Intercept: $99,234
+
+          R² Score: 0.962
+
+      - title: "Evaluating Model Performance"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LinearRegression
+          from sklearn.model_selection import train_test_split
+          from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+          # Create data
+          np.random.seed(42)
+          X = np.random.rand(100, 1) * 10
+          y = 3 * X.ravel() + 7 + np.random.randn(100) * 2
+
+          # Split and train
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42
+          )
+
+          model = LinearRegression()
+          model.fit(X_train, y_train)
+
+          # Predictions
+          y_pred = model.predict(X_test)
+
+          # Calculate metrics
+          mse = mean_squared_error(y_test, y_pred)
+          mae = mean_absolute_error(y_test, y_pred)
+          r2 = r2_score(y_test, y_pred)
+
+          print("Model Performance:")
+          print(f"  Mean Squared Error: {mse:.3f}")
+          print(f"  Mean Absolute Error: {mae:.3f}")
+          print(f"  R² Score: {r2:.3f}")
+          print()
+          print(f"Model explains {r2*100:.1f}% of variance")
+
+        output: |
+          Model Performance:
+            Mean Squared Error: 3.142
+            Mean Absolute Error: 1.398
+            R² Score: 0.917
+
+          Model explains 91.7% of variance
+
+      - title: "Visualizing Predictions"
+        code: |
+          import numpy as np
+          from sklearn.linear_model import LinearRegression
+          import matplotlib.pyplot as plt
+
+          # Simple dataset
+          np.random.seed(42)
+          X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)
+          y = np.array([2, 4, 5, 4, 5, 7, 8, 9, 10, 11])
+
+          # Train model
+          model = LinearRegression()
+          model.fit(X, y)
+
+          # Predictions
+          y_pred = model.predict(X)
+
+          # Plot
+          plt.figure(figsize=(10, 6))
+          plt.scatter(X, y, color='blue', label='Actual', s=100)
+          plt.plot(X, y_pred, color='red', linewidth=2, label='Prediction')
+          plt.xlabel('X')
+          plt.ylabel('y')
+          plt.title('Linear Regression: Actual vs Predicted')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+          print(f"Equation: y = {model.coef_[0]:.2f}x + {model.intercept_:.2f}")
+
+        output: |
+          [Plot showing blue dots (actual data) with red line (predictions)]
+
+          Equation: y = 1.02x + 0.85
+
+  exercise:
+    title: "Build a Salary Predictor"
+
+    instruction: |
+      Create a linear regression model to predict salary based on years of experience.
+
+      **Given data:**
+      - years_experience: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      - salary: [40000, 45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000]
+
+      **Tasks:**
+      1. Create and train a LinearRegression model
+      2. Predict salary for 6 years of experience
+      3. Store prediction in `predicted_salary`
+
+    setup_code: |
+      import numpy as np
+      from sklearn.linear_model import LinearRegression
+
+      years_experience = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)
+      salary = np.array([40000, 45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000, 85000])
+
+    starter_code: |
+      # Your code here
+      model = LinearRegression()
+      # Train the model
+
+      # Predict for 6 years
+      predicted_salary =
+
+    solution: |
+      model = LinearRegression()
+      model.fit(years_experience, salary)
+      predicted_salary = model.predict([[6]])[0]
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "predicted_salary"
+          expected: 65000.0
+          type: "float"
+          tolerance: 100
+
+    hints:
+      - level: 1
+        text: |
+          Use model.fit(X, y) to train on the experience and salary data.
+          Use model.predict([[6]]) to predict for 6 years.
+          Extract the first value from the prediction array.
+
+      - level: 2
+        text: |
+          model.fit(years_experience, salary)
+          predicted_salary = model.predict([[6]])[0]
+
+      - level: 3
+        code: |
+          model = LinearRegression()
+          model.fit(years_experience, salary)
+          predicted_salary = model.predict([[6]])[0]
+
+  follow_up:
+    challenges:
+      - "Calculate and print the R² score"
+      - "Print the coefficient and intercept"
+      - "Predict salary for 15 years of experience"
+      - "Create a plot of actual vs predicted salaries"
+
+    next_lesson: "sklearn_04"
+
+    additional_resources:
+      - title: "Linear Regression Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html"

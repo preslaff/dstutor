@@ -1,0 +1,389 @@
+lesson:
+  id: "python_06"
+  level: "beginner"
+  topic: "python"
+  subtopic: "Loops (for and while)"
+  order: 6
+
+  metadata:
+    duration: "30 min"
+    difficulty: "easy"
+    prerequisites: ["python_03", "python_05"]
+    learning_objectives:
+      - "Use for loops to iterate over sequences"
+      - "Use while loops for conditional repetition"
+      - "Control loop execution with break and continue"
+      - "Use range() and enumerate() functions"
+
+  content:
+    introduction: |
+      # Loops (for and while)
+
+      Automate repetitive tasks! Loops let you execute code multiple times
+      without writing it over and over.
+
+      **What you'll learn:**
+      - for loops for iterating
+      - while loops for conditions
+      - break and continue statements
+      - range() and enumerate()
+
+    concept: |
+      ## Repeating Code with Loops
+
+      **1. for Loop - Iterate Over Sequences**
+
+      Loop through items in a list, string, etc.:
+      ```python
+      fruits = ["apple", "banana", "cherry"]
+      for fruit in fruits:
+          print(fruit)
+      ```
+
+      **2. range() Function**
+
+      Generate sequence of numbers:
+      ```python
+      # range(stop) - 0 to stop-1
+      for i in range(5):
+          print(i)  # 0, 1, 2, 3, 4
+
+      # range(start, stop)
+      for i in range(2, 6):
+          print(i)  # 2, 3, 4, 5
+
+      # range(start, stop, step)
+      for i in range(0, 10, 2):
+          print(i)  # 0, 2, 4, 6, 8
+      ```
+
+      **3. while Loop - Repeat While Condition is True**
+
+      ```python
+      count = 0
+      while count < 5:
+          print(count)
+          count += 1  # Don't forget to update!
+      ```
+
+      **Warning:** Make sure the condition eventually becomes False,
+      or you'll have an infinite loop!
+
+      **4. break Statement**
+
+      Exit the loop immediately:
+      ```python
+      for i in range(10):
+          if i == 5:
+              break  # Stop loop when i is 5
+          print(i)  # Prints 0, 1, 2, 3, 4
+      ```
+
+      **5. continue Statement**
+
+      Skip current iteration, continue with next:
+      ```python
+      for i in range(5):
+          if i == 2:
+              continue  # Skip when i is 2
+          print(i)  # Prints 0, 1, 3, 4 (skips 2)
+      ```
+
+      **6. enumerate() Function**
+
+      Get both index and value:
+      ```python
+      fruits = ["apple", "banana", "cherry"]
+      for index, fruit in enumerate(fruits):
+          print(f"{index}: {fruit}")
+      # 0: apple
+      # 1: banana
+      # 2: cherry
+      ```
+
+      **7. Loop Over Dictionary**
+
+      ```python
+      scores = {"Alice": 95, "Bob": 87}
+
+      # Loop through keys
+      for name in scores:
+          print(name)
+
+      # Loop through key-value pairs
+      for name, score in scores.items():
+          print(f"{name}: {score}")
+      ```
+
+      **8. Nested Loops**
+
+      Loop inside a loop:
+      ```python
+      for i in range(3):
+          for j in range(2):
+              print(f"i={i}, j={j}")
+      ```
+
+      **When to Use Each Loop:**
+      - **for loop**: When you know the sequence (list, range, etc.)
+      - **while loop**: When you don't know how many iterations needed
+
+    examples:
+      - title: "Basic for Loop"
+        code: |
+          # Loop through list
+          fruits = ["apple", "banana", "cherry"]
+          for fruit in fruits:
+              print(f"I like {fruit}")
+
+          # Loop through string
+          for char in "Python":
+              print(char)
+
+        output: |
+          I like apple
+          I like banana
+          I like cherry
+          P
+          y
+          t
+          h
+          o
+          n
+
+      - title: "Using range()"
+        code: |
+          # range(stop)
+          print("Count to 5:")
+          for i in range(5):
+              print(i, end=" ")
+          print()
+
+          # range(start, stop)
+          print("From 2 to 6:")
+          for i in range(2, 7):
+              print(i, end=" ")
+          print()
+
+          # range(start, stop, step)
+          print("Even numbers:")
+          for i in range(0, 11, 2):
+              print(i, end=" ")
+          print()
+
+        output: |
+          Count to 5:
+          0 1 2 3 4
+          From 2 to 6:
+          2 3 4 5 6
+          Even numbers:
+          0 2 4 6 8 10
+
+      - title: "while Loop"
+        code: |
+          # Simple counter
+          count = 1
+          while count <= 5:
+              print(f"Count: {count}")
+              count += 1
+
+          print("Done!")
+
+          # User input simulation
+          total = 0
+          num = 5
+          while num > 0:
+              total += num
+              num -= 1
+
+          print(f"Total: {total}")
+
+        output: |
+          Count: 1
+          Count: 2
+          Count: 3
+          Count: 4
+          Count: 5
+          Done!
+          Total: 15
+
+      - title: "break Statement"
+        code: |
+          # Find first number divisible by 7
+          for i in range(1, 100):
+              if i % 7 == 0:
+                  print(f"First number divisible by 7: {i}")
+                  break
+
+          # Search in list
+          fruits = ["apple", "banana", "cherry", "date"]
+          search = "cherry"
+
+          for fruit in fruits:
+              if fruit == search:
+                  print(f"Found {search}!")
+                  break
+          else:
+              print(f"{search} not found")
+
+        output: |
+          First number divisible by 7: 7
+          Found cherry!
+
+      - title: "continue Statement"
+        code: |
+          # Skip even numbers
+          print("Odd numbers from 0 to 10:")
+          for i in range(11):
+              if i % 2 == 0:
+                  continue  # Skip even numbers
+              print(i, end=" ")
+          print()
+
+          # Skip specific values
+          numbers = [1, 2, 3, 4, 5]
+          for num in numbers:
+              if num == 3:
+                  continue
+              print(num, end=" ")
+          print()
+
+        output: |
+          Odd numbers from 0 to 10:
+          1 3 5 7 9
+          1 2 4 5
+
+      - title: "enumerate() Function"
+        code: |
+          fruits = ["apple", "banana", "cherry"]
+
+          # With enumerate
+          for index, fruit in enumerate(fruits):
+              print(f"{index}: {fruit}")
+
+          # Start index from 1
+          print("\nStarting from 1:")
+          for index, fruit in enumerate(fruits, start=1):
+              print(f"{index}. {fruit}")
+
+        output: |
+          0: apple
+          1: banana
+          2: cherry
+
+          Starting from 1:
+          1. apple
+          2. banana
+          3. cherry
+
+      - title: "Looping Through Dictionaries"
+        code: |
+          scores = {"Alice": 95, "Bob": 87, "Charlie": 92}
+
+          # Loop through keys
+          print("Students:")
+          for name in scores:
+              print(f"  - {name}")
+
+          # Loop through key-value pairs
+          print("\nScores:")
+          for name, score in scores.items():
+              print(f"  {name}: {score}")
+
+          # Loop through values only
+          print("\nAll scores:")
+          for score in scores.values():
+              print(f"  {score}")
+
+        output: |
+          Students:
+            - Alice
+            - Bob
+            - Charlie
+
+          Scores:
+            Alice: 95
+            Bob: 87
+            Charlie: 92
+
+          All scores:
+            95
+            87
+            92
+
+      - title: "Nested Loops"
+        code: |
+          # Multiplication table
+          print("Multiplication table (3x3):")
+          for i in range(1, 4):
+              for j in range(1, 4):
+                  print(f"{i} × {j} = {i*j:2}", end="  |  ")
+              print()  # New line after each row
+
+        output: |
+          Multiplication table (3x3):
+          1 × 1 =  1  |  1 × 2 =  2  |  1 × 3 =  3  |
+          2 × 1 =  2  |  2 × 2 =  4  |  2 × 3 =  6  |
+          3 × 1 =  3  |  3 × 2 =  6  |  3 × 3 =  9  |
+
+  exercise:
+    title: "Sum of Numbers"
+
+    instruction: |
+      Calculate the sum of numbers from 1 to 10 using a for loop.
+
+      **Task:** Create a variable `total` that contains the sum of
+      all numbers from 1 to 10 (inclusive).
+
+      **Hint:** Use range(1, 11) to get numbers 1 through 10.
+
+    setup_code: |
+      # Your code will calculate the sum
+
+    starter_code: |
+      # Your code here
+      total = 0
+
+    solution: |
+      total = 0
+      for i in range(1, 11):
+          total += i
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "total"
+          expected: 55
+          type: "int"
+
+    hints:
+      - level: 1
+        text: |
+          Initialize total = 0
+          Use a for loop with range(1, 11) to get numbers 1 through 10
+          In each iteration, add the current number to total
+
+      - level: 2
+        text: |
+          total = 0
+          for i in range(1, 11):
+              total += i
+
+      - level: 3
+        code: |
+          total = 0
+          for i in range(1, 11):
+              total += i
+
+  follow_up:
+    challenges:
+      - "Print all even numbers from 0 to 20"
+      - "Find factorial of a number using a loop"
+      - "Count vowels in a string"
+      - "Create a list of squares [1, 4, 9, 16, 25]"
+
+    next_lesson: "python_07"
+
+    additional_resources:
+      - title: "Python Loops Documentation"
+        url: "https://docs.python.org/3/tutorial/controlflow.html#for-statements"

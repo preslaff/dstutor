@@ -1,0 +1,415 @@
+lesson:
+  id: "matplotlib_09"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Seaborn Integration"
+  order: 9
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["matplotlib_01", "pandas_02"]
+    learning_objectives:
+      - "Use Seaborn for statistical visualizations"
+      - "Create advanced plot types easily"
+      - "Understand Seaborn's relationship to Matplotlib"
+      - "Combine Seaborn and Matplotlib customization"
+
+  content:
+    introduction: |
+      # Seaborn Integration
+
+      Level up your visualizations! Seaborn builds on Matplotlib to create beautiful
+      statistical graphics with less code. Perfect for data analysis and exploration.
+
+      **What you'll learn:**
+      - Seaborn's high-level plotting functions
+      - Statistical plot types
+      - Integration with Pandas DataFrames
+      - Combining Seaborn and Matplotlib
+
+    concept: |
+      ## Seaborn: Statistical Visualization
+
+      **What is Seaborn?**
+      - High-level interface to Matplotlib
+      - Beautiful default styles
+      - Built for statistical visualization
+      - Works seamlessly with Pandas DataFrames
+
+      **1. Relationship Plots**
+
+      **Scatter plot with regression:**
+      ```python
+      sns.regplot(data=df, x='column1', y='column2')
+      ```
+
+      **Categorical scatter:**
+      ```python
+      sns.stripplot(data=df, x='category', y='value')
+      sns.swarmplot(data=df, x='category', y='value')  # Non-overlapping
+      ```
+
+      **2. Distribution Plots**
+
+      **Histogram with KDE:**
+      ```python
+      sns.histplot(data=df, x='column', kde=True)
+      ```
+
+      **Kernel Density Estimate:**
+      ```python
+      sns.kdeplot(data=df, x='column')
+      ```
+
+      **3. Categorical Plots**
+
+      **Bar plot with error bars:**
+      ```python
+      sns.barplot(data=df, x='category', y='value')
+      ```
+
+      **Count plot:**
+      ```python
+      sns.countplot(data=df, x='category')
+      ```
+
+      **Point plot:**
+      ```python
+      sns.pointplot(data=df, x='category', y='value')
+      ```
+
+      **4. Matrix Plots**
+
+      We've already seen heatmaps. Other options:
+      ```python
+      sns.clustermap(data)  # Hierarchical clustering heatmap
+      ```
+
+      **5. Multi-Plot Grids**
+
+      **Pair plot** (all variable combinations):
+      ```python
+      sns.pairplot(df, hue='category')
+      ```
+
+      **FacetGrid** (subplots by categories):
+      ```python
+      g = sns.FacetGrid(df, col='category1', row='category2')
+      g.map(sns.scatterplot, 'x', 'y')
+      ```
+
+      **6. Combining with Matplotlib**
+
+      Seaborn plots return Matplotlib axes:
+      ```python
+      ax = sns.boxplot(data=df, x='category', y='value')
+      ax.set_title('My Title')  # Use Matplotlib methods
+      plt.show()
+      ```
+
+      **Key Advantages:**
+      - ✅ Less code for complex plots
+      - ✅ Beautiful defaults
+      - ✅ Built-in statistical calculations
+      - ✅ Easy to work with DataFrames
+      - ✅ Color palettes and themes
+
+      **When to Use Seaborn vs Matplotlib:**
+      - **Seaborn**: Statistical plots, exploration, DataFrame-centric
+      - **Matplotlib**: Fine control, custom plots, basic plots
+
+    examples:
+      - title: "Regression Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import numpy as np
+          import pandas as pd
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'hours_studied': np.random.uniform(1, 10, 50),
+          })
+          df['test_score'] = 50 + 5 * df['hours_studied'] + np.random.normal(0, 5, 50)
+
+          plt.figure(figsize=(10, 6))
+          sns.regplot(data=df, x='hours_studied', y='test_score',
+                      scatter_kws={'alpha': 0.6, 's': 50},
+                      line_kws={'color': 'red', 'linewidth': 2})
+          plt.title('Study Hours vs Test Score', fontsize=14, fontweight='bold')
+          plt.xlabel('Hours Studied', fontsize=12)
+          plt.ylabel('Test Score', fontsize=12)
+          plt.show()
+
+        output: |
+          [Scatter plot with fitted regression line showing positive correlation]
+
+      - title: "Distribution Plot with KDE"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(100, 15, 1000)
+
+          plt.figure(figsize=(10, 6))
+          sns.histplot(data, bins=30, kde=True, color='skyblue', alpha=0.6)
+          plt.title('Distribution with KDE', fontsize=14, fontweight='bold')
+          plt.xlabel('Value', fontsize=12)
+          plt.ylabel('Frequency', fontsize=12)
+          plt.show()
+
+        output: |
+          [Histogram with smooth density curve overlaid]
+
+      - title: "Categorical Plot Comparison"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'Category': np.random.choice(['A', 'B', 'C'], 150),
+              'Value': np.random.normal(100, 20, 150)
+          })
+
+          fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+          # Box plot
+          sns.boxplot(data=df, x='Category', y='Value', ax=axes[0, 0])
+          axes[0, 0].set_title('Box Plot')
+
+          # Violin plot
+          sns.violinplot(data=df, x='Category', y='Value', ax=axes[0, 1])
+          axes[0, 1].set_title('Violin Plot')
+
+          # Strip plot
+          sns.stripplot(data=df, x='Category', y='Value', ax=axes[1, 0], alpha=0.6)
+          axes[1, 0].set_title('Strip Plot')
+
+          # Swarm plot
+          sns.swarmplot(data=df, x='Category', y='Value', ax=axes[1, 1])
+          axes[1, 1].set_title('Swarm Plot (non-overlapping)')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Four different categorical plot types showing the same data]
+
+      - title: "Count Plot and Bar Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'Department': np.random.choice(['Sales', 'Engineering', 'Marketing', 'HR'], 100),
+              'Salary': np.random.normal(70, 20, 100)
+          })
+
+          fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+          # Count plot (counts per category)
+          sns.countplot(data=df, x='Department', ax=axes[0], palette='Set2')
+          axes[0].set_title('Employees per Department', fontsize=13, fontweight='bold')
+          axes[0].set_ylabel('Count')
+
+          # Bar plot (mean with confidence interval)
+          sns.barplot(data=df, x='Department', y='Salary', ax=axes[1],
+                      palette='Set2', errorbar='ci')
+          axes[1].set_title('Average Salary by Department', fontsize=13, fontweight='bold')
+          axes[1].set_ylabel('Salary ($1000s)')
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Side-by-side count plot and bar plot with error bars]
+
+      - title: "Pair Plot"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'Height': np.random.normal(170, 10, 100),
+              'Weight': np.random.normal(70, 15, 100),
+              'Age': np.random.randint(20, 60, 100),
+              'Gender': np.random.choice(['M', 'F'], 100)
+          })
+
+          # Create pair plot
+          sns.pairplot(df, hue='Gender', palette='Set1',
+                       diag_kind='kde', plot_kws={'alpha': 0.6})
+          plt.suptitle('Pairwise Relationships', y=1.02, fontsize=14, fontweight='bold')
+          plt.show()
+
+        output: |
+          [Grid of scatter plots showing all variable pairs, colored by gender]
+
+      - title: "Combining Seaborn and Matplotlib"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'Month': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] * 3,
+              'Sales': np.random.randint(50, 150, 18),
+              'Region': ['North'] * 6 + ['South'] * 6 + ['West'] * 6
+          })
+
+          # Create figure with Matplotlib
+          fig, ax = plt.subplots(figsize=(12, 6))
+
+          # Use Seaborn for plotting
+          sns.lineplot(data=df, x='Month', y='Sales', hue='Region',
+                       marker='o', markersize=8, linewidth=2.5, ax=ax)
+
+          # Customize with Matplotlib
+          ax.set_title('Monthly Sales by Region', fontsize=15, fontweight='bold', pad=20)
+          ax.set_xlabel('Month', fontsize=13)
+          ax.set_ylabel('Sales ($1000s)', fontsize=13)
+          ax.grid(True, alpha=0.3, linestyle='--')
+          ax.spines['top'].set_visible(False)
+          ax.spines['right'].set_visible(False)
+
+          # Customize legend
+          ax.legend(title='Region', fontsize=11, title_fontsize=12,
+                   frameon=True, shadow=True)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Professional line plot with Seaborn aesthetics and Matplotlib customization]
+
+      - title: "Heatmap with Annotations"
+        code: |
+          import matplotlib.pyplot as plt
+          import seaborn as sns
+          import pandas as pd
+          import numpy as np
+
+          # Correlation matrix
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'A': np.random.randn(50),
+              'B': np.random.randn(50),
+              'C': np.random.randn(50),
+              'D': np.random.randn(50)
+          })
+          corr = df.corr()
+
+          # Create figure
+          fig, ax = plt.subplots(figsize=(8, 6))
+
+          # Seaborn heatmap
+          sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm',
+                      center=0, square=True, linewidths=1,
+                      cbar_kws={'shrink': 0.8}, ax=ax)
+
+          # Matplotlib customization
+          ax.set_title('Correlation Heatmap', fontsize=14,
+                       fontweight='bold', pad=15)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Correlation heatmap with clean styling and annotations]
+
+  exercise:
+    title: "Create Seaborn Visualization"
+
+    instruction: |
+      Create a regression plot using Seaborn.
+
+      **Requirements:**
+      1. Create figure with figsize=(10, 6)
+      2. Use sns.regplot() with:
+         - data=df
+         - x='experience'
+         - y='salary'
+         - scatter_kws={'alpha': 0.6}
+      3. Add title 'Experience vs Salary'
+      4. Add xlabel 'Years of Experience'
+      5. Add ylabel 'Salary ($1000s)'
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import seaborn as sns
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'experience': np.random.uniform(0, 20, 50),
+      })
+      df['salary'] = 40 + 3 * df['experience'] + np.random.normal(0, 8, 50)
+
+    starter_code: |
+      # Your code here
+      plt.figure(figsize=(10, 6))
+
+    solution: |
+      plt.figure(figsize=(10, 6))
+      sns.regplot(data=df, x='experience', y='salary', scatter_kws={'alpha': 0.6})
+      plt.title('Experience vs Salary')
+      plt.xlabel('Years of Experience')
+      plt.ylabel('Salary ($1000s)')
+
+    validation:
+      type: "plot_check"
+      checks:
+        - type: "has_regression"
+          expected: true
+
+    hints:
+      - level: 1
+        text: |
+          Use sns.regplot() with the DataFrame and column names.
+          Set scatter_kws={'alpha': 0.6} to make points semi-transparent.
+          Add title and axis labels using plt.title(), plt.xlabel(), plt.ylabel().
+
+      - level: 2
+        text: |
+          sns.regplot(data=df, x='experience', y='salary', scatter_kws={'alpha': 0.6})
+          plt.title('Experience vs Salary')
+          plt.xlabel('Years of Experience')
+          plt.ylabel('Salary ($1000s)')
+
+      - level: 3
+        code: |
+          plt.figure(figsize=(10, 6))
+          sns.regplot(data=df, x='experience', y='salary', scatter_kws={'alpha': 0.6})
+          plt.title('Experience vs Salary')
+          plt.xlabel('Years of Experience')
+          plt.ylabel('Salary ($1000s)')
+
+  follow_up:
+    challenges:
+      - "Create a pair plot for multiple variables"
+      - "Make a count plot with custom colors"
+      - "Create violin plot comparing distributions"
+      - "Use FacetGrid for multi-panel visualization"
+
+    next_lesson: "matplotlib_10"
+
+    additional_resources:
+      - title: "Seaborn Official Tutorial"
+        url: "https://seaborn.pydata.org/tutorial.html"
+      - title: "Seaborn Gallery"
+        url: "https://seaborn.pydata.org/examples/index.html"

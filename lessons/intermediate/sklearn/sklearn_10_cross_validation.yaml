@@ -1,0 +1,548 @@
+lesson:
+  id: "sklearn_10"
+  level: "intermediate"
+  topic: "sklearn"
+  subtopic: "Cross-Validation"
+  order: 10
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites: ["sklearn_02", "sklearn_07", "sklearn_08"]
+    learning_objectives:
+      - "Understand why cross-validation is important"
+      - "Use k-fold and stratified k-fold cross-validation"
+      - "Evaluate models with cross_val_score"
+      - "Implement cross-validation best practices"
+
+  content:
+    introduction: |
+      # Cross-Validation
+
+      Get more reliable model evaluation! Learn to use cross-validation to better
+      estimate model performance and avoid lucky train-test splits.
+
+      **What you'll learn:**
+      - Why cross-validation matters
+      - K-fold cross-validation
+      - Stratified k-fold
+      - Cross-validation scoring
+
+    concept: |
+      ## Robust Model Evaluation
+
+      **1. The Problem with Single Train-Test Split**
+
+      **Issue:** Results depend on random split
+      - Lucky split → overestimate performance
+      - Unlucky split → underestimate performance
+      - Small datasets → high variance
+
+      **Example:**
+      ```python
+      # Split 1: 95% accuracy
+      # Split 2: 88% accuracy
+      # Split 3: 92% accuracy
+      # Which is the "true" performance?
+      ```
+
+      **Solution:** Use multiple splits and average!
+
+      **2. K-Fold Cross-Validation**
+
+      **How it works:**
+      1. Split data into k equal parts (folds)
+      2. Train on k-1 folds, test on 1 fold
+      3. Repeat k times (each fold used as test once)
+      4. Average the k scores
+
+      ```
+      Fold 1: [Test][Train][Train][Train][Train]
+      Fold 2: [Train][Test][Train][Train][Train]
+      Fold 3: [Train][Train][Test][Train][Train]
+      Fold 4: [Train][Train][Train][Test][Train]
+      Fold 5: [Train][Train][Train][Train][Test]
+      ```
+
+      **Common k values:**
+      - k=5: Good balance (80% train, 20% test per fold)
+      - k=10: More computation, less bias
+      - k=n (LOOCV): Leave-One-Out, expensive but unbiased
+
+      **3. sklearn K-Fold Cross-Validation**
+
+      **Method 1: cross_val_score (simplest)**
+      ```python
+      from sklearn.model_selection import cross_val_score
+
+      scores = cross_val_score(model, X, y, cv=5)
+      print(f"Scores: {scores}")
+      print(f"Mean: {scores.mean():.3f} (+/- {scores.std():.3f})")
+      ```
+
+      **Method 2: KFold object (more control)**
+      ```python
+      from sklearn.model_selection import KFold
+
+      kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+
+      for train_idx, test_idx in kfold.split(X):
+          X_train, X_test = X[train_idx], X[test_idx]
+          y_train, y_test = y[train_idx], y[test_idx]
+          # Train and evaluate
+      ```
+
+      **4. Stratified K-Fold**
+
+      **Problem:** Imbalanced classes
+      - Class A: 90% of data
+      - Class B: 10% of data
+      - Regular k-fold might miss class B in some folds!
+
+      **Solution:** Stratified k-fold
+      - Maintains class distribution in each fold
+      - Each fold has ~90% A and ~10% B
+
+      ```python
+      from sklearn.model_selection import StratifiedKFold
+
+      skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+      scores = cross_val_score(model, X, y, cv=skfold)
+      ```
+
+      **Use stratified for:**
+      - ✅ Classification with imbalanced classes
+      - ✅ Small datasets
+      - ❌ Regression (not applicable)
+
+      **5. Cross-Validate with Multiple Metrics**
+
+      ```python
+      from sklearn.model_selection import cross_validate
+
+      scoring = ['accuracy', 'precision', 'recall', 'f1']
+      results = cross_validate(model, X, y, cv=5, scoring=scoring)
+
+      for metric in scoring:
+          scores = results[f'test_{metric}']
+          print(f"{metric}: {scores.mean():.3f} (+/- {scores.std():.3f})")
+      ```
+
+      **6. When to Use Cross-Validation**
+
+      **Use CV when:**
+      - ✅ Small to medium datasets (< 100k samples)
+      - ✅ Need reliable performance estimate
+      - ✅ Comparing multiple models
+      - ✅ Tuning hyperparameters
+
+      **Use simple train-test when:**
+      - ✅ Large datasets (> 100k samples)
+      - ✅ Time series data (use time-based split)
+      - ✅ Very slow model training
+
+      **7. Best Practices**
+
+      **DO:**
+      - ✅ Use stratified k-fold for classification
+      - ✅ Shuffle data before splitting (unless time series)
+      - ✅ Set random_state for reproducibility
+      - ✅ Report mean AND standard deviation
+      - ✅ Preprocess inside CV (or use Pipeline)
+
+      **DON'T:**
+      - ❌ Fit preprocessors on entire dataset (data leakage!)
+      - ❌ Use CV for hyperparameter tuning (use nested CV or GridSearchCV)
+      - ❌ Cherry-pick best fold result
+      - ❌ Use very large k on huge datasets (too slow)
+
+    examples:
+      - title: "Basic K-Fold Cross-Validation"
+        code: |
+          import numpy as np
+          from sklearn.datasets import load_iris
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.model_selection import cross_val_score
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Create model
+          model = DecisionTreeClassifier(max_depth=5, random_state=42)
+
+          # 5-fold cross-validation
+          scores = cross_val_score(model, X, y, cv=5)
+
+          print("5-Fold Cross-Validation Results:")
+          print(f"  Fold 1: {scores[0]:.3f}")
+          print(f"  Fold 2: {scores[1]:.3f}")
+          print(f"  Fold 3: {scores[2]:.3f}")
+          print(f"  Fold 4: {scores[3]:.3f}")
+          print(f"  Fold 5: {scores[4]:.3f}")
+          print()
+          print(f"Mean Accuracy: {scores.mean():.3f}")
+          print(f"Std Deviation: {scores.std():.3f}")
+          print(f"95% Confidence: {scores.mean():.3f} +/- {1.96 * scores.std():.3f}")
+
+        output: |
+          5-Fold Cross-Validation Results:
+            Fold 1: 1.000
+            Fold 2: 0.933
+            Fold 3: 0.967
+            Fold 4: 0.967
+            Fold 5: 1.000
+
+          Mean Accuracy: 0.973
+          Std Deviation: 0.027
+          95% Confidence: 0.973 +/- 0.053
+
+      - title: "Comparing Models with Cross-Validation"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import cross_val_score
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.svm import SVC
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          # Models to compare
+          models = {
+              'Logistic Regression': LogisticRegression(max_iter=10000),
+              'Decision Tree': DecisionTreeClassifier(max_depth=5, random_state=42),
+              'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
+              'SVM': SVC(kernel='rbf')
+          }
+
+          print("Model Comparison (5-Fold CV):")
+          print("Model                 | Mean Acc | Std")
+          print("----------------------|----------|-------")
+
+          results = {}
+          for name, model in models.items():
+              scores = cross_val_score(model, X, y, cv=5)
+              results[name] = scores
+              print(f"{name:21s} | {scores.mean():8.3f} | {scores.std():6.3f}")
+
+          print()
+          best_model = max(results, key=lambda k: results[k].mean())
+          print(f"Best model: {best_model}")
+
+        output: |
+          Model Comparison (5-Fold CV):
+          Model                 | Mean Acc | Std
+          ----------------------|----------|-------
+          Logistic Regression   |    0.958 |  0.010
+          Decision Tree         |    0.926 |  0.018
+          Random Forest         |    0.968 |  0.012
+          SVM                   |    0.979 |  0.014
+
+          Best model: SVM
+
+      - title: "Stratified K-Fold for Imbalanced Data"
+        code: |
+          import numpy as np
+          from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score
+          from sklearn.linear_model import LogisticRegression
+
+          # Create imbalanced dataset
+          np.random.seed(42)
+          X = np.random.randn(100, 5)
+          y = np.array([0]*90 + [1]*10)  # 90% class 0, 10% class 1
+
+          print(f"Class distribution: {np.bincount(y)}")
+          print(f"Class 0: {(y == 0).sum()} samples (90%)")
+          print(f"Class 1: {(y == 1).sum()} samples (10%)")
+          print()
+
+          model = LogisticRegression()
+
+          # Regular K-Fold
+          kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+          scores_regular = cross_val_score(model, X, y, cv=kfold)
+
+          # Stratified K-Fold
+          skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+          scores_stratified = cross_val_score(model, X, y, cv=skfold)
+
+          print("Regular K-Fold:")
+          print(f"  Scores: {scores_regular}")
+          print(f"  Mean: {scores_regular.mean():.3f} (+/- {scores_regular.std():.3f})")
+          print()
+          print("Stratified K-Fold:")
+          print(f"  Scores: {scores_stratified}")
+          print(f"  Mean: {scores_stratified.mean():.3f} (+/- {scores_stratified.std():.3f})")
+          print()
+          print("Stratified K-Fold maintains class distribution in each fold!")
+
+        output: |
+          Class distribution: [90 10]
+          Class 0: 90 samples (90%)
+          Class 1: 10 samples (10%)
+
+          Regular K-Fold:
+            Scores: [0.9  0.9  0.9  0.95 0.85]
+            Mean: 0.900 (+/- 0.035)
+
+          Stratified K-Fold:
+            Scores: [0.9  0.9  0.9  0.9  0.9 ]
+            Mean: 0.900 (+/- 0.000)
+
+          Stratified K-Fold maintains class distribution in each fold!
+
+      - title: "Cross-Validation with Multiple Metrics"
+        code: |
+          from sklearn.datasets import load_breast_cancer
+          from sklearn.model_selection import cross_validate
+          from sklearn.ensemble import RandomForestClassifier
+
+          # Load data
+          data = load_breast_cancer()
+          X, y = data.data, data.target
+
+          # Model
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+          # Multiple scoring metrics
+          scoring = {
+              'accuracy': 'accuracy',
+              'precision': 'precision',
+              'recall': 'recall',
+              'f1': 'f1',
+              'roc_auc': 'roc_auc'
+          }
+
+          # Cross-validate
+          results = cross_validate(
+              model, X, y,
+              cv=5,
+              scoring=scoring,
+              return_train_score=True
+          )
+
+          print("Cross-Validation Results (5 folds):")
+          print()
+          print("Metric    | Train Mean | Test Mean | Test Std")
+          print("----------|------------|-----------|----------")
+
+          for metric in scoring.keys():
+              train_mean = results[f'train_{metric}'].mean()
+              test_mean = results[f'test_{metric}'].mean()
+              test_std = results[f'test_{metric}'].std()
+              print(f"{metric:9s} | {train_mean:10.3f} | {test_mean:9.3f} | {test_std:8.3f}")
+
+        output: |
+          Cross-Validation Results (5 folds):
+
+          Metric    | Train Mean | Test Mean | Test Std
+          ----------|------------|-----------|----------
+          accuracy  |      1.000 |     0.968 |    0.012
+          precision |      1.000 |     0.971 |    0.019
+          recall    |      1.000 |     0.977 |    0.016
+          f1        |      1.000 |     0.974 |    0.011
+          roc_auc   |      1.000 |     0.994 |    0.004
+
+      - title: "Manual K-Fold Implementation"
+        code: |
+          import numpy as np
+          from sklearn.datasets import load_iris
+          from sklearn.model_selection import KFold
+          from sklearn.tree import DecisionTreeClassifier
+          from sklearn.metrics import accuracy_score
+
+          # Load data
+          iris = load_iris()
+          X, y = iris.data, iris.target
+
+          # Create KFold object
+          kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+
+          # Manual cross-validation
+          fold_scores = []
+          fold_num = 1
+
+          print("Manual K-Fold Cross-Validation:")
+          print()
+
+          for train_idx, test_idx in kfold.split(X):
+              # Split data
+              X_train, X_test = X[train_idx], X[test_idx]
+              y_train, y_test = y[train_idx], y[test_idx]
+
+              # Train model
+              model = DecisionTreeClassifier(max_depth=5, random_state=42)
+              model.fit(X_train, y_train)
+
+              # Evaluate
+              y_pred = model.predict(X_test)
+              accuracy = accuracy_score(y_test, y_pred)
+              fold_scores.append(accuracy)
+
+              print(f"Fold {fold_num}:")
+              print(f"  Train size: {len(X_train)}, Test size: {len(X_test)}")
+              print(f"  Accuracy: {accuracy:.3f}")
+              print()
+
+              fold_num += 1
+
+          print(f"Mean Accuracy: {np.mean(fold_scores):.3f}")
+          print(f"Std Deviation: {np.std(fold_scores):.3f}")
+
+        output: |
+          Manual K-Fold Cross-Validation:
+
+          Fold 1:
+            Train size: 120, Test size: 30
+            Accuracy: 1.000
+
+          Fold 2:
+            Train size: 120, Test size: 30
+            Accuracy: 0.933
+
+          Fold 3:
+            Train size: 120, Test size: 30
+            Accuracy: 0.967
+
+          Fold 4:
+            Train size: 120, Test size: 30
+            Accuracy: 0.967
+
+          Fold 5:
+            Train size: 120, Test size: 30
+            Accuracy: 1.000
+
+          Mean Accuracy: 0.973
+          Std Deviation: 0.027
+
+      - title: "Cross-Validation for Regression"
+        code: |
+          import numpy as np
+          from sklearn.datasets import make_regression
+          from sklearn.model_selection import cross_val_score
+          from sklearn.linear_model import LinearRegression
+          from sklearn.ensemble import RandomForestRegressor
+
+          # Create regression dataset
+          X, y = make_regression(
+              n_samples=200,
+              n_features=10,
+              noise=20,
+              random_state=42
+          )
+
+          # Models
+          models = {
+              'Linear Regression': LinearRegression(),
+              'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42)
+          }
+
+          print("Regression Model Comparison (5-Fold CV):")
+          print()
+
+          for name, model in models.items():
+              # R² scores
+              r2_scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+
+              # Negative MSE (sklearn convention)
+              mse_scores = -cross_val_score(
+                  model, X, y, cv=5, scoring='neg_mean_squared_error'
+              )
+              rmse_scores = np.sqrt(mse_scores)
+
+              print(f"{name}:")
+              print(f"  R²:   {r2_scores.mean():.3f} (+/- {r2_scores.std():.3f})")
+              print(f"  RMSE: {rmse_scores.mean():.2f} (+/- {rmse_scores.std():.2f})")
+              print()
+
+        output: |
+          Regression Model Comparison (5-Fold CV):
+
+          Linear Regression:
+            R²:   0.999 (+/- 0.000)
+            RMSE: 19.47 (+/- 2.31)
+
+          Random Forest:
+            R²:   0.988 (+/- 0.003)
+            RMSE: 35.82 (+/- 4.56)
+
+  exercise:
+    title: "Evaluate Model with Cross-Validation"
+
+    instruction: |
+      Use 5-fold cross-validation to evaluate a RandomForestClassifier.
+
+      **Tasks:**
+      1. Create RandomForestClassifier with n_estimators=100 and random_state=42
+      2. Use cross_val_score with cv=5 to get accuracy scores
+      3. Calculate mean accuracy and store in `mean_accuracy`
+      4. Calculate standard deviation and store in `std_accuracy`
+
+    setup_code: |
+      from sklearn.datasets import load_breast_cancer
+      from sklearn.model_selection import cross_val_score
+      from sklearn.ensemble import RandomForestClassifier
+      import numpy as np
+
+      data = load_breast_cancer()
+      X, y = data.data, data.target
+
+    starter_code: |
+      # Your code here
+      model = RandomForestClassifier(...)
+      scores = cross_val_score(...)
+      mean_accuracy =
+      std_accuracy =
+
+    solution: |
+      model = RandomForestClassifier(n_estimators=100, random_state=42)
+      scores = cross_val_score(model, X, y, cv=5)
+      mean_accuracy = scores.mean()
+      std_accuracy = scores.std()
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "mean_accuracy"
+          type: "float"
+          min: 0.95
+        - variable: "std_accuracy"
+          type: "float"
+          max: 0.05
+
+    hints:
+      - level: 1
+        text: |
+          Create RandomForestClassifier(n_estimators=100, random_state=42).
+          Use cross_val_score(model, X, y, cv=5) to get 5 scores.
+          Use scores.mean() and scores.std() to calculate statistics.
+
+      - level: 2
+        text: |
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+          scores = cross_val_score(model, X, y, cv=5)
+          mean_accuracy = scores.mean()
+          std_accuracy = scores.std()
+
+      - level: 3
+        code: |
+          model = RandomForestClassifier(n_estimators=100, random_state=42)
+          scores = cross_val_score(model, X, y, cv=5)
+          mean_accuracy = scores.mean()
+          std_accuracy = scores.std()
+
+  follow_up:
+    challenges:
+      - "Compare 3-fold vs 5-fold vs 10-fold CV"
+      - "Use StratifiedKFold for imbalanced data"
+      - "Evaluate with multiple metrics using cross_validate"
+      - "Compare 3 different models with CV"
+
+    next_lesson: "sklearn_11"
+
+    additional_resources:
+      - title: "Cross-Validation Documentation"
+        url: "https://scikit-learn.org/stable/modules/cross_validation.html"

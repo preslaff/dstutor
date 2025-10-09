@@ -1,0 +1,349 @@
+lesson:
+  id: "matplotlib_05"
+  level: "intermediate"
+  topic: "matplotlib"
+  subtopic: "Histograms and Distributions"
+  order: 5
+
+  metadata:
+    duration: "25 min"
+    difficulty: "medium"
+    prerequisites: ["matplotlib_01", "numpy_09"]
+    learning_objectives:
+      - "Create histograms to visualize distributions"
+      - "Customize bins and histogram appearance"
+      - "Overlay multiple distributions"
+      - "Add density curves and statistics"
+
+  content:
+    introduction: |
+      # Histograms and Distributions
+
+      Understand the shape of your data! Histograms reveal patterns, outliers, and
+      distributions that summary statistics alone can't show.
+
+      **What you'll learn:**
+      - Creating and customizing histograms
+      - Choosing appropriate bin sizes
+      - Comparing multiple distributions
+      - Adding density curves
+
+    concept: |
+      ## Visualizing Data Distributions
+
+      **1. Basic Histogram**
+
+      ```python
+      plt.hist(data, bins=30, alpha=0.7)
+      ```
+
+      **Key Parameters:**
+      - `bins` - Number of bins (default 10) or bin edges
+      - `alpha` - Transparency (0-1)
+      - `color` - Histogram color
+      - `edgecolor` - Bar edge color
+      - `density` - If True, normalize to probability density
+
+      **2. Choosing Bin Count**
+
+      Different bin counts reveal different patterns:
+      - **Too few bins**: Over-smoothing, miss details
+      - **Too many bins**: Noisy, hard to see pattern
+      - **Good starting points**:
+        - sqrt rule: bins = sqrt(n)
+        - Sturges' formula: bins = 1 + log₂(n)
+        - Trial and error: 20-50 bins often works well
+
+      **3. Multiple Distributions**
+
+      Compare distributions on same plot:
+      ```python
+      plt.hist(data1, bins=30, alpha=0.5, label='Group 1')
+      plt.hist(data2, bins=30, alpha=0.5, label='Group 2')
+      plt.legend()
+      ```
+
+      **4. Customization Options**
+
+      - `histtype='step'` - Outline only
+      - `cumulative=True` - Cumulative distribution
+      - `orientation='horizontal'` - Horizontal bars
+      - `weights` - Weight each data point differently
+
+      **5. Density Curves**
+
+      Add smooth density estimation:
+      ```python
+      from scipy.stats import gaussian_kde
+      density = gaussian_kde(data)
+      x_range = np.linspace(data.min(), data.max(), 100)
+      plt.plot(x_range, density(x_range))
+      ```
+
+      **When to Use Histograms:**
+      - Understand data distribution shape
+      - Identify outliers and skewness
+      - Compare groups
+      - Check normality assumptions
+      - Detect multiple modes (peaks)
+
+    examples:
+      - title: "Basic Histogram"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(100, 15, 1000)  # Mean=100, SD=15
+
+          plt.figure(figsize=(10, 6))
+          plt.hist(data, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+          plt.xlabel('Value')
+          plt.ylabel('Frequency')
+          plt.title('Distribution of Data')
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [A histogram showing a normal distribution centered at 100 with blue bars]
+
+      - title: "Comparing Bin Sizes"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(0, 1, 1000)
+
+          fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+          # Too few bins
+          axes[0].hist(data, bins=5, alpha=0.7, color='red', edgecolor='black')
+          axes[0].set_title('Too Few Bins (5)')
+          axes[0].set_ylabel('Frequency')
+
+          # Good bins
+          axes[1].hist(data, bins=30, alpha=0.7, color='green', edgecolor='black')
+          axes[1].set_title('Good Bins (30)')
+
+          # Too many bins
+          axes[2].hist(data, bins=100, alpha=0.7, color='blue', edgecolor='black')
+          axes[2].set_title('Too Many Bins (100)')
+
+          for ax in axes:
+              ax.set_xlabel('Value')
+              ax.grid(True, alpha=0.3)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Three histograms side by side showing effects of different bin counts]
+
+      - title: "Overlapping Distributions"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          group1 = np.random.normal(100, 15, 500)
+          group2 = np.random.normal(110, 20, 500)
+          group3 = np.random.normal(95, 10, 500)
+
+          plt.figure(figsize=(10, 6))
+
+          plt.hist(group1, bins=30, alpha=0.5, label='Group 1', color='blue')
+          plt.hist(group2, bins=30, alpha=0.5, label='Group 2', color='red')
+          plt.hist(group3, bins=30, alpha=0.5, label='Group 3', color='green')
+
+          plt.xlabel('Value')
+          plt.ylabel('Frequency')
+          plt.title('Comparison of Three Groups')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Overlapping histograms showing three distributions in different colors]
+
+      - title: "Histogram with Density Curve"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+          from scipy.stats import norm
+
+          np.random.seed(42)
+          data = np.random.normal(100, 15, 1000)
+
+          plt.figure(figsize=(10, 6))
+
+          # Histogram with density normalization
+          plt.hist(data, bins=30, alpha=0.6, color='skyblue',
+                   edgecolor='black', density=True, label='Data')
+
+          # Fit normal distribution
+          mu, sigma = data.mean(), data.std()
+          x = np.linspace(data.min(), data.max(), 100)
+          plt.plot(x, norm.pdf(x, mu, sigma), 'r-', linewidth=2,
+                   label=f'Normal(μ={mu:.1f}, σ={sigma:.1f})')
+
+          plt.xlabel('Value')
+          plt.ylabel('Density')
+          plt.title('Histogram with Fitted Normal Distribution')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Histogram with a red normal distribution curve overlaid]
+
+      - title: "Different Histogram Styles"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(0, 1, 1000)
+
+          fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+          # Standard
+          axes[0, 0].hist(data, bins=30, color='skyblue', edgecolor='black')
+          axes[0, 0].set_title('Standard (bar)')
+
+          # Step (outline only)
+          axes[0, 1].hist(data, bins=30, histtype='step',
+                          color='red', linewidth=2)
+          axes[0, 1].set_title('Step (outline)')
+
+          # Cumulative
+          axes[1, 0].hist(data, bins=30, cumulative=True,
+                          color='green', alpha=0.7, edgecolor='black')
+          axes[1, 0].set_title('Cumulative')
+
+          # Horizontal
+          axes[1, 1].hist(data, bins=30, orientation='horizontal',
+                          color='purple', alpha=0.7, edgecolor='black')
+          axes[1, 1].set_title('Horizontal')
+
+          for ax in axes.flat:
+              ax.grid(True, alpha=0.3)
+
+          plt.tight_layout()
+          plt.show()
+
+        output: |
+          [Four different histogram styles displayed in a 2x2 grid]
+
+      - title: "Histogram with Statistics"
+        code: |
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          np.random.seed(42)
+          data = np.random.normal(100, 15, 1000)
+
+          # Calculate statistics
+          mean = np.mean(data)
+          median = np.median(data)
+          std = np.std(data)
+
+          plt.figure(figsize=(10, 6))
+          plt.hist(data, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+
+          # Add vertical lines for statistics
+          plt.axvline(mean, color='red', linestyle='--',
+                      linewidth=2, label=f'Mean: {mean:.2f}')
+          plt.axvline(median, color='green', linestyle='--',
+                      linewidth=2, label=f'Median: {median:.2f}')
+
+          # Add shaded region for ±1 standard deviation
+          plt.axvspan(mean - std, mean + std, alpha=0.2, color='yellow',
+                      label=f'±1 SD ({std:.2f})')
+
+          plt.xlabel('Value')
+          plt.ylabel('Frequency')
+          plt.title('Histogram with Statistical Indicators')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+        output: |
+          [Histogram with vertical lines for mean/median and shaded standard deviation region]
+
+  exercise:
+    title: "Visualize Test Score Distribution"
+
+    instruction: |
+      Create a histogram of test scores with the following requirements:
+
+      1. Use 25 bins
+      2. Set color to 'lightgreen'
+      3. Set alpha to 0.7
+      4. Add black edge color
+      5. Add xlabel 'Score', ylabel 'Frequency'
+      6. Add title 'Test Score Distribution'
+      7. Enable grid with alpha=0.3
+
+    setup_code: |
+      import matplotlib.pyplot as plt
+      import numpy as np
+
+      np.random.seed(42)
+      scores = np.random.normal(75, 12, 200)  # Mean=75, SD=12
+
+    starter_code: |
+      # Your code here
+      plt.figure(figsize=(10, 6))
+
+    solution: |
+      plt.figure(figsize=(10, 6))
+      plt.hist(scores, bins=25, color='lightgreen', alpha=0.7, edgecolor='black')
+      plt.xlabel('Score')
+      plt.ylabel('Frequency')
+      plt.title('Test Score Distribution')
+      plt.grid(True, alpha=0.3)
+
+    validation:
+      type: "plot_check"
+      checks:
+        - type: "has_histogram"
+          expected: true
+
+    hints:
+      - level: 1
+        text: |
+          Use plt.hist() with the scores data.
+          Set bins=25, color='lightgreen', alpha=0.7, edgecolor='black'.
+          Add labels and title with plt.xlabel(), plt.ylabel(), plt.title().
+
+      - level: 2
+        text: |
+          plt.hist(scores, bins=25, color='lightgreen',
+                   alpha=0.7, edgecolor='black')
+          plt.xlabel('Score')
+          plt.ylabel('Frequency')
+          plt.title('Test Score Distribution')
+          plt.grid(True, alpha=0.3)
+
+      - level: 3
+        code: |
+          plt.figure(figsize=(10, 6))
+          plt.hist(scores, bins=25, color='lightgreen', alpha=0.7, edgecolor='black')
+          plt.xlabel('Score')
+          plt.ylabel('Frequency')
+          plt.title('Test Score Distribution')
+          plt.grid(True, alpha=0.3)
+
+  follow_up:
+    challenges:
+      - "Compare two distributions with different colors"
+      - "Add mean and median lines to histogram"
+      - "Create cumulative histogram"
+      - "Normalize to density and overlay normal curve"
+
+    next_lesson: "matplotlib_06"
+
+    additional_resources:
+      - title: "Matplotlib Histogram Documentation"
+        url: "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html"
