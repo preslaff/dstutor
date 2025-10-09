@@ -81,8 +81,8 @@ These features are planned for the Jupyter extension:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ds-tutor.git
-cd ds-tutor
+git clone https://github.com/preslaff/dstutor.git
+cd dstutor
 
 # Create virtual environment (recommended)
 python -m venv venv
@@ -128,6 +128,10 @@ lessons/
 1. **Start Jupyter Notebook**
    ```bash
    jupyter notebook
+   ```
+   or if you are using Jupyter Label
+   ```bash
+   jupyter lab
    ```
 
 2. **Load the Extension**
