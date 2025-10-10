@@ -1,0 +1,7 @@
+Item|Quantity|Price|Supplier
+Laptop|45|999.99|TechCorp
+Mouse|150|24.99|TechCorp
+Keyboard|80|79.99|ElectroPlus
+Monitor|30|299.99|ScreenMakers
+Webcam|60|89.99|TechCorp
+Headphones|120|49.99|AudioMax

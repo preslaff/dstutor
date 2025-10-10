@@ -6,232 +6,362 @@ lesson:
   order: 4
 
   metadata:
-    duration: "15 min"
+    duration: "20 min"
     difficulty: "easy"
     prerequisites: ["pandas_02"]
     learning_objectives:
-      - "Load data from CSV files"
-      - "Inspect loaded data"
-      - "Save DataFrames to files"
-      - "Handle common loading issues"
+      - "Load data from real CSV and TSV files"
+      - "Work with different file delimiters (comma, tab, pipe)"
+      - "Save DataFrames to various file formats"
+      - "Handle file paths and common loading issues"
+      - "Load JSON data into DataFrames"
 
   content:
     introduction: |
       # Loading and Saving Data
 
-      Real data science starts with loading real data! Learn to work with CSV files
-      and other data formats.
+      Real data science starts with loading real data from actual files! Learn to work with CSV, TSV,
+      pipe-delimited, and JSON files.
 
       **What you'll learn:**
-      - Read CSV files into DataFrames
+      - Read real CSV/TSV files into DataFrames
+      - Handle different file delimiters
       - Inspect and validate loaded data
-      - Save DataFrames to CSV
-      - Handle common data loading issues
+      - Save DataFrames to various formats
+      - Work with JSON data
+
+      **Note:** All sample data files are located in `../data/sample_datasets/`
 
     concept: |
       ## Reading Data Files
 
       **CSV Files (Most Common):**
-      - `pd.read_csv('file.csv')` - Read CSV
-      - `df.to_csv('file.csv')` - Write CSV
+      - `pd.read_csv('file.csv')` - Read comma-separated values
+      - `df.to_csv('file.csv')` - Write to CSV
+
+      **Other Delimiters:**
+      - `pd.read_csv('file.tsv', sep='\t')` - Tab-separated
+      - `pd.read_csv('file.txt', sep='|')` - Pipe-separated
+      - `sep` parameter works with any delimiter
 
       **Other Formats:**
-      - `pd.read_excel('file.xlsx')` - Excel files
       - `pd.read_json('file.json')` - JSON files
+      - `pd.read_excel('file.xlsx')` - Excel files (requires openpyxl)
       - `pd.read_sql(query, connection)` - SQL databases
 
       **Key Parameters for read_csv():**
       - `sep` or `delimiter` - Column separator (default: ',')
       - `header` - Row number for column names (default: 0)
       - `index_col` - Column to use as row index
-      - `usecols` - Select specific columns
+      - `usecols` - Select specific columns only
       - `nrows` - Read only first N rows
       - `skiprows` - Skip rows at the start
+      - `encoding` - File encoding (default: 'utf-8')
+
+      **File Path Tips:**
+      - Absolute path: `'C:/data/file.csv'` or `'/home/user/data/file.csv'`
+      - Relative path: `'../data/file.csv'` (from current directory)
+      - Use forward slashes (/) or raw strings (`r'C:\data\file.csv'`)
 
       **Best Practices:**
-      1. Always inspect data after loading
+      1. Always inspect data after loading (head, tail, info, shape)
       2. Check data types and missing values
-      3. Validate expected shape
-      4. Look at both head() and tail()
+      3. Validate expected number of rows and columns
+      4. Handle file paths properly for portability
 
     examples:
-      - title: "Reading CSV Files"
+      - title: "Example 1: Loading a Real CSV File"
         code: |
           import pandas as pd
 
-          # Basic CSV read (we'll create a sample)
-          import io
+          # Load employees data from CSV file
+          df = pd.read_csv('../data/sample_datasets/employees.csv')
 
-          csv_data = """Name,Age,City,Salary
-          Alice,25,NYC,70000
-          Bob,30,LA,80000
-          Charlie,35,Chicago,90000"""
-
-          # Read from string (simulating file)
-          df = pd.read_csv(io.StringIO(csv_data))
-
-          print("Loaded DataFrame:")
-          print(df)
-          print()
-
-          # Check shape and info
-          print("Shape:", df.shape)
+          print("✓ File loaded successfully!")
+          print(f"\nDataFrame shape: {df.shape}")
+          print(f"Columns: {list(df.columns)}")
+          print("\nFirst 5 rows:")
+          print(df.head())
           print("\nData types:")
           print(df.dtypes)
-          print("\nFirst 2 rows:")
-          print(df.head(2))
 
         output: |
-          Loaded DataFrame:
-                  Name  Age     City  Salary
-          0     Alice   25      NYC   70000
-          1       Bob   30       LA   80000
-          2   Charlie   35  Chicago   90000
+          ✓ File loaded successfully!
 
-          Shape: (3, 4)
+          DataFrame shape: (10, 5)
+          Columns: ['Name', 'Age', 'City', 'Salary', 'Department']
+
+          First 5 rows:
+                      Name  Age          City  Salary   Department
+          0  Alice Johnson   25      New York   70000  Engineering
+          1      Bob Smith   30   Los Angeles   80000    Marketing
+          2  Charlie Brown   35       Chicago   90000  Engineering
+          3   Diana Prince   28       Seattle   75000        Sales
+          4     Ethan Hunt   32        Boston   85000  Engineering
 
           Data types:
-          Name      object
-          Age        int64
-          City      object
-          Salary     int64
+          Name          object
+          Age            int64
+          City          object
+          Salary         int64
+          Department    object
           dtype: object
 
-          First 2 rows:
-               Name  Age City  Salary
-          0  Alice   25  NYC   70000
-          1    Bob   30   LA   80000
-
-      - title: "Common Loading Parameters"
+      - title: "Example 2: Loading Tab-Separated File (TSV)"
         code: |
           import pandas as pd
-          import io
 
-          # CSV with custom separator
-          tsv_data = "Name\tAge\tCity\nAlice\t25\tNYC\nBob\t30\tLA"
-          df_tsv = pd.read_csv(io.StringIO(tsv_data), sep='\t')
-          print("Tab-separated:")
-          print(df_tsv)
-          print()
+          # Load tab-separated file using sep='\t'
+          df = pd.read_csv('../data/sample_datasets/employees.tsv', sep='\t')
 
-          # Set index column
-          csv_data = "ID,Name,Score\n1,Alice,85\n2,Bob,92"
-          df_indexed = pd.read_csv(io.StringIO(csv_data), index_col='ID')
-          print("With custom index:")
-          print(df_indexed)
-          print()
-
-          # Read specific columns
-          df_subset = pd.read_csv(io.StringIO(csv_data),
-                                   usecols=['Name', 'Score'])
-          print("Selected columns only:")
-          print(df_subset)
+          print("Tab-separated file loaded!")
+          print(f"Shape: {df.shape}")
+          print("\nData:")
+          print(df)
 
         output: |
-          Tab-separated:
-               Name  Age City
-          0  Alice   25  NYC
-          1    Bob   30   LA
+          Tab-separated file loaded!
+          Shape: (5, 5)
 
-          With custom index:
-                Name  Score
-          ID
-          1    Alice     85
-          2      Bob     92
+          Data:
+                      Name  Age         City  Salary   Department
+          0  Alice Johnson   25     New York   70000  Engineering
+          1      Bob Smith   30  Los Angeles   80000    Marketing
+          2  Charlie Brown   35      Chicago   90000  Engineering
+          3   Diana Prince   28      Seattle   75000        Sales
+          4     Ethan Hunt   32       Boston   85000  Engineering
 
-          Selected columns only:
-               Name  Score
-          0  Alice     85
-          1    Bob     92
-
-      - title: "Saving DataFrames"
+      - title: "Example 3: Loading Pipe-Delimited File"
         code: |
           import pandas as pd
 
+          # Load pipe-delimited file (delimiter='|')
+          df = pd.read_csv('../data/sample_datasets/inventory.txt',
+                          delimiter='|')
+
+          print("Pipe-delimited file loaded!")
+          print("\nData:")
+          print(df)
+          print(f"\nTotal inventory value: ${(df['Quantity'] * df['Price']).sum():,.2f}")
+
+        output: |
+          Pipe-delimited file loaded!
+
+          Data:
+                  Item  Quantity   Price     Supplier
+          0     Laptop        45  999.99     TechCorp
+          1      Mouse       150   24.99     TechCorp
+          2   Keyboard        80   79.99  ElectroPlus
+          3    Monitor        30  299.99  ScreenMakers
+          4     Webcam        60   89.99     TechCorp
+          5  Headphones       120   49.99     AudioMax
+
+          Total inventory value: $66,393.60
+
+      - title: "Example 4: Loading Specific Columns"
+        code: |
+          import pandas as pd
+
+          # Load only Name and Salary columns
+          df = pd.read_csv('../data/sample_datasets/employees.csv',
+                          usecols=['Name', 'Salary'])
+
+          print("Selected columns only:")
+          print(df)
+          print(f"\nAverage salary: ${df['Salary'].mean():,.2f}")
+
+        output: |
+          Selected columns only:
+                      Name  Salary
+          0  Alice Johnson   70000
+          1      Bob Smith   80000
+          2  Charlie Brown   90000
+          3   Diana Prince   75000
+          4     Ethan Hunt   85000
+          5   Fiona Green    78000
+          6  George Miller   95000
+          7     Hannah Lee   72000
+          8   Ian Malcolm    88000
+          9  Julia Roberts   82000
+
+          Average salary: $81,500.00
+
+      - title: "Example 5: Setting Index Column"
+        code: |
+          import pandas as pd
+
+          # Use ProductID as the index
+          df = pd.read_csv('../data/sample_datasets/products.csv',
+                          index_col='ProductID')
+
+          print("DataFrame with custom index:")
+          print(df)
+          print("\nAccess by index:")
+          print(df.loc['P001'])
+
+        output: |
+          DataFrame with custom index:
+                  ProductName      Category   Price InStock
+          ProductID
+          P001          Laptop  Electronics  999.99     Yes
+          P002           Mouse  Electronics   24.99     Yes
+          P003        Keyboard  Electronics   79.99     Yes
+          P004         Monitor  Electronics  299.99      No
+          P005            Desk    Furniture  199.99     Yes
+          P006           Chair    Furniture  149.99     Yes
+          P007            Lamp    Furniture   39.99     Yes
+          P008        Notebook   Stationery    4.99     Yes
+
+          Access by index:
+          ProductName         Laptop
+          Category       Electronics
+          Price               999.99
+          InStock                Yes
+          Name: P001, dtype: object
+
+      - title: "Example 6: Loading JSON Files"
+        code: |
+          import pandas as pd
+
+          # Load JSON file
+          df = pd.read_json('../data/sample_datasets/products.json')
+
+          print("JSON file loaded!")
+          print("\nDataFrame:")
+          print(df)
+          print("\nAccess nested data:")
+          print(df['specs'])
+
+        output: |
+          JSON file loaded!
+
+          DataFrame:
+            product_id     name      category   price  in_stock                           specs
+          0       P001   Laptop  Electronics  999.99      True  {'ram': '16GB', 'storage': '512GB SSD'}
+          1       P002    Mouse  Electronics   24.99      True     {'wireless': True, 'dpi': 1600}
+          2       P003  Keyboard  Electronics   79.99      True  {'mechanical': True, 'backlit': True}
+
+          Access nested data:
+          0    {'ram': '16GB', 'storage': '512GB SSD'}
+          1         {'wireless': True, 'dpi': 1600}
+          2    {'mechanical': True, 'backlit': True}
+          Name: specs, dtype: object
+
+      - title: "Example 7: Saving DataFrames to Files"
+        code: |
+          import pandas as pd
+
+          # Create a sample DataFrame
           df = pd.DataFrame({
-              'Product': ['Laptop', 'Mouse'],
-              'Price': [999, 25]
+              'Product': ['Laptop', 'Mouse', 'Keyboard'],
+              'Price': [999, 25, 80],
+              'Stock': [45, 150, 80]
           })
 
-          # Save to CSV (simulated)
-          csv_string = df.to_csv(index=False)
-          print("CSV output:")
-          print(csv_string)
+          # Save to CSV (without index)
+          df.to_csv('../data/sample_datasets/output.csv', index=False)
+          print("✓ Saved to output.csv")
 
-          # Save with custom separator
-          tsv_string = df.to_csv(sep='\t', index=False)
-          print("TSV output:")
-          print(tsv_string)
+          # Save to TSV (tab-separated)
+          df.to_csv('../data/sample_datasets/output.tsv', sep='\t', index=False)
+          print("✓ Saved to output.tsv")
+
+          # Save to JSON
+          df.to_json('../data/sample_datasets/output.json', orient='records', indent=2)
+          print("✓ Saved to output.json")
+
+          # Verify by loading back
+          df_loaded = pd.read_csv('../data/sample_datasets/output.csv')
+          print("\nLoaded back from CSV:")
+          print(df_loaded)
 
         output: |
-          CSV output:
-          Product,Price
-          Laptop,999
-          Mouse,25
+          ✓ Saved to output.csv
+          ✓ Saved to output.tsv
+          ✓ Saved to output.json
 
-          TSV output:
-          Product	Price
-          Laptop	999
-          Mouse	25
+          Loaded back from CSV:
+              Product  Price  Stock
+          0    Laptop    999     45
+          1     Mouse     25    150
+          2  Keyboard     80     80
+
+      - title: "Example 8: Reading First N Rows"
+        code: |
+          import pandas as pd
+
+          # Load only first 3 rows
+          df = pd.read_csv('../data/sample_datasets/employees.csv', nrows=3)
+
+          print(f"Loaded only {len(df)} rows:")
+          print(df)
+
+        output: |
+          Loaded only 3 rows:
+                      Name  Age         City  Salary   Department
+          0  Alice Johnson   25     New York   70000  Engineering
+          1      Bob Smith   30  Los Angeles   80000    Marketing
+          2  Charlie Brown   35      Chicago   90000  Engineering
 
   exercise:
-    title: "Load CSV Data"
+    title: "Load Sales Data from CSV"
 
     instruction: |
-      You're given CSV data as a string. Load it into a DataFrame.
+      Load the sales data from the file `../data/sample_datasets/sales.csv` into a DataFrame.
 
-      The data has columns: Name, Department, Salary
-
-      After loading, verify:
-      - Shape should be (4, 3)
-      - Column names correct
+      After loading:
+      - The DataFrame should be stored in a variable called `result`
+      - Verify it has the correct shape (10 rows, 5 columns)
+      - Column names should be: Date, Product, Quantity, Price, Region
 
     setup_code: |
       import pandas as pd
-      import io
-
-      csv_data = """Name,Department,Salary
-      Emma,Engineering,85000
-      Liam,Marketing,65000
-      Olivia,Engineering,90000
-      Noah,Sales,70000"""
 
     starter_code: |
-      # Your code here
+      # Load the sales.csv file
+      # Store it in a variable called 'result'
       result =
 
     solution: |
-      result = pd.read_csv(io.StringIO(csv_data))
+      result = pd.read_csv('../data/sample_datasets/sales.csv')
 
     validation:
       type: "dataframe_check"
       checks:
         - type: "shape"
-          expected: [4, 3]
+          expected: [10, 5]
         - type: "columns"
-          expected: ['Name', 'Department', 'Salary']
+          expected: ['Date', 'Product', 'Quantity', 'Price', 'Region']
+        - type: "not_empty"
 
     hints:
       - level: 1
         text: |
-          Use pd.read_csv() with io.StringIO(csv_data) to read from the string.
+          Use pd.read_csv() with the file path '../data/sample_datasets/sales.csv'
 
       - level: 2
         text: |
-          result = pd.read_csv(io.StringIO(csv_data))
+          The syntax is:
+          result = pd.read_csv('../data/sample_datasets/sales.csv')
 
       - level: 3
         code: |
-          result = pd.read_csv(io.StringIO(csv_data))
+          result = pd.read_csv('../data/sample_datasets/sales.csv')
 
   follow_up:
     challenges:
-      - "Save a DataFrame to CSV without the index"
-      - "Load only the Name and Salary columns"
-      - "Skip the first row when loading"
+      - "Load only the 'Product' and 'Quantity' columns from sales.csv"
+      - "Load the products.csv file with ProductID as the index"
+      - "Save the employees DataFrame to a tab-separated file"
+      - "Load only the first 5 rows from weather.csv"
+      - "Try loading the inventory.txt file with pipe delimiter"
 
     next_lesson: "pandas_05"
 
     additional_resources:
       - title: "Pandas IO Documentation"
         url: "https://pandas.pydata.org/docs/user_guide/io.html"
+      - title: "read_csv() Parameters"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html"
+      - title: "Working with Different File Formats"
+        url: "https://pandas.pydata.org/docs/getting_started/intro_tutorials/02_read_write.html"

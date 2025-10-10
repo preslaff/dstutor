@@ -1,0 +1,35 @@
+[
+  {
+    "product_id": "P001",
+    "name": "Laptop",
+    "category": "Electronics",
+    "price": 999.99,
+    "in_stock": true,
+    "specs": {
+      "ram": "16GB",
+      "storage": "512GB SSD"
+    }
+  },
+  {
+    "product_id": "P002",
+    "name": "Mouse",
+    "category": "Electronics",
+    "price": 24.99,
+    "in_stock": true,
+    "specs": {
+      "wireless": true,
+      "dpi": 1600
+    }
+  },
+  {
+    "product_id": "P003",
+    "name": "Keyboard",
+    "category": "Electronics",
+    "price": 79.99,
+    "in_stock": true,
+    "specs": {
+      "mechanical": true,
+      "backlit": true
+    }
+  }
+]

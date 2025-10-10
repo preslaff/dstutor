@@ -1,0 +1,9 @@
+ProductID,ProductName,Category,Price,InStock
+P001,Laptop,Electronics,999.99,Yes
+P002,Mouse,Electronics,24.99,Yes
+P003,Keyboard,Electronics,79.99,Yes
+P004,Monitor,Electronics,299.99,No
+P005,Desk,Furniture,199.99,Yes
+P006,Chair,Furniture,149.99,Yes
+P007,Lamp,Furniture,39.99,Yes
+P008,Notebook,Stationery,4.99,Yes

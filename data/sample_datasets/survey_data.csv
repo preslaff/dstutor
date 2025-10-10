@@ -1,0 +1,9 @@
+RespondentID,Age,Gender,Satisfaction,City,Income
+R001,25,F,4,NYC,50000
+R002,30,M,5,LA,65000
+R003,28,F,3,Chicago,55000
+R004,35,M,4,Houston,70000
+R005,27,F,5,Phoenix,52000
+R006,32,M,2,Philadelphia,60000
+R007,29,F,4,San Antonio,54000
+R008,31,M,3,San Diego,68000

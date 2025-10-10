@@ -50,6 +50,8 @@ Thumbs.db
 .dstutor/
 *.db
 user_progress/
+data/sample_datasets/output.*
+test_*.py
 
 # Testing
 .pytest_cache/
