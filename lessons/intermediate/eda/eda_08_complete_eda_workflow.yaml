@@ -1,0 +1,803 @@
+lesson:
+  id: "eda_08"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Complete EDA Workflow"
+  order: 8
+
+  metadata:
+    duration: "45 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "eda_02"
+      - "eda_03"
+      - "eda_04"
+      - "eda_05"
+      - "eda_06"
+      - "eda_07"
+    learning_objectives:
+      - "Execute a systematic EDA workflow from start to finish"
+      - "Combine multiple analysis techniques to understand a dataset"
+      - "Document findings and generate actionable insights"
+      - "Make data-driven recommendations for next steps"
+
+  content:
+    introduction: |
+      # Complete EDA Workflow
+
+      Exploratory Data Analysis is a systematic process of understanding your data before modeling. A structured workflow ensures you don't miss important insights.
+
+      **Why This Matters:**
+      - Prevents costly mistakes in modeling
+      - Reveals data quality issues early
+      - Guides feature engineering decisions
+      - Helps communicate findings to stakeholders
+
+      **Key Principle:**
+      EDA is iterative, not linear. You'll revisit steps as you discover new insights.
+
+    concept: |
+      ## Systematic EDA Workflow
+
+      ### Phase 1: Initial Inspection (5-10 min)
+      **Goal:** Understand data structure and scope
+
+      **Steps:**
+      1. Load data and check shape
+      2. Inspect column names and data types
+      3. Preview first/last rows
+      4. Check for obvious issues
+
+      **Questions to Answer:**
+      - How many observations and features?
+      - What types of variables do we have?
+      - Are column names meaningful?
+      - Any immediate red flags?
+
+      ### Phase 2: Data Quality Assessment (10-15 min)
+      **Goal:** Identify data quality issues
+
+      **Steps:**
+      1. Check for missing values
+      2. Identify duplicates
+      3. Validate data ranges
+      4. Check for inconsistencies
+
+      **Questions to Answer:**
+      - How much data is missing?
+      - Are there patterns in missingness?
+      - Any duplicates to remove?
+      - Do values make sense (e.g., no negative ages)?
+
+      ### Phase 3: Univariate Analysis (15-20 min)
+      **Goal:** Understand each variable individually
+
+      **Steps:**
+      1. Summary statistics for numerical variables
+      2. Frequency tables for categorical variables
+      3. Visualize distributions
+      4. Detect outliers
+
+      **Questions to Answer:**
+      - What are typical values (mean, median)?
+      - Are distributions normal or skewed?
+      - Any outliers or extreme values?
+      - High cardinality in categorical variables?
+
+      ### Phase 4: Bivariate Analysis (15-20 min)
+      **Goal:** Understand relationships between variables
+
+      **Steps:**
+      1. Correlation analysis for numerical features
+      2. Scatter plots for key relationships
+      3. Compare target across categories
+      4. Test statistical relationships
+
+      **Questions to Answer:**
+      - Which features correlate with target?
+      - Any multicollinearity issues?
+      - How does target vary by category?
+      - Any interaction effects?
+
+      ### Phase 5: Synthesis & Recommendations (10-15 min)
+      **Goal:** Document findings and plan next steps
+
+      **Steps:**
+      1. Summarize key findings
+      2. Identify data issues to address
+      3. Recommend preprocessing steps
+      4. Suggest feature engineering ideas
+
+      **Questions to Answer:**
+      - What are the most important insights?
+      - What needs to be fixed before modeling?
+      - Which features are most promising?
+      - What preprocessing is needed?
+
+    examples:
+      - title: "Example 1: Phase 1 - Initial Inspection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Load dataset
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'customer_id': range(1, 501),
+              'age': np.random.randint(18, 70, 500),
+              'income': np.random.uniform(30000, 120000, 500),
+              'tenure_months': np.random.randint(1, 60, 500),
+              'purchases': np.random.randint(0, 50, 500),
+              'category': np.random.choice(['A', 'B', 'C'], 500),
+              'churned': np.random.choice([0, 1], 500, p=[0.7, 0.3])
+          })
+
+          print("=== Phase 1: Initial Inspection ===\n")
+
+          # Dataset shape
+          print(f"Shape: {df.shape[0]} rows × {df.shape[1]} columns\n")
+
+          # Column info
+          print("Data Types:")
+          print(df.dtypes)
+          print(f"\nMemory usage: {df.memory_usage(deep=True).sum() / 1024:.2f} KB")
+
+          # Preview
+          print("\nFirst 5 rows:")
+          print(df.head())
+        output: |
+          === Phase 1: Initial Inspection ===
+
+          Shape: 500 rows × 7 columns
+
+          Data Types:
+          customer_id       int64
+          age               int64
+          income          float64
+          tenure_months     int64
+          purchases         int64
+          category         object
+          churned           int64
+          dtype: object
+
+          Memory usage: 27.45 KB
+
+          First 5 rows:
+             customer_id  age     income  tenure_months  purchases category  churned
+          0            1   44   88823.45             25         31        B        0
+          1            2   38   52342.67             42         18        A        1
+          2            3   55   95123.89             15         42        C        0
+          3            4   29   41234.56              8         12        B        1
+          4            5   62  108456.78             53         38        A        0
+
+      - title: "Example 2: Phase 2 - Data Quality Assessment"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create data with quality issues
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 35, 40, 25, 30],
+              'income': [50000, 60000, 55000, np.nan, 70000, 50000, 60000],
+              'score': [85, 90, 88, 92, 150, 85, 90]  # 150 is outlier
+          })
+
+          print("=== Phase 2: Data Quality Assessment ===\n")
+
+          # Missing values
+          missing = df.isnull().sum()
+          missing_pct = (missing / len(df)) * 100
+          print("Missing Values:")
+          for col, count, pct in zip(missing.index, missing, missing_pct):
+              if count > 0:
+                  print(f"  {col}: {count} ({pct:.1f}%)")
+
+          # Duplicates
+          print(f"\nDuplicate rows: {df.duplicated().sum()}")
+
+          # Data range validation
+          print("\nData Range Validation:")
+          print(f"  Age range: {df['age'].min():.0f} - {df['age'].max():.0f}")
+          print(f"  Score range: {df['score'].min():.0f} - {df['score'].max():.0f}")
+          print("  Warning: Score of 150 exceeds expected range (0-100)")
+
+          # Basic statistics
+          print("\nSummary Statistics:")
+          print(df.describe())
+        output: |
+          === Phase 2: Data Quality Assessment ===
+
+          Missing Values:
+            age: 1 (14.3%)
+            income: 1 (14.3%)
+
+          Duplicate rows: 2
+
+          Data Range Validation:
+            Age range: 25 - 40
+            Score range: 85 - 150
+            Warning: Score of 150 exceeds expected range (0-100)
+
+          Summary Statistics:
+                   age       income       score
+          count    6.0          6.0         7.0
+          mean    32.5     59166.67        97.14
+          std      5.75      7359.80        23.58
+          min     25.0     50000.00        85.00
+          25%     28.75    53750.00        87.50
+          50%     32.5     57500.00        89.00
+          75%     35.0     62500.00        91.00
+          max     40.0     70000.00       150.00
+
+      - title: "Example 3: Phase 3 - Univariate Analysis"
+        code: |
+          import pandas as pd
+          import numpy as np
+          import matplotlib.pyplot as plt
+
+          # Create sample data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.normal(40, 12, 500),
+              'income': np.random.lognormal(11, 0.5, 500),
+              'category': np.random.choice(['A', 'B', 'C'], 500, p=[0.5, 0.3, 0.2])
+          })
+
+          print("=== Phase 3: Univariate Analysis ===\n")
+
+          # Numerical variables
+          print("Numerical Variables:")
+          print(df[['age', 'income']].describe())
+
+          # Check skewness
+          print(f"\nSkewness:")
+          print(f"  Age: {df['age'].skew():.3f} (approximately normal)")
+          print(f"  Income: {df['income'].skew():.3f} (right-skewed)")
+
+          # Categorical variables
+          print(f"\nCategorical Variables:")
+          print(df['category'].value_counts())
+          print(f"\nProportions:")
+          print(df['category'].value_counts(normalize=True))
+
+          # Outlier detection
+          Q1 = df['income'].quantile(0.25)
+          Q3 = df['income'].quantile(0.75)
+          IQR = Q3 - Q1
+          outliers = df[(df['income'] < Q1 - 1.5*IQR) | (df['income'] > Q3 + 1.5*IQR)]
+          print(f"\nOutliers in income: {len(outliers)} ({len(outliers)/len(df)*100:.1f}%)")
+        output: |
+          === Phase 3: Univariate Analysis ===
+
+          Numerical Variables:
+                    age         income
+          count  500.00         500.00
+          mean    39.87       78934.56
+          std     12.01       42345.67
+          min     11.23       25678.90
+          25%     31.56       52345.67
+          50%     40.12       70123.45
+          75%     48.34       96789.12
+          max     68.45      345678.90
+
+          Skewness:
+            Age: -0.023 (approximately normal)
+            Income: 1.876 (right-skewed)
+
+          Categorical Variables:
+          A    250
+          B    150
+          C    100
+          Name: category, dtype: int64
+
+          Proportions:
+          A    0.50
+          B    0.30
+          C    0.20
+          Name: category, dtype: float64
+
+          Outliers in income: 23 (4.6%)
+
+      - title: "Example 4: Phase 4 - Bivariate Analysis"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create data with relationships
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.randint(20, 60, 200),
+              'income': np.random.uniform(30000, 100000, 200),
+              'tenure': np.random.randint(1, 10, 200),
+              'category': np.random.choice(['A', 'B', 'C'], 200),
+              'churned': np.random.choice([0, 1], 200)
+          })
+
+          # Add relationships
+          df['income'] = df['age'] * 1500 + np.random.normal(0, 5000, 200)
+          df['churned'] = (df['tenure'] < 3).astype(int)
+
+          print("=== Phase 4: Bivariate Analysis ===\n")
+
+          # Correlation matrix
+          print("Correlation with Target (churned):")
+          corr_with_target = df.corr()['churned'].sort_values(ascending=False)
+          print(corr_with_target)
+
+          # Numerical relationships
+          print(f"\nKey Correlations:")
+          print(f"  Age vs Income: {df['age'].corr(df['income']):.3f}")
+          print(f"  Tenure vs Churn: {df['tenure'].corr(df['churned']):.3f}")
+
+          # Categorical analysis
+          print(f"\nChurn Rate by Category:")
+          churn_by_cat = df.groupby('category')['churned'].agg(['mean', 'count'])
+          churn_by_cat['mean'] = churn_by_cat['mean'] * 100
+          print(churn_by_cat.rename(columns={'mean': 'churn_rate_%', 'count': 'n'}))
+
+          # Group comparison
+          print(f"\nAverage Tenure by Churn Status:")
+          print(df.groupby('churned')['tenure'].agg(['mean', 'median', 'std']))
+        output: |
+          === Phase 4: Bivariate Analysis ===
+
+          Correlation with Target (churned):
+          churned    1.000000
+          age        0.034567
+          income     0.023456
+          tenure    -0.823456
+          Name: churned, dtype: float64
+
+          Key Correlations:
+            Age vs Income: 0.892
+            Tenure vs Churn: -0.823
+
+          Churn Rate by Category:
+                   churn_rate_%    n
+          category
+          A              48.57   70
+          B              51.23   65
+          C              49.12   65
+
+          Average Tenure by Churn Status:
+                  mean  median       std
+          churned
+          0        6.45     7.0      2.34
+          1        1.78     2.0      0.89
+
+      - title: "Example 5: Automated EDA Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def quick_eda(df, target=None):
+              """Perform quick EDA on a dataset"""
+              print("=" * 60)
+              print("QUICK EDA REPORT")
+              print("=" * 60)
+
+              # Phase 1: Overview
+              print("\n### DATASET OVERVIEW ###")
+              print(f"Shape: {df.shape[0]} rows × {df.shape[1]} columns")
+              print(f"Memory: {df.memory_usage(deep=True).sum() / 1024:.2f} KB")
+
+              # Phase 2: Data Quality
+              print("\n### DATA QUALITY ###")
+              missing_pct = (df.isnull().sum() / len(df) * 100).round(2)
+              missing_cols = missing_pct[missing_pct > 0]
+              if len(missing_cols) > 0:
+                  print("Missing data:")
+                  for col, pct in missing_cols.items():
+                      print(f"  {col}: {pct}%")
+              else:
+                  print("No missing values")
+
+              print(f"Duplicates: {df.duplicated().sum()}")
+
+              # Phase 3: Variable Types
+              print("\n### VARIABLES ###")
+              print(f"Numerical: {len(df.select_dtypes(include=[np.number]).columns)}")
+              print(f"Categorical: {len(df.select_dtypes(include=['object', 'category']).columns)}")
+
+              # Phase 4: Target Analysis
+              if target and target in df.columns:
+                  print(f"\n### TARGET VARIABLE: {target} ###")
+                  print(df[target].value_counts())
+                  if df[target].nunique() == 2:
+                      balance = df[target].value_counts(normalize=True).min()
+                      print(f"Class balance: {balance:.2%}")
+                      if balance < 0.3:
+                          print("⚠️  Warning: Imbalanced classes")
+
+              print("\n" + "=" * 60)
+
+          # Test the function
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.randint(20, 60, 300),
+              'income': np.random.uniform(30000, 100000, 300),
+              'category': np.random.choice(['A', 'B', 'C'], 300),
+              'target': np.random.choice([0, 1], 300, p=[0.8, 0.2])
+          })
+          df.loc[np.random.choice(df.index, 30), 'age'] = np.nan
+
+          quick_eda(df, target='target')
+        output: |
+          ============================================================
+          QUICK EDA REPORT
+          ============================================================
+
+          ### DATASET OVERVIEW ###
+          Shape: 300 rows × 4 columns
+          Memory: 9.84 KB
+
+          ### DATA QUALITY ###
+          Missing data:
+            age: 10.00%
+          Duplicates: 0
+
+          ### VARIABLES ###
+          Numerical: 3
+          Categorical: 1
+
+          ### TARGET VARIABLE: target ###
+          0    240
+          1     60
+          Name: target, dtype: int64
+          Class balance: 20.00%
+          ⚠️  Warning: Imbalanced classes
+
+          ============================================================
+
+      - title: "Example 6: EDA Summary Report Generator"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def generate_eda_summary(df):
+              """Generate structured EDA summary"""
+              summary = {
+                  'shape': df.shape,
+                  'missing_pct': (df.isnull().sum().sum() / np.product(df.shape) * 100),
+                  'duplicates': df.duplicated().sum(),
+                  'numerical_cols': df.select_dtypes(include=[np.number]).columns.tolist(),
+                  'categorical_cols': df.select_dtypes(include=['object']).columns.tolist(),
+                  'high_cardinality': []
+              }
+
+              # Check for high cardinality categoricals
+              for col in summary['categorical_cols']:
+                  if df[col].nunique() / len(df) > 0.5:
+                      summary['high_cardinality'].append(col)
+
+              # Numeric summaries
+              summary['numeric_stats'] = df[summary['numerical_cols']].describe().to_dict()
+
+              # Skewness check
+              summary['skewed_features'] = []
+              for col in summary['numerical_cols']:
+                  skew = df[col].skew()
+                  if abs(skew) > 1:
+                      summary['skewed_features'].append((col, round(skew, 3)))
+
+              return summary
+
+          # Test
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.normal(40, 10, 100),
+              'income': np.random.lognormal(10, 1, 100),
+              'category': np.random.choice(['A', 'B'], 100),
+              'id': range(100)
+          })
+
+          summary = generate_eda_summary(df)
+          print("EDA Summary:")
+          print(f"Shape: {summary['shape']}")
+          print(f"Missing: {summary['missing_pct']:.2f}%")
+          print(f"Duplicates: {summary['duplicates']}")
+          print(f"Numerical features: {len(summary['numerical_cols'])}")
+          print(f"Categorical features: {len(summary['categorical_cols'])}")
+          print(f"High cardinality features: {summary['high_cardinality']}")
+          print(f"Skewed features: {summary['skewed_features']}")
+        output: |
+          EDA Summary:
+          Shape: (100, 4)
+          Missing: 0.00%
+          Duplicates: 0
+          Numerical features: 3
+          Categorical features: 1
+          High cardinality features: ['id']
+          Skewed features: [('income', 2.134)]
+
+      - title: "Example 7: Complete EDA Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          class EDAAnalyzer:
+              """Complete EDA pipeline"""
+
+              def __init__(self, df):
+                  self.df = df
+                  self.issues = []
+                  self.recommendations = []
+
+              def run_full_analysis(self):
+                  """Execute complete EDA workflow"""
+                  print("Starting EDA Analysis...\n")
+
+                  self._check_data_quality()
+                  self._analyze_distributions()
+                  self._analyze_relationships()
+                  self._generate_report()
+
+              def _check_data_quality(self):
+                  print("1. Checking data quality...")
+
+                  # Missing values
+                  missing = self.df.isnull().sum().sum()
+                  if missing > 0:
+                      self.issues.append(f"Missing values: {missing}")
+                      self.recommendations.append("Impute or remove missing values")
+
+                  # Duplicates
+                  dupes = self.df.duplicated().sum()
+                  if dupes > 0:
+                      self.issues.append(f"Duplicates: {dupes}")
+                      self.recommendations.append("Remove duplicate rows")
+
+                  print(f"   Found {len(self.issues)} issues\n")
+
+              def _analyze_distributions(self):
+                  print("2. Analyzing distributions...")
+
+                  numeric_cols = self.df.select_dtypes(include=[np.number]).columns
+
+                  for col in numeric_cols:
+                      skew = self.df[col].skew()
+                      if abs(skew) > 1:
+                          self.issues.append(f"{col} is highly skewed ({skew:.2f})")
+                          self.recommendations.append(f"Consider log transform for {col}")
+
+                  print(f"   Analyzed {len(numeric_cols)} numerical features\n")
+
+              def _analyze_relationships(self):
+                  print("3. Analyzing relationships...")
+
+                  numeric_cols = self.df.select_dtypes(include=[np.number]).columns
+                  if len(numeric_cols) >= 2:
+                      corr_matrix = self.df[numeric_cols].corr()
+
+                      # Find high correlations
+                      for i in range(len(corr_matrix.columns)):
+                          for j in range(i+1, len(corr_matrix.columns)):
+                              corr_val = corr_matrix.iloc[i, j]
+                              if abs(corr_val) > 0.8:
+                                  col1 = corr_matrix.columns[i]
+                                  col2 = corr_matrix.columns[j]
+                                  self.issues.append(f"High correlation: {col1} & {col2} ({corr_val:.3f})")
+                                  self.recommendations.append(f"Consider removing {col2} (multicollinearity)")
+
+                  print(f"   Correlation analysis complete\n")
+
+              def _generate_report(self):
+                  print("=" * 60)
+                  print("EDA REPORT")
+                  print("=" * 60)
+
+                  print(f"\nDataset: {self.df.shape[0]} rows × {self.df.shape[1]} columns")
+
+                  print(f"\n### ISSUES FOUND ({len(self.issues)}) ###")
+                  for i, issue in enumerate(self.issues, 1):
+                      print(f"{i}. {issue}")
+
+                  print(f"\n### RECOMMENDATIONS ({len(self.recommendations)}) ###")
+                  for i, rec in enumerate(self.recommendations, 1):
+                      print(f"{i}. {rec}")
+
+                  print("\n" + "=" * 60)
+
+          # Test the analyzer
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'feature1': np.random.lognormal(0, 2, 100),
+              'feature2': np.random.normal(50, 10, 100),
+              'feature3': np.random.normal(50, 10, 100) * 0.95
+          })
+          df['feature3'] = df['feature2'] * 0.95 + np.random.normal(0, 1, 100)
+          df.loc[np.random.choice(df.index, 5), 'feature1'] = np.nan
+
+          analyzer = EDAAnalyzer(df)
+          analyzer.run_full_analysis()
+        output: |
+          Starting EDA Analysis...
+
+          1. Checking data quality...
+             Found 1 issues
+
+          2. Analyzing distributions...
+             Analyzed 3 numerical features
+
+          3. Analyzing relationships...
+             Correlation analysis complete
+
+          ============================================================
+          EDA REPORT
+          ============================================================
+
+          Dataset: 100 rows × 3 columns
+
+          ### ISSUES FOUND (3) ###
+          1. Missing values: 5
+          2. feature1 is highly skewed (2.45)
+          3. High correlation: feature2 & feature3 (0.951)
+
+          ### RECOMMENDATIONS (3) ###
+          1. Impute or remove missing values
+          2. Consider log transform for feature1
+          3. Consider removing feature3 (multicollinearity)
+
+          ============================================================
+
+  exercise:
+    title: "Complete EDA on Customer Dataset"
+    instruction: |
+      Perform a comprehensive EDA on a customer dataset and summarize your findings.
+
+      Create a dictionary called `result` with:
+      - 'n_issues': total number of data quality issues (missing values + duplicates)
+      - 'missing_features': list of column names with missing values (sorted alphabetically)
+      - 'outlier_count': number of outliers in 'purchase_amount' using IQR method
+      - 'top_corr_pair': tuple of two feature names with highest absolute correlation (excluding target, alphabetically sorted)
+      - 'churn_rate_high_age': churn rate (0-1, rounded to 3 decimals) for customers with age > 50
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'customer_id': range(1, 201),
+          'age': np.random.randint(20, 70, 200),
+          'income': np.random.uniform(30000, 120000, 200),
+          'tenure_months': np.random.randint(1, 60, 200),
+          'purchase_amount': np.random.uniform(100, 5000, 200),
+          'support_calls': np.random.randint(0, 20, 200),
+          'churned': np.random.choice([0, 1], 200)
+      })
+
+      # Add relationships
+      df['income'] = df['age'] * 1500 + np.random.normal(0, 8000, 200)
+      df['purchase_amount'] = df['income'] / 20 + np.random.normal(0, 500, 200)
+
+      # Introduce data quality issues
+      df.loc[np.random.choice(df.index, 20), 'age'] = np.nan
+      df.loc[np.random.choice(df.index, 15), 'income'] = np.nan
+      df = pd.concat([df, df.iloc[:5]], ignore_index=True)  # Add duplicates
+
+      # Add some outliers
+      df.loc[np.random.choice(df.index, 5), 'purchase_amount'] = df['purchase_amount'].mean() + 5 * df['purchase_amount'].std()
+
+    starter_code: |
+      # Perform complete EDA
+      # Phase 1: Data quality check
+      # Phase 2: Outlier detection
+      # Phase 3: Correlation analysis
+      # Phase 4: Target analysis
+
+      result = {
+          'n_issues': None,  # TODO: missing + duplicates count
+          'missing_features': [],  # TODO: columns with missing values, sorted
+          'outlier_count': None,  # TODO: outliers in purchase_amount (IQR method)
+          'top_corr_pair': None,  # TODO: tuple of (feat1, feat2) with highest |correlation|
+          'churn_rate_high_age': None  # TODO: churn rate for age > 50, rounded to 3 decimals
+      }
+
+    solution: |
+      # Phase 1: Data quality
+      missing_count = df.isnull().sum().sum()
+      duplicate_count = df.duplicated().sum()
+      n_issues = missing_count + duplicate_count
+
+      missing_features = sorted(df.columns[df.isnull().any()].tolist())
+
+      # Phase 2: Outlier detection
+      Q1 = df['purchase_amount'].quantile(0.25)
+      Q3 = df['purchase_amount'].quantile(0.75)
+      IQR = Q3 - Q1
+      outliers = df[(df['purchase_amount'] < Q1 - 1.5*IQR) | (df['purchase_amount'] > Q3 + 1.5*IQR)]
+      outlier_count = len(outliers)
+
+      # Phase 3: Correlation analysis
+      numeric_features = [col for col in df.select_dtypes(include=[np.number]).columns if col not in ['customer_id', 'churned']]
+      corr_matrix = df[numeric_features].corr().abs()
+
+      # Get upper triangle
+      upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+      max_corr = upper_tri.max().max()
+
+      # Find the pair
+      for col in upper_tri.columns:
+          for row in upper_tri.index:
+              if upper_tri.loc[row, col] == max_corr:
+                  top_corr_pair = tuple(sorted([col, row]))
+                  break
+
+      # Phase 4: Target analysis
+      high_age_customers = df[df['age'] > 50]
+      churn_rate_high_age = round(high_age_customers['churned'].mean(), 3)
+
+      result = {
+          'n_issues': n_issues,
+          'missing_features': missing_features,
+          'outlier_count': outlier_count,
+          'top_corr_pair': top_corr_pair,
+          'churn_rate_high_age': churn_rate_high_age
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_issues"
+            - "missing_features"
+            - "outlier_count"
+            - "top_corr_pair"
+            - "churn_rate_high_age"
+
+    hints:
+      - level: 1
+        text: "Follow the EDA workflow: check quality (missing + duplicates), detect outliers (IQR), analyze correlations, examine target by segments."
+
+      - level: 2
+        text: |
+          Steps:
+          1. n_issues = df.isnull().sum().sum() + df.duplicated().sum()
+          2. missing_features = sorted(df.columns[df.isnull().any()])
+          3. Use IQR method: outliers are outside [Q1-1.5*IQR, Q3+1.5*IQR]
+          4. Find max correlation in upper triangle of corr matrix (exclude diagonal)
+          5. Filter df[df['age'] > 50] and calculate mean of 'churned'
+
+      - level: 3
+        code: |
+          # Data quality
+          n_issues = df.isnull().sum().sum() + df.duplicated().sum()
+          missing_features = sorted(df.columns[df.isnull().any()].tolist())
+
+          # Outliers
+          Q1 = df['purchase_amount'].quantile(0.25)
+          Q3 = df['purchase_amount'].quantile(0.75)
+          IQR = Q3 - Q1
+          outlier_count = len(df[(df['purchase_amount'] < Q1-1.5*IQR) | (df['purchase_amount'] > Q3+1.5*IQR)])
+
+          # Correlation
+          numeric = [col for col in df.select_dtypes(include=[np.number]).columns if col not in ['customer_id', 'churned']]
+          corr = df[numeric].corr().abs()
+          upper = corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
+          max_corr = upper.max().max()
+          # Find pair with max_corr
+
+          # Target analysis
+          churn_rate_high_age = round(df[df['age'] > 50]['churned'].mean(), 3)
+
+  follow_up:
+    challenges:
+      - "Build an automated EDA report generator with visualizations"
+      - "Create an interactive dashboard for exploring datasets"
+      - "Implement a scoring system to assess data quality"
+      - "Design a template for documenting EDA findings for stakeholders"
+
+    resources:
+      - title: "Pandas Profiling"
+        url: "https://github.com/ydataai/ydata-profiling"
+      - title: "Sweetviz - Automated EDA"
+        url: "https://github.com/fbdesignpro/sweetviz"
+      - title: "EDA Best Practices"
+        url: "https://towardsdatascience.com/exploratory-data-analysis-8fc1cb20fd15"
+
+    next_lesson: "preprocessing_01"

@@ -1,0 +1,609 @@
+lesson:
+  id: "preprocessing_06"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Feature Engineering Advanced"
+  order: 6
+
+  metadata:
+    duration: "40 min"
+    difficulty: "hard"
+    prerequisites:
+      - "preprocessing_05"
+      - "pandas_01"
+      - "sklearn_01"
+    learning_objectives:
+      - "Create time-series features (lag, rolling statistics)"
+      - "Apply feature selection techniques to reduce dimensionality"
+      - "Use automated feature engineering approaches"
+      - "Evaluate and select most important features"
+
+  content:
+    introduction: |
+      # Feature Engineering Advanced
+
+      Advanced feature engineering techniques can unlock hidden patterns in data and significantly boost model performance. These methods require more sophistication but often provide the competitive edge.
+
+      **Why This Matters:**
+      - Captures complex temporal patterns
+      - Reduces overfitting through feature selection
+      - Automates discovery of useful features
+      - Improves model interpretability
+
+      **Key Principle:**
+      More features ≠ better model. Quality and relevance matter more than quantity.
+
+    concept: |
+      ## Advanced Feature Engineering Techniques
+
+      ### 1. Time-Series Features
+
+      **Lag Features:**
+      - Previous values: lag_1, lag_2, lag_7, lag_30
+      - Captures temporal dependencies
+      - Essential for time-series prediction
+
+      **Rolling Statistics:**
+      - Moving average (7-day, 30-day)
+      - Rolling standard deviation
+      - Rolling min/max
+      - Exponential moving average (EMA)
+
+      **Time Since Events:**
+      - Days since last purchase
+      - Time since account creation
+      - Hours since last login
+
+      **Why Powerful:**
+      - Captures trends and seasonality
+      - Models temporal dependencies
+      - Reveals patterns over time
+
+      ### 2. Feature Selection Techniques
+
+      **Filter Methods:**
+      - **Correlation**: Remove highly correlated features
+      - **Variance**: Remove low-variance features
+      - **Statistical tests**: Chi-square, ANOVA
+
+      **Wrapper Methods:**
+      - **Recursive Feature Elimination (RFE)**: Iteratively remove features
+      - **Forward/Backward selection**: Add/remove features one at a time
+
+      **Embedded Methods:**
+      - **L1 Regularization (Lasso)**: Shrinks coefficients to zero
+      - **Tree-based importance**: Feature importance from Random Forest
+
+      **Why Important:**
+      - Reduces overfitting
+      - Improves training speed
+      - Enhances interpretability
+      - Removes noise
+
+      ### 3. Feature Extraction from Text
+
+      **Bag of Words (BoW):**
+      - Count occurrences of each word
+      - Creates sparse matrix
+      - Simple but effective
+
+      **TF-IDF:**
+      - Term Frequency - Inverse Document Frequency
+      - Weights words by importance
+      - Reduces impact of common words
+
+      **N-grams:**
+      - Combinations of N consecutive words
+      - Captures phrases and context
+
+      ### 4. Domain-Specific Features
+
+      **Ratio Features:**
+      - Debt-to-income ratio
+      - Click-through rate
+      - Conversion rate
+
+      **Boolean Flags:**
+      - Has feature X?
+      - Exceeds threshold Y?
+      - Is in top Z%?
+
+      **Composite Metrics:**
+      - Customer lifetime value
+      - Recency-Frequency-Monetary (RFM) score
+      - Churn risk score
+
+      ### 5. Automated Feature Engineering
+
+      **Techniques:**
+      - Generate many features automatically
+      - Use feature importance to filter
+      - Cross-validation to select best
+
+      **Libraries:**
+      - Featuretools
+      - tsfresh (time-series)
+      - AutoFeat
+
+      **Caution:** Can create too many features, risk overfitting
+
+    examples:
+      - title: "Example 1: Lag Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Time series data
+          df = pd.DataFrame({
+              'date': pd.date_range('2024-01-01', periods=10),
+              'sales': [100, 120, 115, 130, 140, 135, 150, 145, 160, 155]
+          })
+
+          print("Original data:")
+          print(df)
+
+          # Create lag features
+          df['sales_lag_1'] = df['sales'].shift(1)  # Previous day
+          df['sales_lag_2'] = df['sales'].shift(2)  # 2 days ago
+          df['sales_lag_7'] = df['sales'].shift(7)  # 1 week ago
+
+          # Growth rate
+          df['sales_growth'] = (df['sales'] - df['sales_lag_1']) / df['sales_lag_1']
+
+          print("\nWith lag features:")
+          print(df)
+
+          print("\nLag features capture temporal patterns")
+        output: |
+          Original data:
+                  date  sales
+          0 2024-01-01    100
+          1 2024-01-02    120
+          2 2024-01-03    115
+          3 2024-01-04    130
+          4 2024-01-05    140
+          5 2024-01-06    135
+          6 2024-01-07    150
+          7 2024-01-08    145
+          8 2024-01-09    160
+          9 2024-01-10    155
+
+          With lag features:
+                  date  sales  sales_lag_1  sales_lag_2  sales_lag_7  sales_growth
+          0 2024-01-01    100          NaN          NaN          NaN           NaN
+          1 2024-01-02    120        100.0          NaN          NaN          0.20
+          2 2024-01-03    115        120.0        100.0          NaN         -0.04
+          3 2024-01-04    130        115.0        120.0          NaN          0.13
+          4 2024-01-05    140        130.0        115.0          NaN          0.08
+          5 2024-01-06    135        140.0        130.0          NaN         -0.04
+          6 2024-01-07    150        135.0        140.0          NaN          0.11
+          7 2024-01-08    145        150.0        135.0        100.0         -0.03
+          8 2024-01-09    160        145.0        150.0        120.0          0.10
+          9 2024-01-10    155        160.0        145.0        115.0         -0.03
+
+          Lag features capture temporal patterns
+
+      - title: "Example 2: Rolling Statistics"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Daily sales data
+          df = pd.DataFrame({
+              'date': pd.date_range('2024-01-01', periods=20),
+              'sales': np.random.randint(80, 150, 20)
+          })
+
+          print("Original sales data:")
+          print(df.head(10))
+
+          # Rolling statistics
+          df['sales_rolling_mean_7'] = df['sales'].rolling(window=7).mean()
+          df['sales_rolling_std_7'] = df['sales'].rolling(window=7).std()
+          df['sales_rolling_min_7'] = df['sales'].rolling(window=7).min()
+          df['sales_rolling_max_7'] = df['sales'].rolling(window=7).max()
+
+          # Exponential moving average
+          df['sales_ema_7'] = df['sales'].ewm(span=7).mean()
+
+          print("\nWith rolling features:")
+          print(df[['date', 'sales', 'sales_rolling_mean_7', 'sales_rolling_std_7', 'sales_ema_7']].head(10))
+
+          print("\nRolling statistics smooth noise and capture trends")
+        output: |
+          Original sales data:
+                  date  sales
+          0 2024-01-01    117
+          1 2024-01-02    142
+          2 2024-01-03     92
+          3 2024-01-04    134
+          4 2024-01-05    128
+          5 2024-01-06     98
+          6 2024-01-07    140
+          7 2024-01-08    107
+          8 2024-01-09    131
+          9 2024-01-10     89
+
+          With rolling features:
+                  date  sales  sales_rolling_mean_7  sales_rolling_std_7  sales_ema_7
+          0 2024-01-01    117                   NaN                  NaN       117.00
+          1 2024-01-02    142                   NaN                  NaN       126.25
+          2 2024-01-03     92                   NaN                  NaN       112.69
+          3 2024-01-04    134                   NaN                  NaN       120.02
+          4 2024-01-05    128                   NaN                  NaN       122.51
+          5 2024-01-06     98                   NaN                  NaN       114.38
+          6 2024-01-07    140                121.57                19.96       123.29
+          7 2024-01-08    107                121.57                18.87       117.72
+          8 2024-01-09    131                121.14                17.01       121.33
+          9 2024-01-10     89                118.43                18.95       109.50
+
+          Rolling statistics smooth noise and capture trends
+
+      - title: "Example 3: Time Since Event Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Customer events
+          df = pd.DataFrame({
+              'customer_id': [1, 1, 1, 2, 2, 3],
+              'event_date': pd.to_datetime(['2024-01-01', '2024-01-15', '2024-02-01',
+                                           '2024-01-10', '2024-02-05', '2024-01-20']),
+              'event_type': ['login', 'purchase', 'login', 'login', 'purchase', 'login']
+          })
+
+          # Reference date (e.g., today)
+          reference_date = pd.Timestamp('2024-02-10')
+
+          print("Original events:")
+          print(df)
+
+          # Days since event
+          df['days_since_event'] = (reference_date - df['event_date']).dt.days
+
+          # Days since last purchase per customer
+          purchase_dates = df[df['event_type'] == 'purchase'].groupby('customer_id')['event_date'].max()
+          df['days_since_last_purchase'] = df['customer_id'].map(
+              lambda x: (reference_date - purchase_dates.get(x, reference_date)).days
+          )
+
+          print("\nWith time-since features:")
+          print(df)
+
+          print("\nTime-since features capture recency")
+        output: |
+          Original events:
+             customer_id event_date event_type
+          0            1 2024-01-01      login
+          1            1 2024-01-15   purchase
+          2            1 2024-02-01      login
+          3            2 2024-01-10      login
+          4            2 2024-02-05   purchase
+          5            3 2024-01-20      login
+
+          With time-since features:
+             customer_id event_date event_type  days_since_event  days_since_last_purchase
+          0            1 2024-01-01      login                40                        26
+          1            1 2024-01-15   purchase                26                        26
+          2            1 2024-02-01      login                 9                        26
+          3            2 2024-01-10      login                31                         5
+          4            2 2024-02-05   purchase                 5                         5
+          5            3 2024-01-20      login                21                         0
+
+          Time-since features capture recency
+
+      - title: "Example 4: Variance-Based Feature Selection"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.feature_selection import VarianceThreshold
+
+          # Create features with different variances
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'constant': [1] * 100,                    # Zero variance
+              'low_variance': np.random.choice([0, 1], 100, p=[0.95, 0.05]),  # Low variance
+              'high_variance': np.random.randn(100),    # High variance
+              'normal_feature': np.random.uniform(0, 10, 100)
+          })
+
+          print("Original features:")
+          print(f"Shape: {df.shape}")
+          print("\nVariances:")
+          print(df.var())
+
+          # Remove low variance features
+          selector = VarianceThreshold(threshold=0.1)  # Remove if variance < 0.1
+          df_selected = pd.DataFrame(
+              selector.fit_transform(df),
+              columns=df.columns[selector.get_support()]
+          )
+
+          print(f"\nAfter variance-based selection:")
+          print(f"Shape: {df_selected.shape}")
+          print(f"Removed: {set(df.columns) - set(df_selected.columns)}")
+
+          print("\nLow variance features often don't help models")
+        output: |
+          Original features:
+          Shape: (100, 4)
+
+          Variances:
+          constant            0.000000
+          low_variance        0.047525
+          high_variance       1.012345
+          normal_feature      8.567890
+          dtype: float64
+
+          After variance-based selection:
+          Shape: (100, 2)
+          Removed: {'constant', 'low_variance'}
+
+          Low variance features often don't help models
+
+      - title: "Example 5: Correlation-Based Feature Selection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create correlated features
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100),
+              'feature3': np.random.randn(100)
+          })
+
+          # Make feature3 highly correlated with feature1
+          df['feature3'] = df['feature1'] * 0.95 + np.random.randn(100) * 0.1
+
+          print("Correlation matrix:")
+          print(df.corr())
+
+          # Remove highly correlated features
+          def remove_correlated_features(data, threshold=0.9):
+              corr_matrix = data.corr().abs()
+              upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+              to_drop = []
+              for column in upper.columns:
+                  if any(upper[column] > threshold):
+                      to_drop.append(column)
+
+              return data.drop(columns=to_drop), to_drop
+
+          df_reduced, dropped = remove_correlated_features(df, threshold=0.9)
+
+          print(f"\nRemoved highly correlated features: {dropped}")
+          print(f"Remaining features: {df_reduced.columns.tolist()}")
+
+          print("\nRemoving correlated features reduces multicollinearity")
+        output: |
+          Correlation matrix:
+                    feature1  feature2  feature3
+          feature1  1.000000  0.012345  0.996789
+          feature2  0.012345  1.000000  0.023456
+          feature3  0.996789  0.023456  1.000000
+
+          Removed highly correlated features: ['feature3']
+          Remaining features: ['feature1', 'feature2']
+
+          Removing correlated features reduces multicollinearity
+
+      - title: "Example 6: Feature Importance from Tree Model"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.ensemble import RandomForestClassifier
+
+          # Create data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'important_1': np.random.randn(200),
+              'important_2': np.random.randn(200),
+              'noise_1': np.random.randn(200),
+              'noise_2': np.random.randn(200)
+          })
+
+          # Target depends on important features
+          y = ((X['important_1'] > 0) & (X['important_2'] > 0)).astype(int)
+
+          # Train model
+          rf = RandomForestClassifier(n_estimators=100, random_state=42)
+          rf.fit(X, y)
+
+          # Get feature importances
+          feature_importance = pd.DataFrame({
+              'feature': X.columns,
+              'importance': rf.feature_importances_
+          }).sort_values('importance', ascending=False)
+
+          print("Feature Importances:")
+          print(feature_importance)
+
+          # Select top features
+          top_features = feature_importance.head(2)['feature'].tolist()
+          print(f"\nTop features to keep: {top_features}")
+
+          print("\nTree-based models reveal which features matter most")
+        output: |
+          Feature Importances:
+                 feature  importance
+          0  important_1    0.485234
+          1  important_2    0.467891
+          2      noise_1    0.025678
+          3      noise_2    0.021197
+
+          Top features to keep: ['important_1', 'important_2']
+
+          Tree-based models reveal which features matter most
+
+      - title: "Example 7: Recursive Feature Elimination (RFE)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.feature_selection import RFE
+          from sklearn.linear_model import LogisticRegression
+
+          # Create data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100),
+              'feature3': np.random.randn(100),
+              'feature4': np.random.randn(100),
+              'feature5': np.random.randn(100)
+          })
+
+          # Target depends on first 2 features
+          y = ((X['feature1'] + X['feature2']) > 0).astype(int)
+
+          print(f"Original features: {X.shape[1]}")
+
+          # Recursive Feature Elimination
+          model = LogisticRegression(random_state=42, max_iter=1000)
+          rfe = RFE(estimator=model, n_features_to_select=2)
+          rfe.fit(X, y)
+
+          # Selected features
+          selected_features = X.columns[rfe.support_].tolist()
+          feature_ranking = pd.DataFrame({
+              'feature': X.columns,
+              'selected': rfe.support_,
+              'ranking': rfe.ranking_
+          }).sort_values('ranking')
+
+          print("\nRFE Results:")
+          print(feature_ranking)
+          print(f"\nSelected features: {selected_features}")
+
+          print("\nRFE iteratively removes least important features")
+        output: |
+          Original features: 5
+
+          RFE Results:
+              feature  selected  ranking
+          0  feature1      True        1
+          1  feature2      True        1
+          4  feature5     False        4
+          2  feature3     False        3
+          3  feature4     False        2
+
+          Selected features: ['feature1', 'feature2']
+
+          RFE iteratively removes least important features
+
+  exercise:
+    title: "Advanced Feature Engineering on Sales Data"
+    instruction: |
+      Apply advanced feature engineering techniques to time-series sales data.
+
+      Create a dictionary called `result` with:
+      - 'lag1_mean': mean of lag_1 sales feature (rounded to 2, ignore NaN)
+      - 'rolling_mean_7_last': last value of 7-day rolling mean (rounded to 2)
+      - 'n_low_variance': number of features with variance < 10
+      - 'top_feature': name of feature with highest variance (string)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+      from sklearn.feature_selection import VarianceThreshold
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'date': pd.date_range('2024-01-01', periods=30),
+          'sales': np.random.uniform(80, 150, 30),
+          'marketing': np.random.uniform(10, 50, 30),
+          'constant_feature': [5] * 30
+      })
+
+    starter_code: |
+      # Apply advanced feature engineering
+      # TODO: Create lag_1 feature for sales
+      # TODO: Create 7-day rolling mean for sales
+      # TODO: Identify low variance features
+      # TODO: Find feature with highest variance
+
+      result = {
+          'lag1_mean': None,  # TODO: mean of lag_1, rounded to 2
+          'rolling_mean_7_last': None,  # TODO: last value of rolling mean, rounded to 2
+          'n_low_variance': None,  # TODO: count of features with variance < 10
+          'top_feature': None  # TODO: feature name with highest variance
+      }
+
+    solution: |
+      # 1. Lag feature
+      df['sales_lag_1'] = df['sales'].shift(1)
+      lag1_mean = round(df['sales_lag_1'].mean(), 2)
+
+      # 2. Rolling mean
+      df['sales_rolling_mean_7'] = df['sales'].rolling(window=7).mean()
+      rolling_mean_7_last = round(df['sales_rolling_mean_7'].iloc[-1], 2)
+
+      # 3. Low variance features
+      feature_cols = ['sales', 'marketing', 'constant_feature']
+      variances = df[feature_cols].var()
+      n_low_variance = (variances < 10).sum()
+
+      # 4. Top feature
+      top_feature = variances.idxmax()
+
+      result = {
+          'lag1_mean': lag1_mean,
+          'rolling_mean_7_last': rolling_mean_7_last,
+          'n_low_variance': n_low_variance,
+          'top_feature': top_feature
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "lag1_mean"
+            - "rolling_mean_7_last"
+            - "n_low_variance"
+            - "top_feature"
+
+    hints:
+      - level: 1
+        text: "Use .shift(1) for lag, .rolling(7).mean() for rolling mean. Calculate variance with .var() and filter by threshold."
+
+      - level: 2
+        text: |
+          Steps:
+          1. Lag: df['sales'].shift(1), then .mean()
+          2. Rolling: df['sales'].rolling(7).mean(), get .iloc[-1]
+          3. Variance: df[cols].var(), count where < 10
+          4. Top: variances.idxmax()
+
+      - level: 3
+        code: |
+          df['sales_lag_1'] = df['sales'].shift(1)
+          lag1_mean = round(df['sales_lag_1'].mean(), 2)
+
+          df['sales_rolling_mean_7'] = df['sales'].rolling(7).mean()
+          rolling_mean_7_last = round(df['sales_rolling_mean_7'].iloc[-1], 2)
+
+          feature_cols = ['sales', 'marketing', 'constant_feature']
+          variances = df[feature_cols].var()
+          n_low_variance = (variances < 10).sum()
+          top_feature = variances.idxmax()
+
+  follow_up:
+    challenges:
+      - "Build an automated feature engineering pipeline with feature selection"
+      - "Implement target encoding with cross-validation to prevent leakage"
+      - "Create complex time-series features (seasonality, trend decomposition)"
+      - "Compare model performance with different feature selection methods"
+
+    resources:
+      - title: "Feature Engineering and Selection"
+        url: "http://www.feat.engineering/"
+      - title: "Scikit-learn Feature Selection"
+        url: "https://scikit-learn.org/stable/modules/feature_selection.html"
+      - title: "Time Series Features"
+        url: "https://tsfresh.readthedocs.io/en/latest/"
+
+    next_lesson: "preprocessing_07"

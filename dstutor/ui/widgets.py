@@ -3,7 +3,7 @@ Interactive widgets for DS-Tutor UI
 """
 
 import ipywidgets as widgets
-from IPython.display import display, HTML, clear_output
+from IPython.display import display, HTML, clear_output, Markdown
 from typing import Dict, Any, Optional
 
 
@@ -29,17 +29,15 @@ class WelcomeWidget:
                 <p><strong>✨ Interactive:</strong> Code, learn, and get instant validation</p>
             </div>
             <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1);
-                        border-radius: 8px;">
+                        border-radius: 8px; text-align: left;">
                 <p style="margin: 0; font-size: 1.1em;"><strong>Get Started:</strong></p>
-                <code style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 5px;
-                           display: inline-block; margin-top: 10px;">
-                    %dstutor topics
-                </code>
+                <code style="background: rgba(255,255,255,0.95); color: #2c3e50; padding: 8px 12px;
+                           border-radius: 5px; display: inline-block; margin-top: 10px;
+                           font-family: monospace; font-weight: 500;">%dstutor topics</code>
                 <span style="margin: 0 10px;">or</span>
-                <code style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 5px;
-                           display: inline-block;">
-                    %dstutor start numpy
-                </code>
+                <code style="background: rgba(255,255,255,0.95); color: #2c3e50; padding: 8px 12px;
+                           border-radius: 5px; display: inline-block;
+                           font-family: monospace; font-weight: 500;">%dstutor start numpy</code>
             </div>
         </div>
         """
@@ -225,6 +223,156 @@ class FeedbackWidget:
         """
 
         display(HTML(html))
+
+
+class ExerciseWidget:
+    """Interactive exercise widget with code editor"""
+
+    def __init__(self, exercise: Dict[str, Any], tutor_engine):
+        self.exercise = exercise
+        self.engine = tutor_engine
+        self.output = widgets.Output()
+
+    def display(self):
+        """Display exercise with code editor"""
+        instruction = self.exercise.get('instruction', 'Complete the exercise')
+        setup_code = self.exercise.get('setup_code', '')
+        starter_code = self.exercise.get('starter_code', '# Your code here\n')
+
+        # Exercise header
+        header_html = """
+        <div style="padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; margin: 15px 0 5px 0;">
+            <h3 style="margin: 0; color: #856404;">✏️ Exercise</h3>
+        </div>
+        """
+        display(HTML(header_html))
+
+        # Display instruction as markdown (to preserve formatting)
+        instruction_md = f"""
+<div style="padding: 0 15px 15px 15px; background: #fff3cd; margin: 0 0 15px 0;">
+
+{instruction}
+
+</div>
+"""
+        display(Markdown(instruction_md))
+
+        # Setup code (if exists)
+        if setup_code.strip():
+            setup_html = """
+            <div style="margin: 10px 0;">
+                <strong>Setup Code (Run this first):</strong>
+            </div>
+            """
+            display(HTML(setup_html))
+
+            setup_area = widgets.Textarea(
+                value=setup_code,
+                layout=widgets.Layout(width='100%', height='100px'),
+                style={'font_family': 'monospace'}
+            )
+            setup_area.disabled = False  # Allow running setup
+            display(setup_area)
+
+            run_setup_btn = widgets.Button(
+                description='▶ Run Setup',
+                button_style='info',
+                layout=widgets.Layout(width='150px', margin='5px 0 15px 0')
+            )
+
+            def run_setup(b):
+                with self.output:
+                    clear_output()
+                    try:
+                        exec(setup_area.value, globals())
+                        print("✓ Setup code executed successfully!")
+                    except Exception as e:
+                        print(f"Error in setup: {e}")
+
+            run_setup_btn.on_click(run_setup)
+            display(run_setup_btn)
+
+        # Solution code editor
+        solution_html = """
+        <div style="margin: 15px 0 5px 0;">
+            <strong>Your Solution:</strong>
+        </div>
+        """
+        display(HTML(solution_html))
+
+        code_editor = widgets.Textarea(
+            value=starter_code,
+            placeholder='# Write your code here...',
+            layout=widgets.Layout(width='100%', height='200px'),
+            style={'font_family': 'monospace', 'font_size': '14px'}
+        )
+        display(code_editor)
+
+        # Action buttons
+        run_button = widgets.Button(
+            description='▶ Run Code',
+            button_style='success',
+            layout=widgets.Layout(width='120px', margin='10px 5px 0 0')
+        )
+
+        check_button = widgets.Button(
+            description='✓ Check Answer',
+            button_style='primary',
+            layout=widgets.Layout(width='140px', margin='10px 5px 0 0')
+        )
+
+        hint_button = widgets.Button(
+            description='💡 Get Hint',
+            button_style='warning',
+            layout=widgets.Layout(width='120px', margin='10px 0 0 0')
+        )
+
+        # Button handlers
+        def run_code(b):
+            with self.output:
+                clear_output()
+                try:
+                    exec(code_editor.value, globals())
+                except Exception as e:
+                    print(f"Error: {e}")
+
+        def check_answer(b):
+            with self.output:
+                clear_output()
+                result = self.engine.validate_exercise(code_editor.value)
+                if result['success']:
+                    feedback_widget = FeedbackWidget()
+                    feedback_widget.show_feedback(result['is_correct'], result['feedback'])
+                else:
+                    print(f"Validation error: {result.get('message', 'Unknown error')}")
+
+        def show_hint(b):
+            with self.output:
+                clear_output()
+                hint = self.engine.get_hint(self.engine.hints_used + 1)
+                if hint:
+                    feedback_widget = FeedbackWidget()
+                    feedback_widget.show_hint(hint, self.engine.hints_used)
+                else:
+                    print("No hints available for this exercise")
+
+        run_button.on_click(run_code)
+        check_button.on_click(check_answer)
+        hint_button.on_click(show_hint)
+
+        button_box = widgets.HBox([run_button, check_button, hint_button])
+        display(button_box)
+
+        # Output area
+        display(self.output)
+
+        # Tip
+        tip_html = """
+        <div style="margin: 15px 0; padding: 10px; background: #e7f3ff; border-left: 3px solid #2196f3;">
+            <small>💡 <strong>Tip:</strong> Run your code first to test it, then check your answer when ready!</small>
+        </div>
+        """
+        display(HTML(tip_html))
 
 
 class ProgressDashboard:

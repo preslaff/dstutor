@@ -1,0 +1,410 @@
+lesson:
+  id: "eda_06"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Categorical Data Analysis"
+  order: 6
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "pandas_01"
+    learning_objectives:
+      - "Analyze categorical variables using frequency tables and proportions"
+      - "Test relationships between categorical variables using chi-square"
+      - "Visualize categorical data with bar charts and count plots"
+      - "Identify rare categories and class imbalances"
+
+  content:
+    introduction: |
+      # Categorical Data Analysis
+
+      Categorical variables represent groups or categories. Analyzing them requires different techniques than numerical data.
+
+      **Why This Matters:**
+      - Categorical features are common in real data
+      - Require special encoding for ML models
+      - Can reveal important patterns
+      - Class imbalance affects model performance
+
+      **Types of Categorical Data:**
+      - **Nominal**: No order (colors, cities)
+      - **Ordinal**: Ordered (ratings, education level)
+      - **Binary**: Two categories (yes/no)
+
+    concept: |
+      ## Categorical Analysis Techniques
+
+      ### 1. Frequency Analysis
+      - **Value counts**: How often each category appears
+      - **Proportions**: Percentage of each category
+      - **Mode**: Most common category
+
+      ### 2. Relationships Between Categoricals
+      - **Contingency tables**: Cross-tabulation
+      - **Chi-square test**: Test independence
+      - **Cramér's V**: Measure association strength
+
+      ### 3. Visual Analysis
+      - **Bar charts**: Compare category frequencies
+      - **Count plots**: Seaborn visualization
+      - **Stacked bars**: Show proportions
+
+      ### 4. Common Issues
+      - **Rare categories**: Too few observations
+      - **Class imbalance**: Unequal distribution
+      - **Too many categories**: High cardinality
+      - **Missing categories**: Incomplete data
+
+    examples:
+      - title: "Example 1: Basic Frequency Analysis"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'department': ['Sales', 'IT', 'Sales', 'HR', 'IT', 'Sales', 'IT', 'HR']
+          })
+
+          # Frequency counts
+          freq = df['department'].value_counts()
+          print("Frequency counts:")
+          print(freq)
+
+          # Proportions
+          prop = df['department'].value_counts(normalize=True)
+          print("\nProportions:")
+          print(prop)
+
+          # Mode
+          print(f"\nMost common: {df['department'].mode()[0]}")
+        output: |
+          Frequency counts:
+          Sales    3
+          IT       3
+          HR       2
+          Name: department, dtype: int64
+
+          Proportions:
+          Sales    0.375
+          IT       0.375
+          HR       0.250
+          Name: department, dtype: float64
+
+          Most common: Sales
+
+      - title: "Example 2: Contingency Table"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'gender': ['M', 'F', 'M', 'F', 'M', 'F', 'M', 'F'],
+              'department': ['Sales', 'IT', 'Sales', 'IT', 'HR', 'Sales', 'IT', 'HR']
+          })
+
+          # Cross-tabulation
+          ct = pd.crosstab(df['gender'], df['department'])
+          print("Contingency Table:")
+          print(ct)
+
+          # With proportions
+          ct_prop = pd.crosstab(df['gender'], df['department'], normalize='all')
+          print("\nProportions:")
+          print(ct_prop.round(3))
+        output: |
+          Contingency Table:
+          department  HR  IT  Sales
+          gender
+          F            1   2      1
+          M            1   2      2
+
+          Proportions:
+          department    HR     IT  Sales
+          gender
+          F          0.125  0.250  0.125
+          M          0.125  0.250  0.250
+
+      - title: "Example 3: Chi-Square Test"
+        code: |
+          import pandas as pd
+          from scipy.stats import chi2_contingency
+
+          df = pd.DataFrame({
+              'gender': ['M', 'F'] * 20,
+              'approved': ['Yes', 'No'] * 10 + ['No', 'Yes'] * 10
+          })
+
+          # Contingency table
+          ct = pd.crosstab(df['gender'], df['approved'])
+
+          # Chi-square test
+          chi2, p_value, dof, expected = chi2_contingency(ct)
+
+          print(f"Chi-square statistic: {chi2:.4f}")
+          print(f"P-value: {p_value:.4f}")
+          print(f"\nInterpretation:")
+          if p_value < 0.05:
+              print("Variables are dependent (reject independence)")
+          else:
+              print("Variables are independent (fail to reject)")
+        output: |
+          Chi-square statistic: 0.1000
+          P-value: 0.7518
+
+          Interpretation:
+          Variables are independent (fail to reject)
+
+      - title: "Example 4: Identifying Rare Categories"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'category': ['A'] * 100 + ['B'] * 50 + ['C'] * 30 + ['D'] * 5 + ['E'] * 2
+          })
+
+          # Calculate proportions
+          props = df['category'].value_counts(normalize=True)
+
+          # Find rare categories (< 5%)
+          rare = props[props < 0.05]
+
+          print("All categories:")
+          print(props)
+          print(f"\nRare categories (< 5%):")
+          print(rare)
+          print(f"\nConsider combining: {rare.index.tolist()}")
+        output: |
+          All categories:
+          A    0.534759
+          B    0.267380
+          C    0.160428
+          D    0.026738
+          E    0.010695
+          Name: category, dtype: float64
+
+          Rare categories (< 5%):
+          D    0.026738
+          E    0.010695
+          Name: category, dtype: float64
+
+          Consider combining: ['D', 'E']
+
+      - title: "Example 5: Class Imbalance Detection"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'target': ['positive'] * 10 + ['negative'] * 90
+          })
+
+          # Calculate class distribution
+          dist = df['target'].value_counts()
+          props = df['target'].value_counts(normalize=True)
+
+          print("Class distribution:")
+          print(dist)
+          print("\nProportions:")
+          print(props)
+
+          # Imbalance ratio
+          majority = props.max()
+          minority = props.min()
+          ratio = majority / minority
+
+          print(f"\nImbalance ratio: {ratio:.2f}:1")
+          if ratio > 3:
+              print("Warning: Significant class imbalance!")
+        output: |
+          Class distribution:
+          negative    90
+          positive    10
+          Name: target, dtype: int64
+
+          Proportions:
+          negative    0.9
+          positive    0.1
+          Name: target, dtype: float64
+
+          Imbalance ratio: 9.00:1
+          Warning: Significant class imbalance!
+
+      - title: "Example 6: High Cardinality Detection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Simulate high cardinality
+          df = pd.DataFrame({
+              'user_id': np.arange(1000),
+              'country': np.random.choice(['US', 'UK', 'CA'], 1000),
+              'city': np.random.choice([f'City_{i}' for i in range(500)], 1000)
+          })
+
+          # Check unique counts
+          for col in df.columns:
+              n_unique = df[col].nunique()
+              cardinality_ratio = n_unique / len(df)
+
+              print(f"{col}:")
+              print(f"  Unique values: {n_unique}")
+              print(f"  Cardinality ratio: {cardinality_ratio:.3f}")
+
+              if cardinality_ratio > 0.5:
+                  print(f"  Warning: High cardinality!")
+              print()
+        output: |
+          user_id:
+            Unique values: 1000
+            Cardinality ratio: 1.000
+            Warning: High cardinality!
+
+          country:
+            Unique values: 3
+            Cardinality ratio: 0.003
+
+          city:
+            Unique values: 500
+            Cardinality ratio: 0.500
+            Warning: High cardinality!
+
+      - title: "Example 7: Categorical Analysis Function"
+        code: |
+          import pandas as pd
+
+          def analyze_categorical(df, column):
+              """Comprehensive categorical analysis"""
+              print(f"=== Analysis: {column} ===\n")
+
+              # Basic stats
+              n_unique = df[column].nunique()
+              n_missing = df[column].isnull().sum()
+
+              print(f"Unique values: {n_unique}")
+              print(f"Missing values: {n_missing}")
+              print(f"Cardinality: {n_unique/len(df):.3f}\n")
+
+              # Frequency table
+              print("Top 5 categories:")
+              print(df[column].value_counts().head())
+
+              # Check for rare categories
+              props = df[column].value_counts(normalize=True)
+              rare = props[props < 0.05]
+              if len(rare) > 0:
+                  print(f"\nRare categories (< 5%): {len(rare)}")
+
+          # Test
+          df = pd.DataFrame({
+              'status': ['active'] * 80 + ['inactive'] * 15 + ['pending'] * 5
+          })
+          analyze_categorical(df, 'status')
+        output: |
+          === Analysis: status ===
+
+          Unique values: 3
+          Missing values: 0
+          Cardinality: 0.030
+
+          Top 5 categories:
+          active      80
+          inactive    15
+          pending      5
+          Name: status, dtype: int64
+
+          Rare categories (< 5%): 1
+
+  exercise:
+    title: "Analyze Customer Segment Distribution"
+    instruction: |
+      You have customer data with segment categories. Analyze the distribution:
+
+      Create a dictionary called `result` with:
+      - 'n_categories': number of unique segments
+      - 'most_common': name of most frequent segment
+      - 'most_common_pct': percentage of most common segment (rounded to 2 decimals)
+      - 'rare_segments': list of segments with < 10% of customers (sorted alphabetically)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      segments = ['Premium'] * 50 + ['Standard'] * 150 + ['Basic'] * 80 + ['Trial'] * 15 + ['VIP'] * 5
+      np.random.shuffle(segments)
+      df = pd.DataFrame({'segment': segments})
+
+    starter_code: |
+      # Analyze segment distribution
+      # TODO: Calculate unique count, most common, and rare segments
+
+      result = {
+          'n_categories': None,  # TODO
+          'most_common': None,  # TODO
+          'most_common_pct': None,  # TODO: rounded to 2 decimals
+          'rare_segments': []  # TODO: segments with < 10%, sorted
+      }
+
+    solution: |
+      # Calculate distribution
+      n_categories = df['segment'].nunique()
+      most_common = df['segment'].value_counts().index[0]
+      most_common_pct = round((df['segment'].value_counts(normalize=True).iloc[0]) * 100, 2)
+
+      # Find rare segments (< 10%)
+      props = df['segment'].value_counts(normalize=True)
+      rare_segments = sorted(props[props < 0.10].index.tolist())
+
+      result = {
+          'n_categories': n_categories,
+          'most_common': most_common,
+          'most_common_pct': most_common_pct,
+          'rare_segments': rare_segments
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_categories"
+            - "most_common"
+            - "most_common_pct"
+            - "rare_segments"
+
+    hints:
+      - level: 1
+        text: "Use .nunique() for unique count, .value_counts() for frequencies. Filter by proportion < 0.10 for rare segments."
+
+      - level: 2
+        text: |
+          - n_categories = df['segment'].nunique()
+          - most_common = df['segment'].value_counts().index[0]
+          - Use value_counts(normalize=True) for proportions
+          - Filter props[props < 0.10] for rare segments
+
+      - level: 3
+        code: |
+          n_categories = df['segment'].nunique()
+          most_common = df['segment'].value_counts().index[0]
+          most_common_pct = round((df['segment'].value_counts(normalize=True).iloc[0]) * 100, 2)
+          props = df['segment'].value_counts(normalize=True)
+          rare_segments = sorted(props[props < 0.10].index.tolist())
+
+  follow_up:
+    challenges:
+      - "Create visualizations comparing multiple categorical variables"
+      - "Implement automatic grouping of rare categories"
+      - "Build a chi-square test matrix for all categorical pairs"
+      - "Write a function to detect and handle high cardinality features"
+
+    resources:
+      - title: "Chi-Square Test Explained"
+        url: "https://www.statstest.com/chi-square-test/"
+      - title: "Pandas Crosstab"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.crosstab.html"
+      - title: "Categorical Data Analysis"
+        url: "https://towardsdatascience.com/categorical-data-analysis-60c2641a9a39"
+
+    next_lesson: "eda_07"

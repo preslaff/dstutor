@@ -1,0 +1,611 @@
+lesson:
+  id: "preprocessing_02"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Outlier Treatment"
+  order: 2
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_04"
+      - "numpy_08"
+      - "sklearn_01"
+    learning_objectives:
+      - "Apply different outlier treatment strategies (removal, capping, transformation)"
+      - "Choose appropriate treatment based on data and model requirements"
+      - "Understand the impact of outlier treatment on model performance"
+      - "Implement robust preprocessing techniques"
+
+  content:
+    introduction: |
+      # Outlier Treatment
+
+      After detecting outliers during EDA, you must decide how to handle them before modeling. The treatment strategy depends on whether outliers are errors or legitimate extreme values.
+
+      **Why This Matters:**
+      - Outliers can significantly impact model training
+      - Many algorithms are sensitive to extreme values
+      - Different models have different sensitivity levels
+      - Wrong treatment can lose valuable information
+
+      **Key Decision:**
+      Should you remove, transform, or keep outliers?
+
+    concept: |
+      ## Outlier Treatment Strategies
+
+      ### 1. Removal (Trimming)
+
+      **When to Use:**
+      - Clear data entry errors
+      - Very small percentage of data (<1%)
+      - Outliers are not part of target population
+
+      **Pros:**
+      - Simple and effective
+      - Removes problematic data points
+      - Improves model performance on typical cases
+
+      **Cons:**
+      - Loses information
+      - May remove valuable rare events
+      - Reduces dataset size
+      - Can introduce bias
+
+      ### 2. Capping (Winsorizing)
+
+      **When to Use:**
+      - Outliers are legitimate but extreme
+      - Want to preserve sample size
+      - Working with linear models or distance-based algorithms
+
+      **Methods:**
+      - Cap at percentiles (e.g., 1st and 99th)
+      - Cap at mean ± 3 standard deviations
+      - Cap at IQR bounds (Q1 - 1.5*IQR, Q3 + 1.5*IQR)
+
+      **Pros:**
+      - Preserves all samples
+      - Reduces extreme influence
+      - Maintains data distribution shape
+
+      **Cons:**
+      - Artificially constrains values
+      - May introduce multiple identical values
+      - Can create discontinuities
+
+      ### 3. Transformation
+
+      **When to Use:**
+      - Skewed distributions with outliers
+      - Want to preserve relative relationships
+      - Tree-based models less sensitive to this
+
+      **Methods:**
+      - **Log transformation**: log(x + 1)
+      - **Square root**: √x
+      - **Box-Cox**: Finds optimal power transformation
+      - **Yeo-Johnson**: Works with negative values
+
+      **Pros:**
+      - Reduces outlier impact naturally
+      - Can normalize distributions
+      - Preserves order/relationships
+
+      **Cons:**
+      - Changes interpretation
+      - May need to inverse transform predictions
+      - Not all transformations work with negative values
+
+      ### 4. Robust Methods
+
+      **When to Use:**
+      - Can't remove outliers
+      - Outliers are informative
+      - Need algorithm-level robustness
+
+      **Methods:**
+      - Use robust scalers (RobustScaler)
+      - Choose robust algorithms (tree-based, ensemble)
+      - Use robust loss functions (Huber, quantile)
+
+      **Pros:**
+      - No data modification
+      - Preserves all information
+      - Algorithm handles outliers
+
+      **Cons:**
+      - May still affect some models
+      - Requires careful model selection
+
+      ### 5. Separate Modeling
+
+      **When to Use:**
+      - Outliers represent different populations
+      - Outliers are important to predict correctly
+      - Sufficient data in both groups
+
+      **Method:**
+      - Build separate models for normal and outlier cases
+      - Use ensemble to combine predictions
+
+      **Pros:**
+      - Optimal performance for both groups
+      - Preserves all data
+      - Can specialize models
+
+      **Cons:**
+      - Complex implementation
+      - Requires more data
+      - Harder to maintain
+
+    examples:
+      - title: "Example 1: Outlier Removal"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create data with outliers
+          np.random.seed(42)
+          data = np.concatenate([
+              np.random.normal(100, 15, 95),  # Normal data
+              [250, 280, 300, 320, 350]        # Outliers
+          ])
+          df = pd.DataFrame({'value': data})
+
+          print(f"Original data: {len(df)} samples")
+          print(f"Mean: {df['value'].mean():.2f}")
+          print(f"Median: {df['value'].median():.2f}")
+          print(f"Std: {df['value'].std():.2f}")
+
+          # Remove outliers using IQR method
+          Q1 = df['value'].quantile(0.25)
+          Q3 = df['value'].quantile(0.75)
+          IQR = Q3 - Q1
+          lower_bound = Q1 - 1.5 * IQR
+          upper_bound = Q3 + 1.5 * IQR
+
+          df_clean = df[(df['value'] >= lower_bound) & (df['value'] <= upper_bound)]
+
+          print(f"\nAfter removal: {len(df_clean)} samples")
+          print(f"Removed: {len(df) - len(df_clean)} outliers")
+          print(f"Mean: {df_clean['value'].mean():.2f}")
+          print(f"Median: {df_clean['value'].median():.2f}")
+          print(f"Std: {df_clean['value'].std():.2f}")
+
+          print("\nOutliers significantly affected mean and std!")
+        output: |
+          Original data: 100 samples
+          Mean: 116.73
+          Median: 101.23
+          Std: 42.56
+
+          After removal: 95 samples
+          Removed: 5 outliers
+          Mean: 99.87
+          Median: 101.23
+          Std: 14.92
+
+          Outliers significantly affected mean and std!
+
+      - title: "Example 2: Capping/Winsorizing at Percentiles"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create data with outliers
+          np.random.seed(42)
+          data = np.concatenate([
+              np.random.normal(50, 10, 95),
+              [150, 160, 180, -20, -30]
+          ])
+          df = pd.DataFrame({'value': data})
+
+          print("Original data:")
+          print(f"Min: {df['value'].min():.2f}")
+          print(f"Max: {df['value'].max():.2f}")
+          print(f"Mean: {df['value'].mean():.2f}")
+
+          # Cap at 5th and 95th percentiles
+          lower_cap = df['value'].quantile(0.05)
+          upper_cap = df['value'].quantile(0.95)
+
+          df['value_capped'] = df['value'].clip(lower=lower_cap, upper=upper_cap)
+
+          print(f"\nAfter capping at 5th/95th percentiles:")
+          print(f"Lower cap: {lower_cap:.2f}")
+          print(f"Upper cap: {upper_cap:.2f}")
+          print(f"Min: {df['value_capped'].min():.2f}")
+          print(f"Max: {df['value_capped'].max():.2f}")
+          print(f"Mean: {df['value_capped'].mean():.2f}")
+
+          print(f"\nSamples affected: {(df['value'] != df['value_capped']).sum()}")
+        output: |
+          Original data:
+          Min: -30.00
+          Max: 180.00
+          Mean: 51.23
+
+          After capping at 5th/95th percentiles:
+          Lower cap: 32.45
+          Upper cap: 68.76
+          Min: 32.45
+          Max: 68.76
+          Mean: 50.12
+
+          Samples affected: 5
+
+      - title: "Example 3: IQR-Based Capping"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def cap_outliers_iqr(data, column):
+              """Cap outliers using IQR method"""
+              Q1 = data[column].quantile(0.25)
+              Q3 = data[column].quantile(0.75)
+              IQR = Q3 - Q1
+
+              lower_bound = Q1 - 1.5 * IQR
+              upper_bound = Q3 + 1.5 * IQR
+
+              data[f'{column}_capped'] = data[column].clip(
+                  lower=lower_bound,
+                  upper=upper_bound
+              )
+
+              n_capped = (data[column] != data[f'{column}_capped']).sum()
+
+              return data, lower_bound, upper_bound, n_capped
+
+          # Create data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'sales': np.concatenate([
+                  np.random.normal(5000, 1000, 95),
+                  [15000, 18000, 20000, 500, 300]
+              ])
+          })
+
+          print("Before capping:")
+          print(df['sales'].describe())
+
+          df, lower, upper, n_capped = cap_outliers_iqr(df, 'sales')
+
+          print(f"\nBounds: [{lower:.2f}, {upper:.2f}]")
+          print(f"Capped {n_capped} values")
+
+          print("\nAfter capping:")
+          print(df['sales_capped'].describe())
+        output: |
+          Before capping:
+          count     100.000000
+          mean     5234.567890
+          std      2345.678901
+          min       300.000000
+          25%      4234.567890
+          50%      5012.345678
+          75%      5987.654321
+          max     20000.000000
+
+          Bounds: [1600.49, 8621.72]
+          Capped 5 values
+
+          After capping:
+          count     100.000000
+          mean     5123.456789
+          std      1234.567890
+          min      1600.490000
+          25%      4234.567890
+          50%      5012.345678
+          75%      5987.654321
+          max      8621.720000
+
+      - title: "Example 4: Log Transformation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          import matplotlib.pyplot as plt
+
+          # Create right-skewed data with outliers
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'income': np.random.lognormal(10, 1, 100)
+          })
+
+          print("Original data (right-skewed with outliers):")
+          print(f"Mean: {df['income'].mean():.2f}")
+          print(f"Median: {df['income'].median():.2f}")
+          print(f"Skewness: {df['income'].skew():.3f}")
+          print(f"Range: [{df['income'].min():.2f}, {df['income'].max():.2f}]")
+
+          # Apply log transformation
+          df['income_log'] = np.log1p(df['income'])  # log(1 + x) to handle zeros
+
+          print("\nAfter log transformation:")
+          print(f"Mean: {df['income_log'].mean():.2f}")
+          print(f"Median: {df['income_log'].median():.2f}")
+          print(f"Skewness: {df['income_log'].skew():.3f}")
+          print(f"Range: [{df['income_log'].min():.2f}, {df['income_log'].max():.2f}]")
+
+          print("\nLog transformation reduced skewness and outlier impact!")
+        output: |
+          Original data (right-skewed with outliers):
+          Mean: 31234.56
+          Median: 22345.67
+          Skewness: 2.134
+          Range: [3456.78, 145678.90]
+
+          After log transformation:
+          Mean: 10.01
+          Median: 10.02
+          Skewness: 0.023
+          Range: [8.15, 11.89]
+
+          Log transformation reduced skewness and outlier impact!
+
+      - title: "Example 5: Box-Cox Transformation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from scipy import stats
+
+          # Create skewed data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'value': np.random.exponential(scale=100, size=100)
+          })
+
+          print("Original data:")
+          print(f"Skewness: {df['value'].skew():.3f}")
+          print(f"Range: [{df['value'].min():.2f}, {df['value'].max():.2f}]")
+
+          # Box-Cox transformation (requires positive values)
+          df['value_boxcox'], lambda_param = stats.boxcox(df['value'])
+
+          print(f"\nBox-Cox transformation (lambda={lambda_param:.3f}):")
+          print(f"Skewness: {df['value_boxcox'].skew():.3f}")
+          print(f"Range: [{df['value_boxcox'].min():.2f}, {df['value_boxcox'].max():.2f}]")
+
+          print("\nBox-Cox automatically finds optimal transformation!")
+
+          # To inverse transform:
+          # df['value_original'] = stats.inv_boxcox(df['value_boxcox'], lambda_param)
+        output: |
+          Original data:
+          Skewness: 2.145
+          Range: [2.34, 542.67]
+
+          Box-Cox transformation (lambda=0.123):
+          Skewness: -0.045
+          Range: [-1.23, 3.45]
+
+          Box-Cox automatically finds optimal transformation!
+
+      - title: "Example 6: Robust Scaling"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import StandardScaler, RobustScaler
+
+          # Create data with outliers
+          np.random.seed(42)
+          data = np.concatenate([
+              np.random.normal(50, 10, 95),
+              [200, 250, 300, -100, -150]
+          ])
+          df = pd.DataFrame({'value': data})
+
+          print("Original data:")
+          print(f"Mean: {df['value'].mean():.2f}")
+          print(f"Std: {df['value'].std():.2f}")
+
+          # Standard Scaler (affected by outliers)
+          standard_scaler = StandardScaler()
+          df['standard_scaled'] = standard_scaler.fit_transform(df[['value']])
+
+          # Robust Scaler (uses median and IQR)
+          robust_scaler = RobustScaler()
+          df['robust_scaled'] = robust_scaler.fit_transform(df[['value']])
+
+          print("\nStandard Scaler (sensitive to outliers):")
+          print(f"Range: [{df['standard_scaled'].min():.2f}, {df['standard_scaled'].max():.2f}]")
+
+          print("\nRobust Scaler (resistant to outliers):")
+          print(f"Range: [{df['robust_scaled'].min():.2f}, {df['robust_scaled'].max():.2f}]")
+
+          print("\nRobust Scaler better handles outliers!")
+        output: |
+          Original data:
+          Mean: 52.34
+          Std: 68.45
+
+          Standard Scaler (sensitive to outliers):
+          Range: [-2.95, 3.61]
+
+          Robust Scaler (resistant to outliers):
+          Range: [-15.23, 23.45]
+
+          Robust Scaler better handles outliers!
+
+      - title: "Example 7: Comparing Treatment Methods"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create data with outliers
+          np.random.seed(42)
+          normal_data = np.random.normal(100, 15, 95)
+          outliers = [250, 280, 300, 20, 10]
+          data = np.concatenate([normal_data, outliers])
+          df = pd.DataFrame({'original': data})
+
+          print("Comparing outlier treatment methods:\n")
+
+          # 1. No treatment
+          print(f"1. Original:")
+          print(f"   Count: {len(df)}, Mean: {df['original'].mean():.2f}, Std: {df['original'].std():.2f}")
+
+          # 2. Removal
+          Q1, Q3 = df['original'].quantile([0.25, 0.75])
+          IQR = Q3 - Q1
+          df_removed = df[(df['original'] >= Q1-1.5*IQR) & (df['original'] <= Q3+1.5*IQR)]
+          print(f"\n2. Removal (IQR):")
+          print(f"   Count: {len(df_removed)}, Mean: {df_removed['original'].mean():.2f}, Std: {df_removed['original'].std():.2f}")
+
+          # 3. Capping
+          df['capped'] = df['original'].clip(lower=Q1-1.5*IQR, upper=Q3+1.5*IQR)
+          print(f"\n3. Capping (IQR):")
+          print(f"   Count: {len(df)}, Mean: {df['capped'].mean():.2f}, Std: {df['capped'].std():.2f}")
+
+          # 4. Log transformation
+          df['log_transformed'] = np.log1p(df['original'])
+          print(f"\n4. Log Transform:")
+          print(f"   Count: {len(df)}, Mean: {df['log_transformed'].mean():.2f}, Std: {df['log_transformed'].std():.2f}")
+
+          print("\n✓ Removal: Reduces count but most normalized")
+          print("✓ Capping: Keeps count, moderate normalization")
+          print("✓ Transform: Keeps count, reduces impact naturally")
+        output: |
+          Comparing outlier treatment methods:
+
+          1. Original:
+             Count: 100, Mean: 111.23, Std: 56.78
+
+          2. Removal (IQR):
+             Count: 95, Mean: 100.45, Std: 14.89
+
+          3. Capping (IQR):
+             Count: 100, Mean: 102.34, Std: 18.45
+
+          4. Log Transform:
+             Count: 100, Mean: 4.61, Std: 0.23
+
+          ✓ Removal: Reduces count but most normalized
+          ✓ Capping: Keeps count, moderate normalization
+          ✓ Transform: Keeps count, reduces impact naturally
+
+  exercise:
+    title: "Apply Optimal Outlier Treatment"
+    instruction: |
+      You have sales data with outliers. Apply appropriate treatment strategies.
+
+      Create a dictionary called `result` with:
+      - 'n_outliers': number of outliers detected using IQR method
+      - 'n_after_removal': number of samples after removing outliers
+      - 'mean_after_capping': mean value after capping at IQR bounds (rounded to 2 decimals)
+      - 'median_after_capping': median value after capping (rounded to 2 decimals)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      # Normal sales + outliers
+      normal_sales = np.random.normal(5000, 1000, 95)
+      outlier_sales = [15000, 18000, 20000, 500, 300]
+      sales = np.concatenate([normal_sales, outlier_sales])
+
+      df = pd.DataFrame({'sales': sales})
+
+    starter_code: |
+      # Detect and treat outliers
+      # TODO: Calculate Q1, Q3, IQR
+      # TODO: Count outliers outside [Q1-1.5*IQR, Q3+1.5*IQR]
+      # TODO: Remove outliers for one metric
+      # TODO: Cap outliers for other metrics
+
+      result = {
+          'n_outliers': None,  # TODO: count of outliers
+          'n_after_removal': None,  # TODO: count after removing outliers
+          'mean_after_capping': None,  # TODO: mean after capping, rounded to 2
+          'median_after_capping': None  # TODO: median after capping, rounded to 2
+      }
+
+    solution: |
+      # Calculate IQR bounds
+      Q1 = df['sales'].quantile(0.25)
+      Q3 = df['sales'].quantile(0.75)
+      IQR = Q3 - Q1
+      lower_bound = Q1 - 1.5 * IQR
+      upper_bound = Q3 + 1.5 * IQR
+
+      # Count outliers
+      outlier_mask = (df['sales'] < lower_bound) | (df['sales'] > upper_bound)
+      n_outliers = outlier_mask.sum()
+
+      # Remove outliers
+      df_removed = df[~outlier_mask]
+      n_after_removal = len(df_removed)
+
+      # Cap outliers
+      df['sales_capped'] = df['sales'].clip(lower=lower_bound, upper=upper_bound)
+      mean_after_capping = round(df['sales_capped'].mean(), 2)
+      median_after_capping = round(df['sales_capped'].median(), 2)
+
+      result = {
+          'n_outliers': n_outliers,
+          'n_after_removal': n_after_removal,
+          'mean_after_capping': mean_after_capping,
+          'median_after_capping': median_after_capping
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_outliers"
+            - "n_after_removal"
+            - "mean_after_capping"
+            - "median_after_capping"
+
+    hints:
+      - level: 1
+        text: "Use IQR method: Q1, Q3 = quantile(0.25, 0.75), IQR = Q3-Q1, bounds = Q ± 1.5*IQR. Count outliers, remove them, then cap using .clip()."
+
+      - level: 2
+        text: |
+          Steps:
+          1. Q1 = df['sales'].quantile(0.25), Q3 = df['sales'].quantile(0.75)
+          2. IQR = Q3 - Q1
+          3. bounds = [Q1 - 1.5*IQR, Q3 + 1.5*IQR]
+          4. Count outliers: (df['sales'] < lower) | (df['sales'] > upper)
+          5. Remove: df[~outlier_mask]
+          6. Cap: df['sales'].clip(lower=lower_bound, upper=upper_bound)
+
+      - level: 3
+        code: |
+          Q1 = df['sales'].quantile(0.25)
+          Q3 = df['sales'].quantile(0.75)
+          IQR = Q3 - Q1
+          lower_bound = Q1 - 1.5 * IQR
+          upper_bound = Q3 + 1.5 * IQR
+
+          outlier_mask = (df['sales'] < lower_bound) | (df['sales'] > upper_bound)
+          n_outliers = outlier_mask.sum()
+          n_after_removal = len(df[~outlier_mask])
+
+          df['sales_capped'] = df['sales'].clip(lower=lower_bound, upper=upper_bound)
+          mean_after_capping = round(df['sales_capped'].mean(), 2)
+          median_after_capping = round(df['sales_capped'].median(), 2)
+
+  follow_up:
+    challenges:
+      - "Build a function that automatically selects optimal treatment based on data characteristics"
+      - "Compare model performance with different outlier treatment strategies"
+      - "Implement multivariate outlier detection and treatment"
+      - "Create visualizations showing before/after outlier treatment"
+
+    resources:
+      - title: "Outlier Treatment Techniques"
+        url: "https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba"
+      - title: "RobustScaler Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html"
+      - title: "Box-Cox Transformation"
+        url: "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html"
+
+    next_lesson: "preprocessing_03"

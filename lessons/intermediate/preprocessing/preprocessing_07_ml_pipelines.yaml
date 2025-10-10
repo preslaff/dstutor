@@ -1,0 +1,694 @@
+lesson:
+  id: "preprocessing_07"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "ML Pipelines"
+  order: 7
+
+  metadata:
+    duration: "40 min"
+    difficulty: "medium"
+    prerequisites:
+      - "sklearn_01"
+      - "preprocessing_01"
+      - "preprocessing_03"
+      - "preprocessing_04"
+    learning_objectives:
+      - "Build sklearn pipelines for preprocessing and modeling"
+      - "Use ColumnTransformer to apply different preprocessing to different features"
+      - "Create custom transformers for specific preprocessing needs"
+      - "Prevent data leakage using pipelines correctly"
+
+  content:
+    introduction: |
+      # ML Pipelines
+
+      Pipelines chain preprocessing steps and models into a single object, making code cleaner, preventing data leakage, and enabling reproducible workflows.
+
+      **Why This Matters:**
+      - Prevents data leakage automatically
+      - Makes code more maintainable
+      - Ensures consistency across train/test
+      - Simplifies deployment
+      - Enables easy hyperparameter tuning
+
+      **Key Principle:**
+      Fit on training data, transform both train and test.
+
+    concept: |
+      ## Pipeline Components
+
+      ### 1. Basic Pipeline
+
+      **Structure:**
+      ```python
+      Pipeline([
+          ('step1_name', transformer1),
+          ('step2_name', transformer2),
+          ('model_name', estimator)
+      ])
+      ```
+
+      **How it Works:**
+      - Each step transforms data for next step
+      - Final step is usually a model
+      - .fit() fits all steps on training data
+      - .predict() transforms data through pipeline
+
+      **Benefits:**
+      - No manual tracking of preprocessing
+      - Automatic proper ordering
+      - Prevents leakage
+
+      ### 2. ColumnTransformer
+
+      **Purpose:** Apply different preprocessing to different columns
+
+      **Structure:**
+      ```python
+      ColumnTransformer([
+          ('numeric', numeric_transformer, numeric_features),
+          ('categorical', categorical_transformer, categorical_features)
+      ])
+      ```
+
+      **Use Cases:**
+      - Scale numerical features
+      - Encode categorical features
+      - Different imputation strategies
+      - Mix of preprocessing methods
+
+      ### 3. Custom Transformers
+
+      **Why Create:**
+      - Domain-specific preprocessing
+      - Complex feature engineering
+      - Operations not in sklearn
+
+      **Requirements:**
+      - Inherit from BaseEstimator, TransformerMixin
+      - Implement fit() and transform()
+      - Return self from fit()
+
+      ### 4. Pipeline with Cross-Validation
+
+      **Correct Way:**
+      ```python
+      cross_val_score(pipeline, X, y, cv=5)
+      ```
+
+      **Why Important:**
+      - Preprocessing re-fit for each fold
+      - No data leakage across folds
+      - Realistic performance estimate
+
+      ### 5. Saving/Loading Pipelines
+
+      **Save:**
+      ```python
+      joblib.dump(pipeline, 'pipeline.pkl')
+      ```
+
+      **Load:**
+      ```python
+      pipeline = joblib.load('pipeline.pkl')
+      ```
+
+      **Benefits:**
+      - Deploy entire workflow
+      - Ensures consistent preprocessing
+      - Easy to share models
+
+    examples:
+      - title: "Example 1: Basic Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.model_selection import train_test_split
+
+          # Create data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100) * 10
+          })
+          y = (X['feature1'] + X['feature2']/10 > 0).astype(int)
+
+          # Split data
+          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+          # Create pipeline
+          pipeline = Pipeline([
+              ('scaler', StandardScaler()),
+              ('classifier', LogisticRegression(random_state=42))
+          ])
+
+          print("Pipeline structure:")
+          print(pipeline)
+
+          # Fit pipeline (fits scaler and classifier on training data)
+          pipeline.fit(X_train, y_train)
+
+          # Predict (scales test data using training stats, then predicts)
+          accuracy = pipeline.score(X_test, y_test)
+
+          print(f"\nTest accuracy: {accuracy:.3f}")
+          print("\nPipeline automatically handles scaling before prediction!")
+        output: |
+          Pipeline structure:
+          Pipeline(steps=[('scaler', StandardScaler()),
+                          ('classifier', LogisticRegression(random_state=42))])
+
+          Test accuracy: 0.850
+
+          Pipeline automatically handles scaling before prediction!
+
+      - title: "Example 2: ColumnTransformer for Mixed Data Types"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.compose import ColumnTransformer
+          from sklearn.preprocessing import StandardScaler, OneHotEncoder
+          from sklearn.pipeline import Pipeline
+          from sklearn.ensemble import RandomForestClassifier
+
+          # Mixed data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'age': np.random.randint(20, 60, 100),
+              'income': np.random.uniform(30000, 100000, 100),
+              'city': np.random.choice(['NYC', 'LA', 'Chicago'], 100),
+              'education': np.random.choice(['HS', 'BS', 'MS'], 100)
+          })
+          y = np.random.choice([0, 1], 100)
+
+          # Define column groups
+          numeric_features = ['age', 'income']
+          categorical_features = ['city', 'education']
+
+          # Create preprocessor
+          preprocessor = ColumnTransformer(
+              transformers=[
+                  ('num', StandardScaler(), numeric_features),
+                  ('cat', OneHotEncoder(drop='first', sparse_output=False), categorical_features)
+              ])
+
+          # Complete pipeline
+          pipeline = Pipeline([
+              ('preprocessor', preprocessor),
+              ('classifier', RandomForestClassifier(n_estimators=10, random_state=42))
+          ])
+
+          print("Pipeline with ColumnTransformer:")
+          print(pipeline)
+
+          # Fit and score
+          pipeline.fit(X, y)
+          print(f"\nTraining score: {pipeline.score(X, y):.3f}")
+
+          print("\nColumnTransformer applies different preprocessing to different columns")
+        output: |
+          Pipeline with ColumnTransformer:
+          Pipeline(steps=[('preprocessor',
+                           ColumnTransformer(transformers=[('num', StandardScaler(),
+                                                           ['age', 'income']),
+                                                          ('cat',
+                                                           OneHotEncoder(drop='first',
+                                                                        sparse_output=False),
+                                                           ['city', 'education'])])),
+                          ('classifier',
+                           RandomForestClassifier(n_estimators=10, random_state=42))])
+
+          Training score: 0.990
+
+          ColumnTransformer applies different preprocessing to different columns
+
+      - title: "Example 3: Pipeline with Imputation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.impute import SimpleImputer
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.linear_model import Ridge
+
+          # Data with missing values
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100)
+          })
+          # Introduce missing values
+          X.loc[np.random.choice(X.index, 10), 'feature1'] = np.nan
+          X.loc[np.random.choice(X.index, 15), 'feature2'] = np.nan
+
+          y = X.fillna(0).sum(axis=1) + np.random.randn(100) * 0.1
+
+          print(f"Missing values:")
+          print(X.isnull().sum())
+
+          # Pipeline with imputation
+          pipeline = Pipeline([
+              ('imputer', SimpleImputer(strategy='mean')),
+              ('scaler', StandardScaler()),
+              ('regressor', Ridge(alpha=1.0))
+          ])
+
+          print("\nPipeline:")
+          print(pipeline)
+
+          # Fit and predict
+          pipeline.fit(X, y)
+          predictions = pipeline.predict(X)
+
+          print(f"\nR² score: {pipeline.score(X, y):.3f}")
+          print("\nPipeline handles missing values automatically!")
+        output: |
+          Missing values:
+          feature1    10
+          feature2    15
+          dtype: int64
+
+          Pipeline:
+          Pipeline(steps=[('imputer', SimpleImputer()),
+                          ('scaler', StandardScaler()),
+                          ('regressor', Ridge(alpha=1.0))])
+
+          R² score: 0.987
+
+          Pipeline handles missing values automatically!
+
+      - title: "Example 4: Custom Transformer"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.base import BaseEstimator, TransformerMixin
+          from sklearn.pipeline import Pipeline
+          from sklearn.linear_model import LinearRegression
+
+          # Custom transformer for log transformation
+          class LogTransformer(BaseEstimator, TransformerMixin):
+              """Apply log(x + 1) transformation"""
+
+              def fit(self, X, y=None):
+                  return self
+
+              def transform(self, X):
+                  return np.log1p(X)
+
+          # Create skewed data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'income': np.random.lognormal(10, 1, 100)
+          })
+          y = np.log1p(X['income']) + np.random.randn(100) * 0.1
+
+          print("Original income (skewed):")
+          print(f"Skewness: {X['income'].skew():.3f}")
+
+          # Pipeline with custom transformer
+          pipeline = Pipeline([
+              ('log_transform', LogTransformer()),
+              ('regressor', LinearRegression())
+          ])
+
+          print("\nPipeline with custom transformer:")
+          print(pipeline)
+
+          # Fit
+          pipeline.fit(X, y)
+          print(f"\nR² score: {pipeline.score(X, y):.3f}")
+
+          print("\nCustom transformers enable domain-specific preprocessing")
+        output: |
+          Original income (skewed):
+          Skewness: 2.145
+
+          Pipeline with custom transformer:
+          Pipeline(steps=[('log_transform', LogTransformer()),
+                          ('regressor', LinearRegression())])
+
+          R² score: 0.995
+
+          Custom transformers enable domain-specific preprocessing
+
+      - title: "Example 5: Pipeline with Cross-Validation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.linear_model import LogisticRegression
+          from sklearn.model_selection import cross_val_score
+
+          # Create data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(200),
+              'feature2': np.random.randn(200) * 5
+          })
+          y = (X['feature1'] + X['feature2']/5 > 0).astype(int)
+
+          # Pipeline
+          pipeline = Pipeline([
+              ('scaler', StandardScaler()),
+              ('classifier', LogisticRegression(random_state=42))
+          ])
+
+          # Cross-validation (correctly re-fits preprocessing for each fold)
+          cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='accuracy')
+
+          print("Cross-validation scores:")
+          print(cv_scores)
+          print(f"\nMean CV accuracy: {cv_scores.mean():.3f} (+/- {cv_scores.std():.3f})")
+
+          print("\nPipeline ensures preprocessing is re-fit for each CV fold")
+          print("This prevents data leakage!")
+        output: |
+          Cross-validation scores:
+          [0.875 0.900 0.850 0.925 0.875]
+
+          Mean CV accuracy: 0.885 (+/- 0.027)
+
+          Pipeline ensures preprocessing is re-fit for each CV fold
+          This prevents data leakage!
+
+      - title: "Example 6: Saving and Loading Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.ensemble import RandomForestClassifier
+          import joblib
+          import tempfile
+          import os
+
+          # Create and train pipeline
+          np.random.seed(42)
+          X_train = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100)
+          })
+          y_train = (X_train['feature1'] + X_train['feature2'] > 0).astype(int)
+
+          pipeline = Pipeline([
+              ('scaler', StandardScaler()),
+              ('classifier', RandomForestClassifier(n_estimators=10, random_state=42))
+          ])
+
+          pipeline.fit(X_train, y_train)
+
+          print("Original pipeline trained")
+          print(f"Training accuracy: {pipeline.score(X_train, y_train):.3f}")
+
+          # Save pipeline
+          temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pkl')
+          joblib.dump(pipeline, temp_file.name)
+          print(f"\nPipeline saved to: {temp_file.name}")
+
+          # Load pipeline
+          loaded_pipeline = joblib.load(temp_file.name)
+          print("Pipeline loaded successfully")
+
+          # Test loaded pipeline
+          X_test = pd.DataFrame({
+              'feature1': np.random.randn(20),
+              'feature2': np.random.randn(20)
+          })
+          predictions = loaded_pipeline.predict(X_test)
+          print(f"\nPredictions from loaded pipeline: {predictions[:5]}")
+
+          # Cleanup
+          os.unlink(temp_file.name)
+
+          print("\nSaved pipelines can be deployed for production use")
+        output: |
+          Original pipeline trained
+          Training accuracy: 1.000
+
+          Pipeline saved to: /tmp/tmpabc123.pkl
+          Pipeline loaded successfully
+
+          Predictions from loaded pipeline: [0 1 1 0 1]
+
+          Saved pipelines can be deployed for production use
+
+      - title: "Example 7: Complete Preprocessing Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.compose import ColumnTransformer
+          from sklearn.impute import SimpleImputer
+          from sklearn.preprocessing import StandardScaler, OneHotEncoder
+          from sklearn.ensemble import GradientBoostingClassifier
+          from sklearn.model_selection import train_test_split
+
+          # Realistic dataset
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'age': np.random.randint(20, 70, 500),
+              'income': np.random.uniform(30000, 150000, 500),
+              'education': np.random.choice(['HS', 'BS', 'MS', 'PhD'], 500),
+              'city': np.random.choice(['NYC', 'LA', 'Chicago', 'Houston'], 500)
+          })
+          # Introduce missing values
+          X.loc[np.random.choice(X.index, 50), 'age'] = np.nan
+          X.loc[np.random.choice(X.index, 30), 'income'] = np.nan
+
+          y = ((X['income'].fillna(50000) > 80000) & (X['education'].isin(['MS', 'PhD']))).astype(int)
+
+          # Split data
+          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+          # Define preprocessing for numeric columns
+          numeric_features = ['age', 'income']
+          numeric_transformer = Pipeline(steps=[
+              ('imputer', SimpleImputer(strategy='median')),
+              ('scaler', StandardScaler())
+          ])
+
+          # Define preprocessing for categorical columns
+          categorical_features = ['education', 'city']
+          categorical_transformer = Pipeline(steps=[
+              ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+              ('onehot', OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore'))
+          ])
+
+          # Combine preprocessing steps
+          preprocessor = ColumnTransformer(
+              transformers=[
+                  ('num', numeric_transformer, numeric_features),
+                  ('cat', categorical_transformer, categorical_features)
+              ])
+
+          # Complete pipeline
+          full_pipeline = Pipeline([
+              ('preprocessor', preprocessor),
+              ('classifier', GradientBoostingClassifier(n_estimators=50, random_state=42))
+          ])
+
+          print("Complete preprocessing pipeline:")
+          print(full_pipeline)
+
+          # Train
+          full_pipeline.fit(X_train, y_train)
+
+          # Evaluate
+          train_score = full_pipeline.score(X_train, y_train)
+          test_score = full_pipeline.score(X_test, y_test)
+
+          print(f"\nTraining accuracy: {train_score:.3f}")
+          print(f"Test accuracy: {test_score:.3f}")
+
+          print("\nThis pipeline handles:")
+          print("- Missing value imputation")
+          print("- Numerical scaling")
+          print("- Categorical encoding")
+          print("- Model training")
+          print("All in one unified workflow!")
+        output: |
+          Complete preprocessing pipeline:
+          Pipeline(steps=[('preprocessor',
+                           ColumnTransformer(transformers=[('num',
+                                                           Pipeline(steps=[('imputer',
+                                                                           SimpleImputer(strategy='median')),
+                                                                          ('scaler',
+                                                                           StandardScaler())]),
+                                                           ['age', 'income']),
+                                                          ('cat',
+                                                           Pipeline(steps=[('imputer',
+                                                                           SimpleImputer(fill_value='missing',
+                                                                                        strategy='constant')),
+                                                                          ('onehot',
+                                                                           OneHotEncoder(drop='first',
+                                                                                        handle_unknown='ignore',
+                                                                                        sparse_output=False))]),
+                                                           ['education', 'city'])])),
+                          ('classifier',
+                           GradientBoostingClassifier(n_estimators=50, random_state=42))])
+
+          Training accuracy: 0.995
+          Test accuracy: 0.970
+
+          This pipeline handles:
+          - Missing value imputation
+          - Numerical scaling
+          - Categorical encoding
+          - Model training
+          All in one unified workflow!
+
+  exercise:
+    title: "Build Complete ML Pipeline"
+    instruction: |
+      Build a pipeline that preprocesses mixed data and trains a model.
+
+      Create a dictionary called `result` with:
+      - 'pipeline_steps': number of steps in the pipeline (int)
+      - 'train_accuracy': training accuracy (rounded to 3 decimals)
+      - 'has_imputer': True if pipeline contains imputation step, False otherwise
+      - 'has_scaler': True if pipeline contains scaling step, False otherwise
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+      from sklearn.pipeline import Pipeline
+      from sklearn.compose import ColumnTransformer
+      from sklearn.impute import SimpleImputer
+      from sklearn.preprocessing import StandardScaler, OneHotEncoder
+      from sklearn.ensemble import RandomForestClassifier
+      from sklearn.model_selection import train_test_split
+
+      np.random.seed(42)
+      X = pd.DataFrame({
+          'age': [25, np.nan, 35, 40, 45, 50, np.nan, 38, 42, 48],
+          'income': [50000, 60000, np.nan, 80000, 90000, np.nan, 75000, 85000, 78000, 82000],
+          'category': ['A', 'B', 'A', 'C', 'B', 'A', 'C', 'B', 'A', 'C']
+      })
+      y = np.array([0, 1, 0, 1, 1, 0, 1, 1, 0, 1])
+
+      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    starter_code: |
+      # Build complete ML pipeline
+      # TODO: Create numeric transformer (imputer + scaler)
+      # TODO: Create categorical transformer (onehot encoder)
+      # TODO: Combine with ColumnTransformer
+      # TODO: Create final pipeline with classifier
+
+      # result = {
+      #     'pipeline_steps': None,  # TODO: number of steps
+      #     'train_accuracy': None,  # TODO: training accuracy, rounded to 3
+      #     'has_imputer': None,  # TODO: check if imputer in pipeline
+      #     'has_scaler': None  # TODO: check if scaler in pipeline
+      # }
+
+    solution: |
+      # Define column groups
+      numeric_features = ['age', 'income']
+      categorical_features = ['category']
+
+      # Numeric transformer
+      numeric_transformer = Pipeline(steps=[
+          ('imputer', SimpleImputer(strategy='mean')),
+          ('scaler', StandardScaler())
+      ])
+
+      # Categorical transformer
+      categorical_transformer = OneHotEncoder(drop='first', sparse_output=False)
+
+      # Preprocessor
+      preprocessor = ColumnTransformer(
+          transformers=[
+              ('num', numeric_transformer, numeric_features),
+              ('cat', categorical_transformer, categorical_features)
+          ])
+
+      # Complete pipeline
+      pipeline = Pipeline([
+          ('preprocessor', preprocessor),
+          ('classifier', RandomForestClassifier(n_estimators=10, random_state=42))
+      ])
+
+      # Fit pipeline
+      pipeline.fit(X_train, y_train)
+
+      # Calculate metrics
+      pipeline_steps = len(pipeline.steps)
+      train_accuracy = round(pipeline.score(X_train, y_train), 3)
+
+      # Check for components
+      pipeline_str = str(pipeline)
+      has_imputer = 'imputer' in pipeline_str.lower()
+      has_scaler = 'scaler' in pipeline_str.lower()
+
+      result = {
+          'pipeline_steps': pipeline_steps,
+          'train_accuracy': train_accuracy,
+          'has_imputer': has_imputer,
+          'has_scaler': has_scaler
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "pipeline_steps"
+            - "train_accuracy"
+            - "has_imputer"
+            - "has_scaler"
+
+    hints:
+      - level: 1
+        text: "Create numeric_transformer with SimpleImputer + StandardScaler. Use ColumnTransformer to combine numeric and categorical preprocessing. Add RandomForestClassifier as final step."
+
+      - level: 2
+        text: |
+          Steps:
+          1. numeric_transformer = Pipeline([('imputer', SimpleImputer()), ('scaler', StandardScaler())])
+          2. categorical_transformer = OneHotEncoder(drop='first')
+          3. preprocessor = ColumnTransformer([('num', numeric_transformer, ['age','income']), ('cat', categorical_transformer, ['category'])])
+          4. pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', RandomForestClassifier())])
+          5. pipeline.fit(X_train, y_train)
+
+      - level: 3
+        code: |
+          numeric_transformer = Pipeline([
+              ('imputer', SimpleImputer(strategy='mean')),
+              ('scaler', StandardScaler())
+          ])
+          categorical_transformer = OneHotEncoder(drop='first', sparse_output=False)
+          preprocessor = ColumnTransformer([
+              ('num', numeric_transformer, ['age', 'income']),
+              ('cat', categorical_transformer, ['category'])
+          ])
+          pipeline = Pipeline([
+              ('preprocessor', preprocessor),
+              ('classifier', RandomForestClassifier(n_estimators=10, random_state=42))
+          ])
+          pipeline.fit(X_train, y_train)
+          pipeline_steps = len(pipeline.steps)
+          train_accuracy = round(pipeline.score(X_train, y_train), 3)
+
+  follow_up:
+    challenges:
+      - "Build a pipeline with hyperparameter tuning using GridSearchCV"
+      - "Create a pipeline that handles time-series features"
+      - "Implement a custom transformer for domain-specific feature engineering"
+      - "Build an end-to-end pipeline from raw data to deployment"
+
+    resources:
+      - title: "Sklearn Pipelines"
+        url: "https://scikit-learn.org/stable/modules/compose.html"
+      - title: "Custom Transformers"
+        url: "https://scikit-learn.org/stable/developers/develop.html"
+      - title: "Pipeline Best Practices"
+        url: "https://towardsdatascience.com/pipelines-custom-transformers-in-scikit-learn-ef792bbb3260"
+
+    next_lesson: "preprocessing_08"

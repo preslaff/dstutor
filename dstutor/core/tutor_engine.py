@@ -180,13 +180,57 @@ class TutorEngine:
         if not self.current_lesson:
             return
 
-        # Use cell injector to add lesson content
-        self.cell_injector.inject_lesson(self.current_lesson)
+        from IPython.display import display, HTML
 
-        # Display navigation widget
-        from ..ui.widgets import TutorNavigationWidget
-        nav = TutorNavigationWidget(self)
-        nav.display()
+        lesson = self.current_lesson
+        topic = self.current_topic or "Unknown"
+
+        # Display lesson header
+        all_lessons = self.lesson_loader.get_topic_lessons(topic)
+        current_index = next((i for i, l in enumerate(all_lessons) if l['id'] == lesson['id']), 0)
+        total_lessons = len(all_lessons)
+        progress_pct = ((current_index + 1) / total_lessons * 100) if total_lessons > 0 else 0
+
+        header_html = f"""
+        <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white; border-radius: 10px; margin: 15px 0; box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
+            <h2 style="margin: 0 0 8px 0;">📚 {topic.title()} - {lesson.get('subtopic', 'Lesson')}</h2>
+            <p style="margin: 5px 0; opacity: 0.9; font-size: 1.1em;">
+                Lesson {current_index + 1} of {total_lessons} •
+                Level: {lesson.get('level', 'beginner').title()} •
+                Duration: {lesson.get('metadata', {}).get('duration', '15 min')}
+            </p>
+            <div style="background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; margin-top: 12px; overflow: hidden;">
+                <div style="background: white; height: 100%; width: {progress_pct}%; border-radius: 4px;"></div>
+            </div>
+        </div>
+        """
+        display(HTML(header_html))
+
+        # Use cell injector to add lesson content
+        self.cell_injector.inject_lesson(self.current_lesson, tutor_engine=self)
+
+        # Display navigation instructions (no widgets)
+        nav_html = """
+        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin: 20px 0; border: 2px solid #dee2e6;">
+            <h3 style="margin: 0 0 10px 0; color: #495057;">📌 Navigation Commands</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-family: monospace;">
+                <div style="padding: 8px; background: white; border-radius: 4px;">
+                    <code>%dstutor next</code> → Next lesson
+                </div>
+                <div style="padding: 8px; background: white; border-radius: 4px;">
+                    <code>%dstutor previous</code> → Previous lesson
+                </div>
+                <div style="padding: 8px; background: white; border-radius: 4px;">
+                    <code>%dstutor hint</code> → Get a hint
+                </div>
+                <div style="padding: 8px; background: white; border-radius: 4px;">
+                    <code>%dstutor solution</code> → Show solution
+                </div>
+            </div>
+        </div>
+        """
+        display(HTML(nav_html))
 
     def validate_exercise(self, user_code: str, exercise_id: str = None) -> Dict[str, Any]:
         """

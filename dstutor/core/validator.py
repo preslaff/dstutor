@@ -54,7 +54,17 @@ class CodeValidator:
             # Restore stdout
             sys.stdout = old_stdout
 
-            # Check if result variable exists
+            # Check if validation has multiple variable checks
+            validation_type = validation_rules.get('type', 'value_check')
+            checks = validation_rules.get('checks', [])
+
+            # If we have a checks array with variable definitions, validate those
+            if checks and isinstance(checks, list) and len(checks) > 0:
+                # Check if first item has 'variable' key (multi-variable validation)
+                if 'variable' in checks[0]:
+                    return self._validate_variables(namespace, checks)
+
+            # Otherwise, check for single 'result' variable
             if 'result' not in namespace:
                 return False, "Please store your answer in a variable called 'result'"
 
@@ -303,3 +313,49 @@ class CodeValidator:
             return False, f"Shape mismatch: got {result.shape}, expected {expected_shape}"
 
         return True, "Correct! ✅"
+
+    def _validate_variables(self, namespace: Dict, checks: list) -> Tuple[bool, str]:
+        """
+        Validate multiple variables against expected values
+
+        Args:
+            namespace: Execution namespace containing user's variables
+            checks: List of variable checks from YAML validation rules
+
+        Returns:
+            (is_correct, feedback_message)
+        """
+        errors = []
+
+        for check in checks:
+            var_name = check.get('variable')
+            expected_value = check.get('expected')
+            expected_type = check.get('type')
+
+            # Check if variable exists
+            if var_name not in namespace:
+                errors.append(f"Variable '{var_name}' not found")
+                continue
+
+            user_value = namespace[var_name]
+
+            # Check type
+            type_map = {'int': int, 'float': float, 'str': str, 'bool': bool}
+            if expected_type and expected_type in type_map:
+                if not isinstance(user_value, type_map[expected_type]):
+                    errors.append(f"Variable '{var_name}' has wrong type: expected {expected_type}, got {type(user_value).__name__}")
+                    continue
+
+            # Check value
+            if expected_value is not None:
+                if isinstance(expected_value, float):
+                    if abs(user_value - expected_value) > 0.001:
+                        errors.append(f"Variable '{var_name}' has wrong value: expected {expected_value}, got {user_value}")
+                else:
+                    if user_value != expected_value:
+                        errors.append(f"Variable '{var_name}' has wrong value: expected {expected_value}, got {user_value}")
+
+        if errors:
+            return False, "\n".join(errors)
+        else:
+            return True, "Correct! ✅ All variables match the expected values and types."

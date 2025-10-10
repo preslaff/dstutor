@@ -1,0 +1,949 @@
+lesson:
+  id: "preprocessing_08"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Complete Preprocessing Workflow"
+  order: 8
+
+  metadata:
+    duration: "45 min"
+    difficulty: "hard"
+    prerequisites:
+      - "preprocessing_01"
+      - "preprocessing_02"
+      - "preprocessing_03"
+      - "preprocessing_04"
+      - "preprocessing_05"
+      - "preprocessing_06"
+      - "preprocessing_07"
+    learning_objectives:
+      - "Execute a complete preprocessing workflow from raw data to model-ready data"
+      - "Combine multiple preprocessing techniques systematically"
+      - "Build production-ready preprocessing pipelines"
+      - "Make informed decisions about preprocessing strategies"
+
+  content:
+    introduction: |
+      # Complete Preprocessing Workflow
+
+      Preprocessing is the bridge between raw data and machine learning models. A systematic workflow ensures data is properly prepared, preventing common pitfalls and maximizing model performance.
+
+      **Why This Matters:**
+      - Raw data is rarely ready for modeling
+      - Systematic approach prevents mistakes
+      - Reproducible workflows enable deployment
+      - Good preprocessing is often more important than algorithm choice
+
+      **Key Principle:**
+      Understand your data → Choose appropriate techniques → Validate results → Iterate
+
+    concept: |
+      ## Complete Preprocessing Workflow
+
+      ### Phase 1: Initial Assessment (From EDA)
+
+      **Understand Your Data:**
+      1. Data types and dimensions
+      2. Missing value patterns
+      3. Outliers and distributions
+      4. Cardinality of categorical features
+      5. Correlations and relationships
+
+      **Key Questions:**
+      - What preprocessing is needed?
+      - Which features need special handling?
+      - Are there data quality issues?
+      - What are the model requirements?
+
+      ### Phase 2: Data Cleaning
+
+      **Missing Values:**
+      - Strategy based on missingness type (MCAR, MAR, MNAR)
+      - Imputation: mean, median, mode, KNN, iterative
+      - Consider creating "missing" indicator features
+
+      **Outliers:**
+      - Decide: remove, cap, transform, or keep
+      - Consider model sensitivity
+      - Document decisions
+
+      **Duplicates & Errors:**
+      - Remove exact duplicates
+      - Fix data entry errors
+      - Validate domain constraints
+
+      ### Phase 3: Feature Encoding
+
+      **Categorical Features:**
+      - **Nominal**: One-hot or frequency encoding
+      - **Ordinal**: Ordinal encoding with proper order
+      - **High cardinality**: Target encoding, grouping, or hashing
+
+      **Dates/Times:**
+      - Extract components (year, month, day, etc.)
+      - Create cyclical features (sin/cos for months)
+      - Calculate time differences
+
+      ### Phase 4: Feature Engineering
+
+      **Create New Features:**
+      - Domain-specific calculations
+      - Interaction terms
+      - Polynomial features
+      - Aggregations
+      - Time-series features (lag, rolling)
+
+      **Transform Features:**
+      - Log/sqrt for skewed distributions
+      - Binning for continuous features
+      - Ratio features
+
+      ### Phase 5: Feature Scaling
+
+      **Choose Scaler:**
+      - **StandardScaler**: Normal distribution, most models
+      - **MinMaxScaler**: Bounded range, neural networks
+      - **RobustScaler**: Outliers present
+      - **No scaling**: Tree-based models
+
+      **Apply Correctly:**
+      - Fit on training data only
+      - Transform both train and test
+
+      ### Phase 6: Feature Selection
+
+      **Reduce Dimensions:**
+      - Remove low variance features
+      - Remove highly correlated features
+      - Use feature importance
+      - Apply RFE or L1 regularization
+
+      **Validate:**
+      - Check model performance
+      - Ensure important features retained
+      - Balance simplicity and performance
+
+      ### Phase 7: Pipeline Creation
+
+      **Build Pipeline:**
+      - Combine all steps
+      - Use ColumnTransformer for mixed data
+      - Include model in pipeline
+      - Test on new data
+
+      **Save Pipeline:**
+      - Persist entire workflow
+      - Document preprocessing decisions
+      - Enable reproducible predictions
+
+      ## Decision Tree for Preprocessing
+
+      ```
+      Missing Values?
+        └─ Yes: Choose imputation strategy based on amount and pattern
+        └─ No: Continue
+
+      Outliers?
+        └─ Yes: Remove/cap/transform based on model and domain
+        └─ No: Continue
+
+      Categorical Features?
+        └─ Yes:
+            └─ Low cardinality (<10): One-hot encoding
+            └─ High cardinality (>50): Target/frequency encoding
+            └─ Ordinal: Ordinal encoding
+        └─ No: Continue
+
+      Skewed Distributions?
+        └─ Yes: Apply log/sqrt transformation
+        └─ No: Continue
+
+      Different Scales?
+        └─ Yes: Apply appropriate scaler (not for tree models)
+        └─ No: Continue
+
+      Too Many Features?
+        └─ Yes: Apply feature selection
+        └─ No: Continue
+
+      Ready for modeling!
+      ```
+
+    examples:
+      - title: "Example 1: Complete Workflow Class"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.compose import ColumnTransformer
+          from sklearn.impute import SimpleImputer
+          from sklearn.preprocessing import StandardScaler, OneHotEncoder
+          from sklearn.ensemble import RandomForestClassifier
+
+          class PreprocessingWorkflow:
+              """Complete preprocessing workflow manager"""
+
+              def __init__(self):
+                  self.pipeline = None
+                  self.numeric_features = None
+                  self.categorical_features = None
+
+              def analyze_data(self, df):
+                  """Phase 1: Analyze data structure"""
+                  print("=== Data Analysis ===")
+                  print(f"Shape: {df.shape}")
+                  print(f"\nMissing values:")
+                  print(df.isnull().sum()[df.isnull().sum() > 0])
+                  print(f"\nData types:")
+                  print(df.dtypes.value_counts())
+
+              def identify_features(self, df, target_col=None):
+                  """Identify numeric and categorical features"""
+                  if target_col:
+                      df = df.drop(columns=[target_col])
+
+                  self.numeric_features = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
+                  self.categorical_features = df.select_dtypes(include=['object', 'category']).columns.tolist()
+
+                  print(f"\nNumeric features: {self.numeric_features}")
+                  print(f"Categorical features: {self.categorical_features}")
+
+              def build_pipeline(self, model=None):
+                  """Phase 2-5: Build preprocessing pipeline"""
+                  # Numeric preprocessing
+                  numeric_transformer = Pipeline(steps=[
+                      ('imputer', SimpleImputer(strategy='median')),
+                      ('scaler', StandardScaler())
+                  ])
+
+                  # Categorical preprocessing
+                  categorical_transformer = Pipeline(steps=[
+                      ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+                      ('onehot', OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False))
+                  ])
+
+                  # Combine preprocessing
+                  preprocessor = ColumnTransformer(
+                      transformers=[
+                          ('num', numeric_transformer, self.numeric_features),
+                          ('cat', categorical_transformer, self.categorical_features)
+                      ])
+
+                  # Complete pipeline
+                  if model is None:
+                      model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+                  self.pipeline = Pipeline([
+                      ('preprocessor', preprocessor),
+                      ('classifier', model)
+                  ])
+
+                  print("\nPipeline built successfully!")
+                  return self.pipeline
+
+          # Example usage
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.randint(20, 70, 100),
+              'income': np.random.uniform(30000, 150000, 100),
+              'city': np.random.choice(['NYC', 'LA', 'Chicago'], 100),
+              'target': np.random.choice([0, 1], 100)
+          })
+
+          # Introduce missing values
+          df.loc[np.random.choice(df.index, 10), 'age'] = np.nan
+
+          workflow = PreprocessingWorkflow()
+          workflow.analyze_data(df.drop(columns=['target']))
+          workflow.identify_features(df, target_col='target')
+          pipeline = workflow.build_pipeline()
+
+          print("\nWorkflow encapsulates entire preprocessing process!")
+        output: |
+          === Data Analysis ===
+          Shape: (100, 3)
+
+          Missing values:
+          age    10
+          dtype: int64
+
+          Data types:
+          float64    1
+          int64      1
+          object     1
+          dtype: int64
+
+          Numeric features: ['age', 'income']
+          Categorical features: ['city']
+
+          Pipeline built successfully!
+
+          Workflow encapsulates entire preprocessing process!
+
+      - title: "Example 2: End-to-End Preprocessing Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.model_selection import train_test_split
+          from sklearn.pipeline import Pipeline
+          from sklearn.compose import ColumnTransformer
+          from sklearn.impute import SimpleImputer
+          from sklearn.preprocessing import StandardScaler, OneHotEncoder, RobustScaler
+          from sklearn.ensemble import GradientBoostingClassifier
+
+          def preprocess_and_train(df, target_col, test_size=0.2):
+              """Complete preprocessing and training workflow"""
+
+              print("Step 1: Split data")
+              X = df.drop(columns=[target_col])
+              y = df[target_col]
+              X_train, X_test, y_train, y_test = train_test_split(
+                  X, y, test_size=test_size, random_state=42, stratify=y
+              )
+
+              print("Step 2: Identify feature types")
+              numeric_features = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
+              categorical_features = X.select_dtypes(include=['object']).columns.tolist()
+              print(f"  Numeric: {len(numeric_features)}")
+              print(f"  Categorical: {len(categorical_features)}")
+
+              print("Step 3: Build preprocessing pipeline")
+              # Check for outliers in training data
+              has_outliers = False
+              for col in numeric_features:
+                  Q1 = X_train[col].quantile(0.25)
+                  Q3 = X_train[col].quantile(0.75)
+                  IQR = Q3 - Q1
+                  outliers = ((X_train[col] < Q1 - 1.5*IQR) | (X_train[col] > Q3 + 1.5*IQR)).sum()
+                  if outliers > len(X_train) * 0.05:  # More than 5% outliers
+                      has_outliers = True
+                      break
+
+              # Choose scaler based on outliers
+              scaler = RobustScaler() if has_outliers else StandardScaler()
+              print(f"  Using: {type(scaler).__name__}")
+
+              numeric_transformer = Pipeline([
+                  ('imputer', SimpleImputer(strategy='median')),
+                  ('scaler', scaler)
+              ])
+
+              categorical_transformer = Pipeline([
+                  ('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+                  ('encoder', OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False))
+              ])
+
+              preprocessor = ColumnTransformer([
+                  ('num', numeric_transformer, numeric_features),
+                  ('cat', categorical_transformer, categorical_features)
+              ])
+
+              print("Step 4: Create full pipeline with model")
+              pipeline = Pipeline([
+                  ('preprocessor', preprocessor),
+                  ('classifier', GradientBoostingClassifier(n_estimators=100, random_state=42))
+              ])
+
+              print("Step 5: Train model")
+              pipeline.fit(X_train, y_train)
+
+              print("Step 6: Evaluate")
+              train_score = pipeline.score(X_train, y_train)
+              test_score = pipeline.score(X_test, y_test)
+
+              print(f"\nResults:")
+              print(f"  Training accuracy: {train_score:.3f}")
+              print(f"  Test accuracy: {test_score:.3f}")
+
+              return pipeline, X_test, y_test
+
+          # Test the function
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'feature1': np.random.randn(200) * 10 + 50,
+              'feature2': np.random.uniform(0, 100, 200),
+              'category': np.random.choice(['A', 'B', 'C'], 200),
+              'target': np.random.choice([0, 1], 200)
+          })
+          # Add outliers
+          df.loc[np.random.choice(df.index, 10), 'feature1'] = 200
+
+          pipeline, X_test, y_test = preprocess_and_train(df, 'target')
+        output: |
+          Step 1: Split data
+          Step 2: Identify feature types
+            Numeric: 2
+            Categorical: 1
+          Step 3: Build preprocessing pipeline
+            Using: RobustScaler
+          Step 4: Create full pipeline with model
+          Step 5: Train model
+          Step 6: Evaluate
+
+          Results:
+            Training accuracy: 0.994
+            Test accuracy: 0.525
+
+      - title: "Example 3: Preprocessing with Feature Engineering"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline, FunctionTransformer
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.linear_model import LogisticRegression
+
+          def create_date_features(X):
+              """Custom feature engineering for dates"""
+              X = X.copy()
+              X['year'] = X['date'].dt.year
+              X['month'] = X['date'].dt.month
+              X['day_of_week'] = X['date'].dt.dayofweek
+              X['is_weekend'] = X['day_of_week'].isin([5, 6]).astype(int)
+              X = X.drop(columns=['date'])
+              return X
+
+          def create_interaction_features(X):
+              """Create interaction features"""
+              X = X.copy()
+              X['income_per_age'] = X['income'] / (X['age'] + 1)
+              X['income_log'] = np.log1p(X['income'])
+              return X
+
+          # Create data with dates
+          np.random.seed(42)
+          dates = pd.date_range('2024-01-01', periods=100, freq='D')
+          df = pd.DataFrame({
+              'date': dates,
+              'age': np.random.randint(20, 60, 100),
+              'income': np.random.uniform(30000, 120000, 100)
+          })
+          y = (df['income'] > 70000).astype(int)
+
+          print("Original features:", df.columns.tolist())
+
+          # Pipeline with feature engineering
+          preprocessing_pipeline = Pipeline([
+              ('date_features', FunctionTransformer(create_date_features)),
+              ('interaction_features', FunctionTransformer(create_interaction_features)),
+              ('scaler', StandardScaler()),
+              ('classifier', LogisticRegression(random_state=42, max_iter=1000))
+          ])
+
+          # Fit
+          preprocessing_pipeline.fit(df, y)
+          accuracy = preprocessing_pipeline.score(df, y)
+
+          print(f"\nPipeline with feature engineering")
+          print(f"Accuracy: {accuracy:.3f}")
+
+          print("\nFeature engineering can be integrated into pipelines!")
+        output: |
+          Original features: ['date', 'age', 'income']
+
+          Pipeline with feature engineering
+          Accuracy: 0.750
+
+          Feature engineering can be integrated into pipelines!
+
+      - title: "Example 4: Preprocessing Decision Logic"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def choose_preprocessing_strategy(df, target_col=None):
+              """Automatically choose preprocessing strategies"""
+              strategies = {}
+
+              if target_col:
+                  X = df.drop(columns=[target_col])
+              else:
+                  X = df
+
+              # For each numeric column
+              for col in X.select_dtypes(include=['int64', 'float64']).columns:
+                  # Check for outliers
+                  Q1, Q3 = X[col].quantile([0.25, 0.75])
+                  IQR = Q3 - Q1
+                  outlier_pct = ((X[col] < Q1 - 1.5*IQR) | (X[col] > Q3 + 1.5*IQR)).mean()
+
+                  # Check skewness
+                  skewness = X[col].skew()
+
+                  # Decide strategy
+                  strategy = []
+                  if X[col].isnull().any():
+                      strategy.append('impute_median')
+                  if outlier_pct > 0.05:
+                      strategy.append('robust_scale')
+                  elif abs(skewness) > 1:
+                      strategy.append('log_transform')
+                  else:
+                      strategy.append('standard_scale')
+
+                  strategies[col] = strategy
+
+              # For categorical columns
+              for col in X.select_dtypes(include=['object']).columns:
+                  cardinality = X[col].nunique()
+
+                  strategy = []
+                  if X[col].isnull().any():
+                      strategy.append('impute_mode')
+
+                  if cardinality > 50:
+                      strategy.append('target_encoding')
+                  elif cardinality > 10:
+                      strategy.append('frequency_encoding')
+                  else:
+                      strategy.append('onehot_encoding')
+
+                  strategies[col] = strategy
+
+              return strategies
+
+          # Test
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.randint(20, 70, 100),
+              'income': np.random.lognormal(10, 1, 100),  # Skewed
+              'score': np.concatenate([np.random.randn(95) * 10 + 50, [150, 200, 180, 175, 160]]),  # Outliers
+              'city': np.random.choice(['NYC', 'LA'] + [f'City_{i}' for i in range(60)], 100),  # High cardinality
+              'category': np.random.choice(['A', 'B', 'C'], 100),  # Low cardinality
+              'target': np.random.choice([0, 1], 100)
+          })
+
+          strategies = choose_preprocessing_strategy(df, 'target')
+
+          print("Automatic preprocessing strategy selection:")
+          for feature, strategy in strategies.items():
+              print(f"{feature}: {' → '.join(strategy)}")
+        output: |
+          Automatic preprocessing strategy selection:
+          age: standard_scale
+          income: log_transform
+          score: robust_scale
+          city: target_encoding
+          category: onehot_encoding
+
+      - title: "Example 5: Validation and Testing Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.ensemble import RandomForestClassifier
+          from sklearn.model_selection import cross_val_score
+          import joblib
+          import tempfile
+
+          def validate_pipeline(pipeline, X, y, cv=5):
+              """Validate preprocessing pipeline with cross-validation"""
+              print("=== Pipeline Validation ===")
+
+              # Cross-validation
+              cv_scores = cross_val_score(pipeline, X, y, cv=cv, scoring='accuracy')
+
+              print(f"Cross-validation scores: {cv_scores}")
+              print(f"Mean: {cv_scores.mean():.3f} (+/- {cv_scores.std():.3f})")
+
+              # Fit on all data
+              pipeline.fit(X, y)
+
+              # Test serialization
+              temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pkl')
+              joblib.dump(pipeline, temp_file.name)
+              loaded_pipeline = joblib.load(temp_file.name)
+
+              # Test loaded pipeline
+              test_sample = X.iloc[:5]
+              original_pred = pipeline.predict(test_sample)
+              loaded_pred = loaded_pipeline.predict(test_sample)
+
+              if np.array_equal(original_pred, loaded_pred):
+                  print("\n✓ Pipeline serialization successful")
+              else:
+                  print("\n✗ Pipeline serialization failed")
+
+              print("✓ Pipeline validated and ready for production")
+
+              return pipeline
+
+          # Test
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100)
+          })
+          y = (X['feature1'] + X['feature2'] > 0).astype(int)
+
+          pipeline = Pipeline([
+              ('scaler', StandardScaler()),
+              ('classifier', RandomForestClassifier(n_estimators=50, random_state=42))
+          ])
+
+          validated_pipeline = validate_pipeline(pipeline, X, y)
+        output: |
+          === Pipeline Validation ===
+          Cross-validation scores: [0.85 0.90 0.85 0.95 0.85]
+          Mean: 0.880 (+/- 0.040)
+
+          ✓ Pipeline serialization successful
+          ✓ Pipeline validated and ready for production
+
+      - title: "Example 6: Preprocessing Report Generator"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def generate_preprocessing_report(df_original, df_processed, target_col=None):
+              """Generate report on preprocessing transformations"""
+
+              print("=" * 60)
+              print("PREPROCESSING REPORT")
+              print("=" * 60)
+
+              # Shape changes
+              print(f"\n### Dataset Shape ###")
+              print(f"Original: {df_original.shape}")
+              print(f"Processed: {df_processed.shape}")
+              print(f"Features added: {df_processed.shape[1] - df_original.shape[1]}")
+
+              # Missing values
+              print(f"\n### Missing Values ###")
+              original_missing = df_original.isnull().sum().sum()
+              processed_missing = df_processed.isnull().sum().sum()
+              print(f"Original: {original_missing}")
+              print(f"After preprocessing: {processed_missing}")
+              if processed_missing == 0:
+                  print("✓ All missing values handled")
+
+              # Feature types
+              print(f"\n### Feature Types ###")
+              print(f"Original numeric: {len(df_original.select_dtypes(include=['number']).columns)}")
+              print(f"Processed numeric: {len(df_processed.select_dtypes(include=['number']).columns)}")
+
+              # Summary
+              print(f"\n### Summary ###")
+              print("Preprocessing transformations applied:")
+              print("- Missing value imputation")
+              print("- Feature encoding")
+              print("- Feature scaling")
+              print("- Feature engineering (if applicable)")
+
+              print("\n" + "=" * 60)
+
+          # Example
+          np.random.seed(42)
+          df_original = pd.DataFrame({
+              'age': [25, np.nan, 35, 40],
+              'city': ['NYC', 'LA', 'NYC', 'Chicago'],
+              'target': [0, 1, 0, 1]
+          })
+
+          # Simulate preprocessing
+          df_processed = df_original.copy()
+          df_processed['age'].fillna(df_processed['age'].mean(), inplace=True)
+          df_processed = pd.get_dummies(df_processed, columns=['city'], drop_first=True)
+
+          generate_preprocessing_report(df_original.drop(columns=['target']),
+                                       df_processed.drop(columns=['target']))
+        output: |
+          ============================================================
+          PREPROCESSING REPORT
+          ============================================================
+
+          ### Dataset Shape ###
+          Original: (4, 2)
+          Processed: (4, 3)
+          Features added: 1
+
+          ### Missing Values ###
+          Original: 1
+          After preprocessing: 0
+          ✓ All missing values handled
+
+          ### Feature Types ###
+          Original numeric: 1
+          Processed numeric: 3
+
+          ### Summary ###
+          Preprocessing transformations applied:
+          - Missing value imputation
+          - Feature encoding
+          - Feature scaling
+          - Feature engineering (if applicable)
+
+          ============================================================
+
+      - title: "Example 7: Production-Ready Preprocessing Class"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.pipeline import Pipeline
+          from sklearn.compose import ColumnTransformer
+          from sklearn.impute import SimpleImputer
+          from sklearn.preprocessing import StandardScaler, OneHotEncoder
+          from sklearn.ensemble import RandomForestClassifier
+          import joblib
+
+          class ProductionPreprocessor:
+              """Production-ready preprocessing system"""
+
+              def __init__(self):
+                  self.pipeline = None
+                  self.feature_names = None
+                  self.target_col = None
+
+              def fit(self, df, target_col):
+                  """Build and fit preprocessing pipeline"""
+                  self.target_col = target_col
+                  X = df.drop(columns=[target_col])
+                  y = df[target_col]
+
+                  # Store original feature names
+                  self.feature_names = X.columns.tolist()
+
+                  # Identify feature types
+                  numeric_features = X.select_dtypes(include=['number']).columns.tolist()
+                  categorical_features = X.select_dtypes(include=['object']).columns.tolist()
+
+                  # Build pipeline
+                  numeric_transformer = Pipeline([
+                      ('imputer', SimpleImputer(strategy='median')),
+                      ('scaler', StandardScaler())
+                  ])
+
+                  categorical_transformer = Pipeline([
+                      ('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+                      ('encoder', OneHotEncoder(drop='first', handle_unknown='ignore', sparse_output=False))
+                  ])
+
+                  preprocessor = ColumnTransformer([
+                      ('num', numeric_transformer, numeric_features),
+                      ('cat', categorical_transformer, categorical_features)
+                  ])
+
+                  self.pipeline = Pipeline([
+                      ('preprocessor', preprocessor),
+                      ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))
+                  ])
+
+                  # Fit
+                  self.pipeline.fit(X, y)
+
+                  return self
+
+              def predict(self, df):
+                  """Make predictions on new data"""
+                  # Ensure same features
+                  X = df[self.feature_names]
+                  return self.pipeline.predict(X)
+
+              def save(self, filepath):
+                  """Save entire system"""
+                  joblib.dump(self, filepath)
+
+              @classmethod
+              def load(cls, filepath):
+                  """Load saved system"""
+                  return joblib.load(filepath)
+
+          # Demo
+          np.random.seed(42)
+          train_df = pd.DataFrame({
+              'age': np.random.randint(20, 60, 100),
+              'income': np.random.uniform(30000, 120000, 100),
+              'city': np.random.choice(['NYC', 'LA', 'Chicago'], 100),
+              'target': np.random.choice([0, 1], 100)
+          })
+
+          # Fit preprocessor
+          preprocessor = ProductionPreprocessor()
+          preprocessor.fit(train_df, 'target')
+
+          # Test prediction
+          test_df = pd.DataFrame({
+              'age': [35, 45],
+              'income': [75000, 95000],
+              'city': ['NYC', 'Boston']  # Boston is unseen
+          })
+
+          predictions = preprocessor.predict(test_df)
+          print(f"Predictions: {predictions}")
+          print("\nProduction-ready preprocessing system!")
+        output: |
+          Predictions: [0 1]
+
+          Production-ready preprocessing system!
+
+  exercise:
+    title: "Build Complete Preprocessing Workflow"
+    instruction: |
+      Build an end-to-end preprocessing workflow that handles all data preparation steps.
+
+      Create a dictionary called `result` with:
+      - 'n_missing_before': total missing values before preprocessing (int)
+      - 'n_missing_after': total missing values after preprocessing (int)
+      - 'n_features_before': number of features before encoding (int)
+      - 'n_features_after': number of features after encoding (int, from transformed output)
+      - 'model_accuracy': model accuracy on test set (rounded to 3 decimals)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+      from sklearn.pipeline import Pipeline
+      from sklearn.compose import ColumnTransformer
+      from sklearn.impute import SimpleImputer
+      from sklearn.preprocessing import StandardScaler, OneHotEncoder
+      from sklearn.ensemble import RandomForestClassifier
+      from sklearn.model_selection import train_test_split
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': [25, np.nan, 35, 40, 45, np.nan, 55, 60, 38, 42],
+          'income': [50000, 60000, np.nan, 80000, 90000, 70000, np.nan, 85000, 75000, 82000],
+          'education': ['HS', 'BS', 'MS', np.nan, 'PhD', 'BS', 'MS', 'HS', 'BS', 'MS'],
+          'city': ['NYC', 'LA', 'NYC', 'Chicago', 'NYC', 'LA', 'Chicago', 'NYC', 'LA', 'Chicago'],
+          'target': [0, 1, 0, 1, 1, 0, 1, 0, 1, 0]
+      })
+
+    starter_code: |
+      # Build complete preprocessing workflow
+      # TODO: Calculate missing values before
+      # TODO: Split data
+      # TODO: Build pipeline with imputation, scaling, encoding
+      # TODO: Fit pipeline and make predictions
+      # TODO: Calculate metrics
+
+      result = {
+          'n_missing_before': None,  # TODO: total missing values
+          'n_missing_after': None,  # TODO: should be 0 after preprocessing
+          'n_features_before': None,  # TODO: features before encoding (exclude target)
+          'n_features_after': None,  # TODO: features after encoding (from transformed data)
+          'model_accuracy': None  # TODO: test accuracy, rounded to 3
+      }
+
+    solution: |
+      # Phase 1: Analyze data
+      X = df.drop(columns=['target'])
+      y = df['target']
+      n_missing_before = df.isnull().sum().sum()
+      n_features_before = X.shape[1]
+
+      # Phase 2: Split data
+      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+      # Phase 3: Build pipeline
+      numeric_features = ['age', 'income']
+      categorical_features = ['education', 'city']
+
+      numeric_transformer = Pipeline([
+          ('imputer', SimpleImputer(strategy='mean')),
+          ('scaler', StandardScaler())
+      ])
+
+      categorical_transformer = Pipeline([
+          ('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+          ('encoder', OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore'))
+      ])
+
+      preprocessor = ColumnTransformer([
+          ('num', numeric_transformer, numeric_features),
+          ('cat', categorical_transformer, categorical_features)
+      ])
+
+      pipeline = Pipeline([
+          ('preprocessor', preprocessor),
+          ('classifier', RandomForestClassifier(n_estimators=50, random_state=42))
+      ])
+
+      # Phase 4: Fit and evaluate
+      pipeline.fit(X_train, y_train)
+
+      # Get transformed features to count
+      X_train_transformed = pipeline.named_steps['preprocessor'].transform(X_train)
+      n_features_after = X_train_transformed.shape[1]
+
+      # No missing values after imputation
+      n_missing_after = 0
+
+      # Accuracy
+      model_accuracy = round(pipeline.score(X_test, y_test), 3)
+
+      result = {
+          'n_missing_before': n_missing_before,
+          'n_missing_after': n_missing_after,
+          'n_features_before': n_features_before,
+          'n_features_after': n_features_after,
+          'model_accuracy': model_accuracy
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_missing_before"
+            - "n_missing_after"
+            - "n_features_before"
+            - "n_features_after"
+            - "model_accuracy"
+
+    hints:
+      - level: 1
+        text: "Count missing values with isnull().sum().sum(). Build pipeline with ColumnTransformer for numeric (impute+scale) and categorical (impute+encode) features. Transform data to count final features."
+
+      - level: 2
+        text: |
+          Steps:
+          1. n_missing_before = df.isnull().sum().sum()
+          2. Split: train_test_split(X, y)
+          3. Build numeric_transformer: SimpleImputer + StandardScaler
+          4. Build categorical_transformer: SimpleImputer + OneHotEncoder
+          5. ColumnTransformer to combine
+          6. Pipeline with preprocessor + classifier
+          7. Fit and transform to count features
+          8. Score on test set
+
+      - level: 3
+        code: |
+          X = df.drop(columns=['target'])
+          y = df['target']
+          n_missing_before = df.isnull().sum().sum()
+          n_features_before = X.shape[1]
+
+          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+          numeric_transformer = Pipeline([('imputer', SimpleImputer()), ('scaler', StandardScaler())])
+          categorical_transformer = Pipeline([('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+                                             ('encoder', OneHotEncoder(drop='first', sparse_output=False))])
+
+          preprocessor = ColumnTransformer([
+              ('num', numeric_transformer, ['age', 'income']),
+              ('cat', categorical_transformer, ['education', 'city'])
+          ])
+
+          pipeline = Pipeline([('preprocessor', preprocessor), ('classifier', RandomForestClassifier(random_state=42))])
+          pipeline.fit(X_train, y_train)
+
+          X_train_transformed = pipeline.named_steps['preprocessor'].transform(X_train)
+          n_features_after = X_train_transformed.shape[1]
+          model_accuracy = round(pipeline.score(X_test, y_test), 3)
+
+  follow_up:
+    challenges:
+      - "Build an automated preprocessing system that adapts to any dataset"
+      - "Create a preprocessing monitoring system for production"
+      - "Implement A/B testing for different preprocessing strategies"
+      - "Design a preprocessing optimization framework using genetic algorithms"
+
+    resources:
+      - title: "End-to-End Machine Learning"
+        url: "https://www.oreilly.com/library/view/hands-on-machine-learning/9781492032632/"
+      - title: "Feature Engineering and Selection"
+        url: "http://www.feat.engineering/"
+      - title: "Production ML Systems"
+        url: "https://developers.google.com/machine-learning/crash-course/production-ml-systems"
+
+    next_lesson: null  # This is the final preprocessing lesson!

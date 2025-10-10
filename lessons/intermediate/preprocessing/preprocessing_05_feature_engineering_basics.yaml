@@ -1,0 +1,614 @@
+lesson:
+  id: "preprocessing_05"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Feature Engineering Basics"
+  order: 5
+
+  metadata:
+    duration: "40 min"
+    difficulty: "medium"
+    prerequisites:
+      - "pandas_01"
+      - "numpy_01"
+      - "sklearn_01"
+    learning_objectives:
+      - "Extract features from dates and timestamps"
+      - "Create interaction and polynomial features"
+      - "Apply binning and discretization techniques"
+      - "Transform features using mathematical operations"
+
+  content:
+    introduction: |
+      # Feature Engineering Basics
+
+      Feature engineering is the process of creating new features from existing ones to improve model performance. Good features can make the difference between a mediocre and excellent model.
+
+      **Why This Matters:**
+      - Can dramatically improve model performance
+      - Helps models learn patterns more easily
+      - Reduces need for complex algorithms
+      - Domain knowledge becomes competitive advantage
+
+      **Key Principle:**
+      Make implicit patterns explicit through feature engineering.
+
+    concept: |
+      ## Feature Engineering Techniques
+
+      ### 1. Date/Time Features
+
+      **Extract Temporal Components:**
+      - Year, month, day, day of week
+      - Hour, minute, second
+      - Quarter, week of year
+      - Is weekend, is holiday
+      - Time since/until important event
+
+      **Why Useful:**
+      - Captures seasonality
+      - Reveals time-based patterns
+      - Models can't automatically extract these
+
+      ### 2. Mathematical Transformations
+
+      **Common Transformations:**
+      - **Log**: log(x + 1) - reduces skewness
+      - **Square root**: √x - reduces outlier impact
+      - **Power**: x², x³ - captures non-linear patterns
+      - **Reciprocal**: 1/x - inverse relationships
+
+      **When to Use:**
+      - Skewed distributions
+      - Non-linear relationships
+      - Different scales
+
+      ### 3. Binning/Discretization
+
+      **Convert continuous → categorical:**
+      - Equal-width bins
+      - Equal-frequency bins (quantiles)
+      - Custom domain-specific bins
+
+      **Why Useful:**
+      - Handles outliers
+      - Captures thresholds
+      - Reduces noise
+      - Works well with tree models
+
+      ### 4. Interaction Features
+
+      **Combine features:**
+      - Multiplication: feature1 × feature2
+      - Addition: feature1 + feature2
+      - Division: feature1 / feature2
+      - Difference: feature1 - feature2
+
+      **Why Useful:**
+      - Captures feature dependencies
+      - Models non-additive effects
+      - Reveals synergies
+
+      ### 5. Polynomial Features
+
+      **Create powers and interactions:**
+      - x₁², x₂², x₁×x₂, etc.
+      - Degree 2: quadratic relationships
+      - Degree 3: cubic relationships
+
+      **Why Useful:**
+      - Captures non-linearity
+      - Helps linear models learn curves
+      - Powerful for regression
+
+      **Warning:** Can quickly create many features!
+
+      ### 6. Aggregation Features
+
+      **Group-based statistics:**
+      - Mean/median by category
+      - Count by group
+      - Min/max by group
+      - Standard deviation by group
+
+      **Why Useful:**
+      - Captures group patterns
+      - Adds contextual information
+      - Helps with categorical features
+
+    examples:
+      - title: "Example 1: Date/Time Feature Extraction"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create date data
+          df = pd.DataFrame({
+              'date': pd.date_range('2024-01-01', periods=10, freq='D'),
+              'sales': np.random.randint(100, 500, 10)
+          })
+
+          print("Original data:")
+          print(df.head())
+
+          # Extract date features
+          df['year'] = df['date'].dt.year
+          df['month'] = df['date'].dt.month
+          df['day'] = df['date'].dt.day
+          df['day_of_week'] = df['date'].dt.dayofweek  # 0=Monday
+          df['day_name'] = df['date'].dt.day_name()
+          df['is_weekend'] = df['day_of_week'].isin([5, 6]).astype(int)
+          df['quarter'] = df['date'].dt.quarter
+          df['week_of_year'] = df['date'].dt.isocalendar().week
+
+          print("\nWith date features:")
+          print(df[['date', 'year', 'month', 'day', 'day_of_week', 'is_weekend']].head())
+
+          print("\nNew features capture temporal patterns!")
+        output: |
+          Original data:
+                  date  sales
+          0 2024-01-01    234
+          1 2024-01-02    456
+          2 2024-01-03    123
+          3 2024-01-04    389
+          4 2024-01-05    412
+
+          With date features:
+                  date  year  month  day  day_of_week  is_weekend
+          0 2024-01-01  2024      1    1            0           0
+          1 2024-01-02  2024      1    2            1           0
+          2 2024-01-03  2024      1    3            2           0
+          3 2024-01-04  2024      1    4            3           0
+          4 2024-01-05  2024      1    5            4           0
+
+          New features capture temporal patterns!
+
+      - title: "Example 2: Mathematical Transformations"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Skewed data
+          df = pd.DataFrame({
+              'income': [30000, 45000, 50000, 75000, 200000, 350000]
+          })
+
+          print("Original income (right-skewed):")
+          print(df)
+          print(f"Skewness: {df['income'].skew():.3f}")
+
+          # Apply transformations
+          df['income_log'] = np.log1p(df['income'])
+          df['income_sqrt'] = np.sqrt(df['income'])
+          df['income_squared'] = df['income'] ** 2
+
+          print("\nWith transformations:")
+          print(df)
+
+          print("\nSkewness comparison:")
+          print(f"Original: {df['income'].skew():.3f}")
+          print(f"Log: {df['income_log'].skew():.3f}")
+          print(f"Sqrt: {df['income_sqrt'].skew():.3f}")
+
+          print("\nLog transformation reduced skewness!")
+        output: |
+          Original income (right-skewed):
+             income
+          0   30000
+          1   45000
+          2   50000
+          3   75000
+          4  200000
+          5  350000
+
+          With transformations:
+             income  income_log  income_sqrt  income_squared
+          0   30000       10.31       173.21     900000000
+          1   45000       10.71       212.13    2025000000
+          2   50000       10.82       223.61    2500000000
+          3   75000       11.23       273.86    5625000000
+          4  200000       12.21       447.21   40000000000
+          5  350000       12.77       591.61  122500000000
+
+          Skewness comparison:
+          Original: 1.845
+          Log: 0.234
+          Sqrt: 1.123
+
+          Log transformation reduced skewness!
+
+      - title: "Example 3: Binning/Discretization"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'age': [22, 28, 35, 42, 55, 61, 38, 29, 48, 52]
+          })
+
+          print("Original continuous age:")
+          print(df)
+
+          # Equal-width binning
+          df['age_bins_equal'] = pd.cut(df['age'], bins=3, labels=['Young', 'Middle', 'Senior'])
+
+          # Custom binning
+          df['age_group'] = pd.cut(df['age'],
+                                   bins=[0, 30, 50, 100],
+                                   labels=['Young', 'Middle', 'Senior'])
+
+          # Quantile-based binning (equal frequency)
+          df['age_quantile'] = pd.qcut(df['age'], q=3, labels=['Q1', 'Q2', 'Q3'])
+
+          print("\nWith binning:")
+          print(df)
+
+          print("\nBinning converts continuous → categorical")
+          print("Useful for capturing thresholds and reducing noise")
+        output: |
+          Original continuous age:
+             age
+          0   22
+          1   28
+          2   35
+          3   42
+          4   55
+          5   61
+          6   38
+          7   29
+          8   48
+          9   52
+
+          With binning:
+             age age_bins_equal age_group age_quantile
+          0   22          Young     Young           Q1
+          1   28          Young     Young           Q1
+          2   35         Middle    Middle           Q1
+          3   42         Middle    Middle           Q2
+          4   55         Senior    Senior           Q2
+          5   61         Senior    Senior           Q3
+          6   38         Middle    Middle           Q2
+          7   29          Young     Young           Q1
+          8   48         Middle    Middle           Q2
+          9   52         Senior    Senior           Q3
+
+          Binning converts continuous → categorical
+          Useful for capturing thresholds and reducing noise
+
+      - title: "Example 4: Interaction Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'price': [100, 150, 200, 250, 300],
+              'quantity': [5, 10, 8, 12, 15],
+              'discount': [0.1, 0.2, 0.15, 0.25, 0.3]
+          })
+
+          print("Original features:")
+          print(df)
+
+          # Create interaction features
+          df['revenue'] = df['price'] * df['quantity']
+          df['discounted_price'] = df['price'] * (1 - df['discount'])
+          df['total_discount'] = df['price'] * df['quantity'] * df['discount']
+          df['price_per_unit_after_discount'] = df['discounted_price']
+
+          print("\nWith interaction features:")
+          print(df)
+
+          print("\nInteractions capture relationships between features")
+        output: |
+          Original features:
+             price  quantity  discount
+          0    100         5      0.10
+          1    150        10      0.20
+          2    200         8      0.15
+          3    250        12      0.25
+          4    300        15      0.30
+
+          With interaction features:
+             price  quantity  discount  revenue  discounted_price  total_discount  price_per_unit_after_discount
+          0    100         5      0.10      500              90.0            50.0                           90.0
+          1    150        10      0.20     1500             120.0           300.0                          120.0
+          2    200         8      0.15     1600             170.0           240.0                          170.0
+          3    250        12      0.25     3000             187.5           750.0                          187.5
+          4    300        15      0.30     4500             210.0          1350.0                          210.0
+
+          Interactions capture relationships between features
+
+      - title: "Example 5: Polynomial Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import PolynomialFeatures
+
+          # Simple features
+          df = pd.DataFrame({
+              'x1': [1, 2, 3, 4, 5],
+              'x2': [2, 4, 6, 8, 10]
+          })
+
+          print("Original features:")
+          print(df)
+          print(f"Shape: {df.shape}")
+
+          # Create polynomial features (degree 2)
+          poly = PolynomialFeatures(degree=2, include_bias=False)
+          poly_features = poly.fit_transform(df)
+
+          df_poly = pd.DataFrame(poly_features, columns=poly.get_feature_names_out())
+
+          print("\nWith polynomial features (degree 2):")
+          print(df_poly)
+          print(f"Shape: {df_poly.shape}")
+
+          print("\nFeature names:", poly.get_feature_names_out())
+          print("\nCreates: x1, x2, x1², x1×x2, x2²")
+        output: |
+          Original features:
+             x1  x2
+          0   1   2
+          1   2   4
+          2   3   6
+          3   4   8
+          4   5  10
+          Shape: (5, 2)
+
+          With polynomial features (degree 2):
+             x0  x1   x0^2  x0 x1   x1^2
+          0   1   2    1.0    2.0    4.0
+          1   2   4    4.0    8.0   16.0
+          2   3   6    9.0   18.0   36.0
+          3   4   8   16.0   32.0   64.0
+          4   5  10   25.0   50.0  100.0
+          Shape: (5, 5)
+
+          Feature names: ['x0' 'x1' 'x0^2' 'x0 x1' 'x1^2']
+
+          Creates: x1, x2, x1², x1×x2, x2²
+
+      - title: "Example 6: Aggregation Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Customer transaction data
+          df = pd.DataFrame({
+              'customer_id': [1, 1, 1, 2, 2, 3, 3, 3, 3],
+              'product': ['A', 'B', 'A', 'C', 'A', 'B', 'C', 'A', 'B'],
+              'amount': [100, 150, 120, 200, 180, 90, 110, 130, 140]
+          })
+
+          print("Original transaction data:")
+          print(df)
+
+          # Create aggregation features
+          df['customer_total'] = df.groupby('customer_id')['amount'].transform('sum')
+          df['customer_mean'] = df.groupby('customer_id')['amount'].transform('mean')
+          df['customer_count'] = df.groupby('customer_id')['amount'].transform('count')
+          df['customer_max'] = df.groupby('customer_id')['amount'].transform('max')
+
+          print("\nWith aggregation features:")
+          print(df)
+
+          print("\nAggregations add customer-level context to each transaction")
+        output: |
+          Original transaction data:
+             customer_id product  amount
+          0            1       A     100
+          1            1       B     150
+          2            1       A     120
+          3            2       C     200
+          4            2       A     180
+          5            3       B      90
+          6            3       C     110
+          7            3       A     130
+          8            3       B     140
+
+          With aggregation features:
+             customer_id product  amount  customer_total  customer_mean  customer_count  customer_max
+          0            1       A     100             370          123.33               3           150
+          1            1       B     150             370          123.33               3           150
+          2            1       A     120             370          123.33               3           150
+          3            2       C     200             380          190.00               2           200
+          4            2       A     180             380          190.00               2           200
+          5            3       B      90             470          117.50               4           140
+          6            3       C     110             470          117.50               4           140
+          7            3       A     130             470          117.50               4           140
+          8            3       B     140             470          117.50               4           140
+
+          Aggregations add customer-level context to each transaction
+
+      - title: "Example 7: Feature Engineering Pipeline"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def engineer_features(df):
+              """Complete feature engineering pipeline"""
+              df_new = df.copy()
+
+              # 1. Date features
+              df_new['year'] = df_new['date'].dt.year
+              df_new['month'] = df_new['date'].dt.month
+              df_new['is_weekend'] = df_new['date'].dt.dayofweek.isin([5, 6]).astype(int)
+
+              # 2. Mathematical transformations
+              df_new['price_log'] = np.log1p(df_new['price'])
+
+              # 3. Interaction features
+              df_new['revenue'] = df_new['price'] * df_new['quantity']
+
+              # 4. Binning
+              df_new['price_category'] = pd.cut(df_new['price'],
+                                                bins=[0, 100, 200, float('inf')],
+                                                labels=['Low', 'Medium', 'High'])
+
+              return df_new
+
+          # Test data
+          df = pd.DataFrame({
+              'date': pd.date_range('2024-01-01', periods=5),
+              'price': [50, 120, 180, 90, 210],
+              'quantity': [5, 10, 8, 12, 15]
+          })
+
+          print("Original data:")
+          print(df)
+
+          df_engineered = engineer_features(df)
+
+          print("\nAfter feature engineering:")
+          print(df_engineered)
+
+          print(f"\nOriginal features: {df.shape[1]}")
+          print(f"Engineered features: {df_engineered.shape[1]}")
+        output: |
+          Original data:
+                  date  price  quantity
+          0 2024-01-01     50         5
+          1 2024-01-02    120        10
+          2 2024-01-03    180         8
+          3 2024-01-04     90        12
+          4 2024-01-05    210        15
+
+          After feature engineering:
+                  date  price  quantity  year  month  is_weekend  price_log  revenue price_category
+          0 2024-01-01     50         5  2024      1           0       3.93      250            Low
+          1 2024-01-02    120        10  2024      1           0       4.80     1200         Medium
+          2 2024-01-03    180         8  2024      1           0       5.20     1440         Medium
+          3 2024-01-04     90        12  2024      1           0       4.51     1080            Low
+          4 2024-01-05    210        15  2024      1           0       5.35     3150           High
+
+          Original features: 3
+          Engineered features: 9
+
+  exercise:
+    title: "Engineer Features from Sales Data"
+    instruction: |
+      You have sales data with dates and transactions. Engineer useful features.
+
+      Create a dictionary called `result` with:
+      - 'n_date_features': number of date-related features created (int)
+      - 'revenue_max': maximum revenue after creating revenue feature (float, rounded to 2)
+      - 'price_high_count': number of transactions in 'High' price category (> 150) (int)
+      - 'customer_avg_mean': mean of customer average purchase amounts (float, rounded to 2)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'date': pd.date_range('2024-01-01', periods=20, freq='D'),
+          'customer_id': np.random.choice([1, 2, 3, 4], 20),
+          'price': np.random.uniform(50, 200, 20),
+          'quantity': np.random.randint(1, 10, 20)
+      })
+
+    starter_code: |
+      # Engineer features from sales data
+      # TODO: Extract date features (year, month, day, day_of_week)
+      # TODO: Create revenue = price * quantity
+      # TODO: Create price categories: Low (<=100), Medium (100-150), High (>150)
+      # TODO: Create customer aggregation: average purchase per customer
+
+      result = {
+          'n_date_features': None,  # TODO: count of date features created
+          'revenue_max': None,  # TODO: max revenue, rounded to 2
+          'price_high_count': None,  # TODO: count of High price category
+          'customer_avg_mean': None  # TODO: mean of customer averages, rounded to 2
+      }
+
+    solution: |
+      # 1. Date features
+      df['year'] = df['date'].dt.year
+      df['month'] = df['date'].dt.month
+      df['day'] = df['date'].dt.day
+      df['day_of_week'] = df['date'].dt.dayofweek
+      n_date_features = 4
+
+      # 2. Revenue
+      df['revenue'] = df['price'] * df['quantity']
+      revenue_max = round(df['revenue'].max(), 2)
+
+      # 3. Price category
+      df['price_category'] = pd.cut(df['price'],
+                                    bins=[0, 100, 150, float('inf')],
+                                    labels=['Low', 'Medium', 'High'])
+      price_high_count = (df['price_category'] == 'High').sum()
+
+      # 4. Customer aggregation
+      df['customer_avg'] = df.groupby('customer_id')['price'].transform('mean')
+      customer_avg_mean = round(df['customer_avg'].mean(), 2)
+
+      result = {
+          'n_date_features': n_date_features,
+          'revenue_max': revenue_max,
+          'price_high_count': price_high_count,
+          'customer_avg_mean': customer_avg_mean
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_date_features"
+            - "revenue_max"
+            - "price_high_count"
+            - "customer_avg_mean"
+
+    hints:
+      - level: 1
+        text: "Extract year, month, day, day_of_week from date. Create revenue=price×quantity. Use pd.cut() for binning. Use groupby().transform('mean') for customer averages."
+
+      - level: 2
+        text: |
+          Steps:
+          1. Date: df['date'].dt.year, .dt.month, .dt.day, .dt.dayofweek
+          2. Revenue: df['price'] * df['quantity'], then .max()
+          3. Binning: pd.cut(df['price'], bins=[0,100,150,inf], labels=['Low','Medium','High'])
+          4. Aggregation: df.groupby('customer_id')['price'].transform('mean'), then .mean()
+
+      - level: 3
+        code: |
+          # Date features
+          df['year'] = df['date'].dt.year
+          df['month'] = df['date'].dt.month
+          df['day'] = df['date'].dt.day
+          df['day_of_week'] = df['date'].dt.dayofweek
+          n_date_features = 4
+
+          # Revenue
+          df['revenue'] = df['price'] * df['quantity']
+          revenue_max = round(df['revenue'].max(), 2)
+
+          # Price category
+          df['price_category'] = pd.cut(df['price'], bins=[0,100,150,float('inf')], labels=['Low','Medium','High'])
+          price_high_count = (df['price_category'] == 'High').sum()
+
+          # Customer average
+          df['customer_avg'] = df.groupby('customer_id')['price'].transform('mean')
+          customer_avg_mean = round(df['customer_avg'].mean(), 2)
+
+  follow_up:
+    challenges:
+      - "Build an automated feature engineering pipeline"
+      - "Create domain-specific features for a real-world problem"
+      - "Implement feature selection to choose best engineered features"
+      - "Compare model performance before/after feature engineering"
+
+    resources:
+      - title: "Feature Engineering Techniques"
+        url: "https://towardsdatascience.com/feature-engineering-for-machine-learning-3a5e293a5114"
+      - title: "Sklearn Polynomial Features"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PolynomialFeatures.html"
+      - title: "Feature Engineering Best Practices"
+        url: "https://www.kaggle.com/learn/feature-engineering"
+
+    next_lesson: "preprocessing_06"

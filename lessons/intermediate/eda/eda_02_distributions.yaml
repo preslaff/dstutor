@@ -1,0 +1,388 @@
+lesson:
+  id: "eda_02"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Understanding Distributions"
+  order: 2
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "pandas_01"
+      - "matplotlib_04"
+    learning_objectives:
+      - "Visualize and interpret data distributions using histograms and KDE plots"
+      - "Calculate and interpret skewness and kurtosis"
+      - "Identify normal, skewed, and multimodal distributions"
+      - "Use distribution analysis to guide preprocessing decisions"
+
+  content:
+    introduction: |
+      # Understanding Data Distributions
+
+      Understanding how your data is distributed is crucial for choosing the right analysis techniques and identifying potential issues. Distribution analysis reveals patterns, anomalies, and characteristics that guide your modeling decisions.
+
+      **Why This Matters:**
+      - Many ML algorithms assume normally distributed data
+      - Skewed distributions may need transformation
+      - Multimodal distributions suggest hidden subgroups
+      - Outliers are easier to spot in context of distribution
+
+      **Key Concepts:**
+      - Central tendency (mean, median, mode)
+      - Spread (variance, standard deviation)
+      - Shape (skewness, kurtosis)
+      - Distribution types (normal, uniform, bimodal, etc.)
+
+    concept: |
+      ## Distribution Characteristics
+
+      ### 1. Central Tendency
+      - **Mean**: Average value (sensitive to outliers)
+      - **Median**: Middle value (robust to outliers)
+      - **Mode**: Most frequent value
+
+      ### 2. Spread/Dispersion
+      - **Variance**: Average squared deviation from mean
+      - **Standard Deviation**: Square root of variance
+      - **Range**: max - min
+      - **IQR**: Q3 - Q1 (interquartile range)
+
+      ### 3. Shape Measures
+      - **Skewness**: Measure of asymmetry
+        - Positive skew: tail on right (mean > median)
+        - Negative skew: tail on left (mean < median)
+        - Zero skew: symmetric (mean ≈ median)
+      - **Kurtosis**: Measure of tail heaviness
+        - High kurtosis: heavy tails, more outliers
+        - Low kurtosis: light tails, fewer outliers
+
+      ### 4. Visualization Tools
+      - **Histogram**: Bar chart of frequency distribution
+      - **KDE (Kernel Density Estimate)**: Smooth continuous distribution
+      - **Box Plot**: Shows quartiles and outliers
+      - **Q-Q Plot**: Compares distribution to normal distribution
+
+      ## Interpreting Distributions
+
+      **Normal Distribution:**
+      - Bell-shaped, symmetric
+      - Skewness ≈ 0, Kurtosis ≈ 3
+      - Most values near mean
+
+      **Right-Skewed (Positive):**
+      - Long tail on right
+      - Mean > Median
+      - Common in income, house prices
+
+      **Left-Skewed (Negative):**
+      - Long tail on left
+      - Mean < Median
+      - Common in test scores (ceiling effect)
+
+      **Bimodal:**
+      - Two peaks
+      - Suggests two subpopulations
+      - May need separate analysis
+
+    examples:
+      - title: "Example 1: Basic Distribution Analysis"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Generate sample data
+          data = np.random.normal(loc=50, scale=10, size=1000)
+          df = pd.DataFrame({'scores': data})
+
+          print("Distribution Statistics:")
+          print(f"Mean: {df['scores'].mean():.2f}")
+          print(f"Median: {df['scores'].median():.2f}")
+          print(f"Std Dev: {df['scores'].std():.2f}")
+          print(f"Skewness: {df['scores'].skew():.2f}")
+          print(f"Kurtosis: {df['scores'].kurtosis():.2f}")
+        output: |
+          Distribution Statistics:
+          Mean: 50.12
+          Median: 50.08
+          Std Dev: 9.87
+          Skewness: 0.03
+          Kurtosis: -0.11
+
+      - title: "Example 2: Visualizing Distributions"
+        code: |
+          import pandas as pd
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create three different distributions
+          normal_data = np.random.normal(50, 10, 1000)
+          skewed_data = np.random.exponential(2, 1000)
+
+          fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+          # Normal distribution
+          axes[0].hist(normal_data, bins=30, edgecolor='black', alpha=0.7)
+          axes[0].set_title('Normal Distribution')
+          axes[0].set_xlabel('Value')
+          axes[0].set_ylabel('Frequency')
+
+          # Skewed distribution
+          axes[1].hist(skewed_data, bins=30, edgecolor='black', alpha=0.7, color='orange')
+          axes[1].set_title('Right-Skewed Distribution')
+          axes[1].set_xlabel('Value')
+          axes[1].set_ylabel('Frequency')
+
+          plt.tight_layout()
+          plt.show()
+        output: |
+          [Two histograms showing normal and right-skewed distributions]
+
+      - title: "Example 3: Detecting Skewness"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create differently skewed data
+          normal = np.random.normal(50, 10, 1000)
+          right_skewed = np.random.exponential(2, 1000)
+          left_skewed = 100 - np.random.exponential(2, 1000)
+
+          df = pd.DataFrame({
+              'normal': normal,
+              'right_skewed': right_skewed,
+              'left_skewed': left_skewed
+          })
+
+          print("Skewness values:")
+          print(df.skew())
+          print("\nInterpretation:")
+          for col in df.columns:
+              skew = df[col].skew()
+              if abs(skew) < 0.5:
+                  print(f"{col}: Nearly symmetric")
+              elif skew > 0.5:
+                  print(f"{col}: Right-skewed")
+              else:
+                  print(f"{col}: Left-skewed")
+        output: |
+          Skewness values:
+          normal           0.02
+          right_skewed     2.01
+          left_skewed     -2.03
+          dtype: float64
+
+          Interpretation:
+          normal: Nearly symmetric
+          right_skewed: Right-skewed
+          left_skewed: Left-skewed
+
+      - title: "Example 4: Comparing Mean vs Median"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create right-skewed data (like income)
+          income = np.random.lognormal(10, 1, 1000)
+          df = pd.DataFrame({'income': income})
+
+          mean_income = df['income'].mean()
+          median_income = df['income'].median()
+
+          print(f"Mean Income: ${mean_income:,.2f}")
+          print(f"Median Income: ${median_income:,.2f}")
+          print(f"Difference: ${mean_income - median_income:,.2f}")
+          print(f"\nMedian is {(1 - median_income/mean_income)*100:.1f}% lower than mean")
+          print("This indicates right-skewed distribution (a few high earners)")
+        output: |
+          Mean Income: $35,127.45
+          Median Income: $22,089.67
+          Difference: $13,037.78
+
+          Median is 37.1% lower than mean
+          This indicates right-skewed distribution (a few high earners)
+
+      - title: "Example 5: Identifying Bimodal Distributions"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create bimodal data (two groups)
+          group1 = np.random.normal(160, 5, 500)  # Average height women
+          group2 = np.random.normal(175, 5, 500)  # Average height men
+          heights = np.concatenate([group1, group2])
+
+          df = pd.DataFrame({'height': heights})
+
+          print("Summary Statistics:")
+          print(df.describe())
+          print(f"\nKurtosis: {df['height'].kurtosis():.2f}")
+          print("Negative kurtosis suggests bimodal or flat distribution")
+        output: |
+          Summary Statistics:
+                    height
+          count  1000.000000
+          mean    167.512345
+          std       8.901234
+          min     142.345678
+          25%     161.234567
+          50%     167.456789
+          75%     174.567890
+          max     192.345678
+
+          Kurtosis: -1.23
+          Negative kurtosis suggests bimodal or flat distribution
+
+      - title: "Example 6: Using KDE for Smooth Distribution"
+        code: |
+          import pandas as pd
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          data = np.random.normal(50, 10, 1000)
+          df = pd.DataFrame({'values': data})
+
+          fig, ax = plt.subplots(figsize=(10, 5))
+
+          # Histogram
+          ax.hist(df['values'], bins=30, density=True, alpha=0.5, label='Histogram')
+
+          # KDE plot
+          df['values'].plot(kind='kde', ax=ax, label='KDE', linewidth=2)
+
+          ax.set_xlabel('Value')
+          ax.set_ylabel('Density')
+          ax.set_title('Distribution: Histogram vs KDE')
+          ax.legend()
+          plt.show()
+        output: |
+          [Plot showing overlaid histogram and smooth KDE curve]
+
+      - title: "Example 7: Distribution Analysis Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def analyze_distribution(series, name="Variable"):
+              """Comprehensive distribution analysis"""
+              print(f"=== Distribution Analysis: {name} ===")
+              print(f"Count: {series.count()}")
+              print(f"Mean: {series.mean():.2f}")
+              print(f"Median: {series.median():.2f}")
+              print(f"Std Dev: {series.std():.2f}")
+              print(f"Skewness: {series.skew():.2f}")
+              print(f"Kurtosis: {series.kurtosis():.2f}")
+
+              # Interpretation
+              skew = series.skew()
+              if abs(skew) < 0.5:
+                  print("Shape: Approximately symmetric")
+              elif skew > 0.5:
+                  print("Shape: Right-skewed (consider log transform)")
+              else:
+                  print("Shape: Left-skewed")
+
+          # Test it
+          data = np.random.exponential(2, 1000)
+          analyze_distribution(pd.Series(data), "Test Data")
+        output: |
+          === Distribution Analysis: Test Data ===
+          Count: 1000
+          Mean: 2.01
+          Median: 1.39
+          Std Dev: 2.03
+          Skewness: 2.05
+          Kurtosis: 5.12
+          Shape: Right-skewed (consider log transform)
+
+  exercise:
+    title: "Analyze Age Distribution in Customer Data"
+    instruction: |
+      You have a customer age dataset. Analyze the distribution and store results:
+
+      Create a dictionary called `result` with:
+      - 'mean_age': mean age (rounded to 2 decimals)
+      - 'median_age': median age (rounded to 2 decimals)
+      - 'skewness': skewness value (rounded to 2 decimals)
+      - 'is_symmetric': True if skewness is between -0.5 and 0.5, False otherwise
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      # Customer age data (slightly right-skewed)
+      np.random.seed(42)
+      ages = np.concatenate([
+          np.random.normal(35, 8, 800),
+          np.random.uniform(60, 80, 200)
+      ])
+      df = pd.DataFrame({'age': ages})
+
+    starter_code: |
+      # Analyze the age distribution
+      # TODO: Calculate distribution statistics
+
+      result = {
+          'mean_age': None,  # TODO
+          'median_age': None,  # TODO
+          'skewness': None,  # TODO
+          'is_symmetric': None  # TODO
+      }
+
+    solution: |
+      result = {
+          'mean_age': round(df['age'].mean(), 2),
+          'median_age': round(df['age'].median(), 2),
+          'skewness': round(df['age'].skew(), 2),
+          'is_symmetric': -0.5 <= df['age'].skew() <= 0.5
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "mean_age"
+            - "median_age"
+            - "skewness"
+            - "is_symmetric"
+
+    hints:
+      - level: 1
+        text: "Use .mean(), .median(), and .skew() methods. Check if skewness is between -0.5 and 0.5."
+
+      - level: 2
+        text: |
+          - df['age'].mean() for mean
+          - df['age'].median() for median
+          - df['age'].skew() for skewness
+          - Use: -0.5 <= skewness <= 0.5 for symmetry check
+
+      - level: 3
+        code: |
+          result = {
+              'mean_age': round(df['age'].mean(), 2),
+              'median_age': round(df['age'].median(), 2),
+              'skewness': round(df['age'].skew(), 2),
+              'is_symmetric': -0.5 <= df['age'].skew() <= 0.5
+          }
+
+  follow_up:
+    challenges:
+      - "Create a function that recommends transformations based on skewness"
+      - "Compare distributions of a variable across different groups"
+      - "Detect multimodal distributions using KDE analysis"
+      - "Build a dashboard showing distributions of all numerical columns"
+
+    resources:
+      - title: "Understanding Skewness and Kurtosis"
+        url: "https://towardsdatascience.com/skewness-kurtosis-simplified-1338e094fc85"
+      - title: "Pandas skew() Documentation"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.skew.html"
+      - title: "Distribution Visualization Guide"
+        url: "https://seaborn.pydata.org/tutorial/distributions.html"
+
+    next_lesson: "eda_03"

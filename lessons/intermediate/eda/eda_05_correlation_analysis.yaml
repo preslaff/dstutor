@@ -1,0 +1,403 @@
+lesson:
+  id: "eda_05"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Correlation Analysis"
+  order: 5
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "pandas_01"
+      - "matplotlib_09"
+    learning_objectives:
+      - "Calculate and interpret correlation coefficients (Pearson, Spearman)"
+      - "Visualize correlations using heatmaps and pair plots"
+      - "Identify multicollinearity issues for modeling"
+      - "Understand correlation vs causation"
+
+  content:
+    introduction: |
+      # Correlation Analysis
+
+      Correlation measures the strength and direction of relationships between variables. Understanding these relationships is crucial for feature selection and model interpretation.
+
+      **Why This Matters:**
+      - Identify redundant features
+      - Discover relationships between variables
+      - Detect multicollinearity for modeling
+      - Guide feature engineering
+
+      **Key Concepts:**
+      - Correlation range: -1 to +1
+      - Positive: variables move together
+      - Negative: variables move opposite
+      - Zero: no linear relationship
+
+    concept: |
+      ## Types of Correlation
+
+      ### 1. Pearson Correlation
+      - Measures linear relationships
+      - Assumes normal distribution
+      - Sensitive to outliers
+      - Range: -1 to +1
+
+      **Interpretation:**
+      - |r| = 1.0: Perfect correlation
+      - |r| = 0.7-0.9: Strong
+      - |r| = 0.4-0.6: Moderate
+      - |r| = 0.1-0.3: Weak
+      - |r| < 0.1: No correlation
+
+      ### 2. Spearman Correlation
+      - Measures monotonic relationships
+      - Rank-based (non-parametric)
+      - Robust to outliers
+      - Better for non-linear relationships
+
+      ### 3. Visualization Methods
+      - **Heatmap**: Overview of all correlations
+      - **Pair Plot**: Scatter plots between variables
+      - **Correlation Matrix**: Numerical values
+
+      ### 4. Important Notes
+      - **Correlation ≠ Causation**
+      - Only measures linear relationships (Pearson)
+      - Missing data affects results
+      - Outliers can distort correlations
+
+    examples:
+      - title: "Example 1: Calculate Pearson Correlation"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'hours_study': [1, 2, 3, 4, 5, 6, 7, 8],
+              'exam_score': [50, 55, 65, 70, 75, 85, 88, 90],
+              'hours_sleep': [8, 7, 7, 6, 6, 5, 5, 4]
+          })
+
+          # Correlation matrix
+          corr_matrix = df.corr()
+          print("Correlation Matrix:")
+          print(corr_matrix)
+
+          print(f"\nStudy hours vs Score: {corr_matrix.loc['hours_study', 'exam_score']:.3f}")
+          print(f"Sleep vs Score: {corr_matrix.loc['hours_sleep', 'exam_score']:.3f}")
+        output: |
+          Correlation Matrix:
+                       hours_study  exam_score  hours_sleep
+          hours_study        1.000       0.987       -0.995
+          exam_score         0.987       1.000       -0.965
+          hours_sleep       -0.995      -0.965        1.000
+
+          Study hours vs Score: 0.987
+          Sleep vs Score: -0.965
+
+      - title: "Example 2: Visualize with Heatmap"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create sample data
+          df = pd.DataFrame({
+              'A': np.random.randn(100),
+              'B': np.random.randn(100),
+              'C': np.random.randn(100),
+              'D': np.random.randn(100)
+          })
+          df['E'] = df['A'] * 0.8 + np.random.randn(100) * 0.2
+
+          # Correlation heatmap
+          plt.figure(figsize=(8, 6))
+          sns.heatmap(df.corr(), annot=True, cmap='coolwarm', center=0,
+                      fmt='.2f', square=True, linewidths=1)
+          plt.title('Correlation Heatmap')
+          plt.show()
+        output: |
+          [Heatmap showing correlation matrix with color intensity]
+
+      - title: "Example 3: Pearson vs Spearman"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create non-linear relationship
+          x = np.arange(1, 11)
+          y = x ** 2  # Quadratic relationship
+
+          df = pd.DataFrame({'x': x, 'y': y})
+
+          pearson_corr = df['x'].corr(df['y'], method='pearson')
+          spearman_corr = df['x'].corr(df['y'], method='spearman')
+
+          print(f"Pearson correlation: {pearson_corr:.3f}")
+          print(f"Spearman correlation: {spearman_corr:.3f}")
+          print("\nSpearman better captures non-linear monotonic relationship")
+        output: |
+          Pearson correlation: 0.973
+          Spearman correlation: 1.000
+
+          Spearman better captures non-linear monotonic relationship
+
+      - title: "Example 4: Identify Highly Correlated Features"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'A': np.random.randn(100),
+              'B': np.random.randn(100),
+              'C': np.random.randn(100)
+          })
+          df['D'] = df['A'] * 0.95 + np.random.randn(100) * 0.05  # Highly correlated with A
+
+          # Find high correlations (excluding diagonal)
+          corr_matrix = df.corr().abs()
+          upper_tri = corr_matrix.where(
+              np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+          )
+
+          # Find pairs with correlation > 0.8
+          high_corr_pairs = [(col, row, upper_tri.loc[row, col])
+                             for col in upper_tri.columns
+                             for row in upper_tri.index
+                             if upper_tri.loc[row, col] > 0.8]
+
+          print("Highly correlated pairs (r > 0.8):")
+          for col, row, corr in high_corr_pairs:
+              print(f"{col} - {row}: {corr:.3f}")
+        output: |
+          Highly correlated pairs (r > 0.8):
+          D - A: 0.995
+
+      - title: "Example 5: Correlation with Target Variable"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100),
+              'feature3': np.random.randn(100),
+              'target': np.random.randn(100)
+          })
+          df['feature4'] = df['target'] * 0.7 + np.random.randn(100) * 0.3
+
+          # Correlation with target
+          target_corr = df.corr()['target'].sort_values(ascending=False)
+
+          print("Feature correlations with target:")
+          print(target_corr)
+          print(f"\nMost predictive feature: {target_corr.index[1]}")
+        output: |
+          Feature correlations with target:
+          target      1.000000
+          feature4    0.903145
+          feature2   -0.065123
+          feature1   -0.021456
+          feature3    0.015789
+          Name: target, dtype: float64
+
+          Most predictive feature: feature4
+
+      - title: "Example 6: Multicollinearity Detection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'X1': np.random.randn(100),
+              'X2': np.random.randn(100)
+          })
+          df['X3'] = df['X1'] * 0.9 + df['X2'] * 0.1  # Multicollinear
+
+          # Check VIF (approximation with correlation)
+          corr_matrix = df.corr().abs()
+
+          print("Correlation Matrix:")
+          print(corr_matrix)
+          print("\nWarning: X3 is highly correlated with X1 (0.99)")
+          print("This indicates multicollinearity!")
+        output: |
+          Correlation Matrix:
+                   X1        X2        X3
+          X1  1.000000  0.015234  0.994567
+          X2  0.015234  1.000000  0.125678
+          X3  0.994567  0.125678  1.000000
+
+          Warning: X3 is highly correlated with X1 (0.99)
+          This indicates multicollinearity!
+
+      - title: "Example 7: Correlation Analysis Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def correlation_summary(df, threshold=0.7):
+              """Comprehensive correlation analysis"""
+              corr_matrix = df.corr()
+
+              print("=== Correlation Summary ===\n")
+
+              # High correlations
+              upper_tri = corr_matrix.where(
+                  np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+              )
+
+              high_corr = [(col, row, upper_tri.loc[row, col])
+                           for col in upper_tri.columns
+                           for row in upper_tri.index
+                           if abs(upper_tri.loc[row, col]) > threshold]
+
+              if high_corr:
+                  print(f"High correlations (|r| > {threshold}):")
+                  for col, row, corr in high_corr:
+                      print(f"  {col} - {row}: {corr:.3f}")
+              else:
+                  print(f"No correlations above {threshold}")
+
+              return corr_matrix
+
+          # Test
+          df = pd.DataFrame({
+              'A': np.random.randn(100),
+              'B': np.random.randn(100)
+          })
+          df['C'] = df['A'] * 0.8 + np.random.randn(100) * 0.2
+
+          correlation_summary(df)
+        output: |
+          === Correlation Summary ===
+
+          High correlations (|r| > 0.7):
+            C - A: 0.967
+
+  exercise:
+    title: "Analyze Feature Correlations"
+    instruction: |
+      You have a dataset with multiple features. Analyze correlations to identify:
+      1. The pair of features with the strongest positive correlation
+      2. The feature most correlated with the target
+
+      Create a dictionary called `result` with:
+      - 'strongest_pair': tuple of (feature1, feature2) with highest correlation (alphabetically sorted)
+      - 'strongest_correlation': correlation value (rounded to 3 decimals)
+      - 'best_predictor': name of feature most correlated with target (excluding target itself)
+      - 'predictor_correlation': its correlation with target (rounded to 3 decimals)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': np.random.randint(20, 60, 50),
+          'income': np.random.randint(30000, 100000, 50),
+          'experience': np.random.randint(0, 30, 50),
+          'education_years': np.random.randint(12, 20, 50),
+          'target': np.random.randint(0, 100, 50)
+      })
+      # Make experience highly correlated with age
+      df['experience'] = df['age'] - 22 + np.random.randint(-3, 3, 50)
+      # Make income somewhat correlated with target
+      df['target'] = df['income'] / 1000 + np.random.randint(-10, 10, 50)
+
+    starter_code: |
+      # Calculate correlation matrix
+      # TODO: Find strongest pair and best predictor
+
+      result = {
+          'strongest_pair': None,  # TODO: tuple (feat1, feat2) alphabetically sorted
+          'strongest_correlation': None,  # TODO: rounded to 3 decimals
+          'best_predictor': None,  # TODO: feature name
+          'predictor_correlation': None  # TODO: rounded to 3 decimals
+      }
+
+    solution: |
+      # Calculate correlation matrix
+      corr_matrix = df.corr()
+
+      # Find strongest pair (excluding diagonal and target)
+      features = [col for col in df.columns if col != 'target']
+      upper_tri = corr_matrix.loc[features, features].where(
+          np.triu(np.ones((len(features), len(features))), k=1).astype(bool)
+      )
+
+      # Get max correlation
+      max_corr = upper_tri.max().max()
+      for col in upper_tri.columns:
+          for row in upper_tri.index:
+              if upper_tri.loc[row, col] == max_corr:
+                  strongest_pair = tuple(sorted([col, row]))
+                  break
+
+      # Find best predictor for target
+      target_corr = corr_matrix['target'].drop('target').abs()
+      best_predictor = target_corr.idxmax()
+      predictor_correlation = corr_matrix.loc[best_predictor, 'target']
+
+      result = {
+          'strongest_pair': strongest_pair,
+          'strongest_correlation': round(max_corr, 3),
+          'best_predictor': best_predictor,
+          'predictor_correlation': round(predictor_correlation, 3)
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "strongest_pair"
+            - "strongest_correlation"
+            - "best_predictor"
+            - "predictor_correlation"
+
+    hints:
+      - level: 1
+        text: "Use df.corr() to get correlation matrix. Find max in upper triangle for strongest pair. Use abs() for best predictor."
+
+      - level: 2
+        text: |
+          1. corr_matrix = df.corr()
+          2. For strongest pair: get upper triangle, find max
+          3. For best predictor: corr_matrix['target'].drop('target').abs().idxmax()
+
+      - level: 3
+        code: |
+          corr_matrix = df.corr()
+          features = [col for col in df.columns if col != 'target']
+          upper_tri = corr_matrix.loc[features, features].where(
+              np.triu(np.ones((len(features), len(features))), k=1).astype(bool)
+          )
+          max_corr = upper_tri.max().max()
+          # Find pair with max_corr
+          best_predictor = corr_matrix['target'].drop('target').abs().idxmax()
+
+  follow_up:
+    challenges:
+      - "Create an interactive correlation explorer with plotly"
+      - "Implement a function to automatically remove highly correlated features"
+      - "Build a correlation network graph showing feature relationships"
+      - "Compare Pearson, Spearman, and Kendall correlations on same dataset"
+
+    resources:
+      - title: "Understanding Correlation"
+        url: "https://www.jmp.com/en_us/statistics-knowledge-portal/what-is-correlation.html"
+      - title: "Pandas Correlation Methods"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html"
+      - title: "Seaborn Correlation Heatmaps"
+        url: "https://seaborn.pydata.org/generated/seaborn.heatmap.html"
+
+    next_lesson: "eda_06"

@@ -1,0 +1,361 @@
+lesson:
+  id: "eda_03"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Missing Data Analysis"
+  order: 3
+
+  metadata:
+    duration: "30 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "pandas_07"
+    learning_objectives:
+      - "Identify and visualize missing data patterns"
+      - "Understand types of missingness (MCAR, MAR, MNAR)"
+      - "Assess the impact of missing data on analysis"
+      - "Decide on appropriate missing data handling strategies"
+
+  content:
+    introduction: |
+      # Missing Data Analysis
+
+      Missing data is one of the most common data quality issues. Understanding *why* and *how* data is missing is crucial for choosing the right handling strategy.
+
+      **Why This Matters:**
+      - Incorrect handling can bias your results
+      - Different missing patterns require different solutions
+      - May reveal data collection issues
+      - Impacts model performance
+
+      **Types of Missingness:**
+      - **MCAR** (Missing Completely At Random): No pattern
+      - **MAR** (Missing At Random): Related to observed data
+      - **MNAR** (Missing Not At Random): Related to unobserved data
+
+    concept: |
+      ## Understanding Missing Data Patterns
+
+      ### 1. Types of Missingness
+
+      **MCAR (Missing Completely At Random):**
+      - No relationship between missingness and any values
+      - Example: Survey responses lost due to system error
+      - **Handling**: Can safely delete or impute
+
+      **MAR (Missing At Random):**
+      - Missingness related to other observed variables
+      - Example: Older people less likely to report income
+      - **Handling**: Can impute using related variables
+
+      **MNAR (Missing Not At Random):**
+      - Missingness related to the missing value itself
+      - Example: High earners refuse to report salary
+      - **Handling**: Complex; may need specialized methods
+
+      ### 2. Visual Analysis
+
+      **Missing Data Matrix:**
+      - Visualize presence/absence across dataset
+      - Identify columns with most missing data
+      - Spot patterns in missingness
+
+      **Missing Data Heatmap:**
+      - Show correlations between missing values
+      - Identify if variables are missing together
+
+      ### 3. Impact Assessment
+
+      - **Volume**: What % of data is missing?
+      - **Distribution**: Which columns affected?
+      - **Patterns**: Are multiple columns missing together?
+      - **Bias**: Does missingness correlate with target variable?
+
+    examples:
+      - title: "Example 1: Calculating Missing Data Percentages"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'age': [25, np.nan, 35, 40, np.nan, 32],
+              'income': [50000, 60000, np.nan, 80000, np.nan, 65000],
+              'education': ['BS', 'MS', 'BS', np.nan, 'PhD', 'MS']
+          })
+
+          # Missing count and percentage
+          missing_count = df.isnull().sum()
+          missing_pct = (missing_count / len(df)) * 100
+
+          missing_df = pd.DataFrame({
+              'Missing_Count': missing_count,
+              'Missing_Percentage': missing_pct
+          }).sort_values('Missing_Percentage', ascending=False)
+
+          print(missing_df)
+        output: |
+          Missing Data Report:
+                   Missing_Count  Missing_Percentage
+          age                  2           33.333333
+          income               2           33.333333
+          education            1           16.666667
+
+      - title: "Example 2: Visualizing Missing Patterns"
+        code: |
+          import pandas as pd
+          import numpy as np
+          import matplotlib.pyplot as plt
+
+          # Create data with missing patterns
+          df = pd.DataFrame({
+              'A': [1, 2, np.nan, 4, 5, np.nan, 7, 8],
+              'B': [1, np.nan, np.nan, 4, 5, 6, np.nan, 8],
+              'C': [1, 2, 3, 4, 5, 6, 7, 8],
+              'D': [np.nan, 2, 3, np.nan, 5, np.nan, 7, np.nan]
+          })
+
+          # Create missing data matrix
+          plt.figure(figsize=(10, 6))
+          plt.imshow(df.isnull(), cmap='viridis', aspect='auto')
+          plt.colorbar(label='Missing (yellow) vs Present (purple)')
+          plt.xlabel('Columns')
+          plt.ylabel('Rows')
+          plt.xticks(range(len(df.columns)), df.columns)
+          plt.title('Missing Data Pattern')
+          plt.show()
+        output: |
+          [Heatmap showing missing data pattern across rows and columns]
+
+      - title: "Example 3: Correlation Between Missing Values"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'age': [25, np.nan, 35, np.nan, 28, 32],
+              'income': [50000, np.nan, 55000, np.nan, 58000, 65000],
+              'score': [85, 90, 88, 92, 86, 89]
+          })
+
+          # Create binary missing indicators
+          missing_indicators = df.isnull().astype(int)
+
+          # Check correlation between missingness
+          print("Correlation of Missing Values:")
+          print(missing_indicators.corr())
+        output: |
+          Correlation of Missing Values:
+                 age  income  score
+          age    1.0     1.0    0.0
+          income 1.0     1.0    0.0
+          score  0.0     0.0    0.0
+
+          Note: age and income are perfectly correlated (missing together)
+
+      - title: "Example 4: Missing Data Summary Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def missing_data_summary(df):
+              """Comprehensive missing data analysis"""
+              total_cells = np.product(df.shape)
+              total_missing = df.isnull().sum().sum()
+
+              print(f"=== Missing Data Summary ===")
+              print(f"Total cells: {total_cells}")
+              print(f"Missing cells: {total_missing}")
+              print(f"Percentage missing: {(total_missing/total_cells)*100:.2f}%\n")
+
+              # Per column
+              missing_df = pd.DataFrame({
+                  'Missing_Count': df.isnull().sum(),
+                  'Missing_Pct': (df.isnull().sum() / len(df)) * 100,
+                  'Data_Type': df.dtypes
+              })
+
+              # Only show columns with missing data
+              missing_df = missing_df[missing_df['Missing_Count'] > 0]
+              missing_df = missing_df.sort_values('Missing_Pct', ascending=False)
+
+              print("Columns with missing data:")
+              print(missing_df)
+
+          # Test
+          df = pd.DataFrame({
+              'A': [1, 2, np.nan, 4],
+              'B': [1, np.nan, np.nan, 4],
+              'C': [1, 2, 3, 4]
+          })
+          missing_data_summary(df)
+        output: |
+          === Missing Data Summary ===
+          Total cells: 12
+          Missing cells: 3
+          Percentage missing: 25.00%
+
+          Columns with missing data:
+             Missing_Count  Missing_Pct Data_Type
+          B              2        50.00   float64
+          A              1        25.00   float64
+
+      - title: "Example 5: Checking if Missingness is Related to Target"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Simulate data where high-income people don't report age
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 35, np.nan, 32, np.nan, 28],
+              'income': [40000, 45000, 85000, 50000, 90000, 48000, 95000, 42000]
+          })
+
+          # Check if income differs for missing vs non-missing age
+          df['age_missing'] = df['age'].isnull()
+
+          print("Income stats by age missingness:")
+          print(df.groupby('age_missing')['income'].describe())
+        output: |
+          Income stats by age missingness:
+                        count      mean       std       min       25%       50%       75%       max
+          age_missing
+          False         5.0   42000.0  3807.89  40000.0  42000.0  45000.0  48000.0  50000.0
+          True          3.0   90000.0  5000.00  85000.0  87500.0  90000.0  92500.0  95000.0
+
+          Note: Much higher income when age is missing (suggests MNAR)
+
+      - title: "Example 6: Threshold-Based Decision"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'A': [1, 2, np.nan, 4, 5] * 20,  # 20% missing
+              'B': [np.nan] * 50 + [1] * 50,    # 50% missing
+              'C': [np.nan] * 95 + [1] * 5,     # 95% missing
+              'D': list(range(100))              # 0% missing
+          })
+
+          # Decision threshold
+          threshold = 50  # Drop columns with >50% missing
+
+          missing_pct = (df.isnull().sum() / len(df)) * 100
+
+          print("Missing percentages:")
+          print(missing_pct)
+          print(f"\nColumns to drop (>{threshold}% missing):")
+          print(missing_pct[missing_pct > threshold].index.tolist())
+        output: |
+          Missing percentages:
+          A    20.0
+          B    50.0
+          C    95.0
+          D     0.0
+          dtype: float64
+
+          Columns to drop (>50% missing):
+          ['C']
+
+  exercise:
+    title: "Analyze Missing Data in Survey Dataset"
+    instruction: |
+      You have survey data with missing values. Analyze the missing data patterns.
+
+      Create a dictionary called `result` with:
+      - 'total_missing_pct': overall percentage of missing data (rounded to 2 decimals)
+      - 'worst_column': name of column with highest missing percentage
+      - 'worst_column_pct': missing percentage of worst column (rounded to 2 decimals)
+      - 'columns_to_drop': list of column names with >40% missing data
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': [np.nan if np.random.rand() < 0.1 else x for x in range(20, 70)],
+          'income': [np.nan if np.random.rand() < 0.3 else x*1000 for x in range(50, 100)],
+          'satisfaction': [np.nan if np.random.rand() < 0.5 else x for x in range(1, 51)],
+          'city': ['NYC'] * 25 + ['LA'] * 25
+      })
+
+    starter_code: |
+      # Analyze missing data patterns
+      # TODO: Calculate missing data statistics
+
+      result = {
+          'total_missing_pct': None,  # TODO
+          'worst_column': None,  # TODO
+          'worst_column_pct': None,  # TODO
+          'columns_to_drop': []  # TODO: columns with >40% missing
+      }
+
+    solution: |
+      # Calculate missing percentages
+      missing_pct = (df.isnull().sum() / len(df)) * 100
+
+      # Overall missing percentage
+      total_missing = df.isnull().sum().sum()
+      total_cells = np.product(df.shape)
+      total_missing_pct = round((total_missing / total_cells) * 100, 2)
+
+      # Find worst column
+      worst_column = missing_pct.idxmax()
+      worst_column_pct = round(missing_pct.max(), 2)
+
+      # Columns to drop (>40% missing)
+      columns_to_drop = missing_pct[missing_pct > 40].index.tolist()
+
+      result = {
+          'total_missing_pct': total_missing_pct,
+          'worst_column': worst_column,
+          'worst_column_pct': worst_column_pct,
+          'columns_to_drop': columns_to_drop
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "total_missing_pct"
+            - "worst_column"
+            - "worst_column_pct"
+            - "columns_to_drop"
+
+    hints:
+      - level: 1
+        text: "Use .isnull().sum() to count missing values. Calculate percentages by dividing by len(df)."
+
+      - level: 2
+        text: |
+          - missing_pct = (df.isnull().sum() / len(df)) * 100
+          - Use .idxmax() to find column with highest missing percentage
+          - Filter missing_pct[missing_pct > 40] for columns to drop
+
+      - level: 3
+        code: |
+          missing_pct = (df.isnull().sum() / len(df)) * 100
+          total_missing_pct = round((df.isnull().sum().sum() / np.product(df.shape)) * 100, 2)
+          worst_column = missing_pct.idxmax()
+          worst_column_pct = round(missing_pct.max(), 2)
+          columns_to_drop = missing_pct[missing_pct > 40].index.tolist()
+
+  follow_up:
+    challenges:
+      - "Create a visualization showing missing data patterns across the entire dataset"
+      - "Write a function to detect if missingness is MCAR, MAR, or MNAR"
+      - "Analyze if missing values in one column predict missing values in another"
+      - "Build a report that recommends handling strategies based on missing patterns"
+
+    resources:
+      - title: "Understanding Missing Data"
+        url: "https://stefvanbuuren.name/fimd/sec-MCAR.html"
+      - title: "Missing Data Visualization"
+        url: "https://github.com/ResidentMario/missingno"
+      - title: "Pandas Missing Data Handling"
+        url: "https://pandas.pydata.org/docs/user_guide/missing_data.html"
+
+    next_lesson: "eda_04"

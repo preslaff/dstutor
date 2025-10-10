@@ -110,32 +110,66 @@ class LessonLoader:
         Returns:
             Lesson dictionary or None
         """
-        # For now, return a sample lesson
-        # In production, this would load from YAML files
+        # Try to load from YAML files first
+        lessons = self._load_topic_lessons_from_yaml(topic)
+        if lessons:
+            return lessons[0]
+
+        # Fallback to sample lesson
         return self._get_sample_lesson(topic, 1)
 
     def get_next_lesson(self, topic: str, current_lesson_id: str) -> Optional[Dict]:
         """Get the next lesson in a topic"""
-        # Extract lesson number from ID (e.g., 'numpy_01' -> 1)
-        try:
-            current_num = int(current_lesson_id.split('_')[-1])
-            return self._get_sample_lesson(topic, current_num + 1)
-        except (ValueError, IndexError):
-            return None
+        lessons = self._load_topic_lessons_from_yaml(topic)
+        if not lessons:
+            # Fallback to sample lessons
+            try:
+                current_num = int(current_lesson_id.split('_')[-1])
+                return self._get_sample_lesson(topic, current_num + 1)
+            except (ValueError, IndexError):
+                return None
+
+        # Find current lesson and return next
+        for i, lesson in enumerate(lessons):
+            if lesson['id'] == current_lesson_id:
+                if i + 1 < len(lessons):
+                    return lessons[i + 1]
+                return None
+        return None
 
     def get_previous_lesson(self, topic: str, current_lesson_id: str) -> Optional[Dict]:
         """Get the previous lesson in a topic"""
-        try:
-            current_num = int(current_lesson_id.split('_')[-1])
-            if current_num > 1:
-                return self._get_sample_lesson(topic, current_num - 1)
-            return None
-        except (ValueError, IndexError):
-            return None
+        lessons = self._load_topic_lessons_from_yaml(topic)
+        if not lessons:
+            # Fallback to sample lessons
+            try:
+                current_num = int(current_lesson_id.split('_')[-1])
+                if current_num > 1:
+                    return self._get_sample_lesson(topic, current_num - 1)
+                return None
+            except (ValueError, IndexError):
+                return None
+
+        # Find current lesson and return previous
+        for i, lesson in enumerate(lessons):
+            if lesson['id'] == current_lesson_id:
+                if i > 0:
+                    return lessons[i - 1]
+                return None
+        return None
 
     def get_lesson_by_id(self, lesson_id: str) -> Optional[Dict]:
         """Load a lesson by its ID"""
-        # Extract topic and number from ID
+        # Try all topics to find the lesson
+        all_topics = ['python', 'numpy', 'pandas', 'matplotlib', 'sklearn', 'eda', 'preprocessing']
+
+        for topic in all_topics:
+            lessons = self._load_topic_lessons_from_yaml(topic)
+            for lesson in lessons:
+                if lesson['id'] == lesson_id:
+                    return lesson
+
+        # Fallback to sample lesson
         try:
             parts = lesson_id.rsplit('_', 1)
             topic = parts[0]
@@ -146,12 +180,57 @@ class LessonLoader:
 
     def get_topic_lessons(self, topic: str) -> List[Dict]:
         """Get all lessons for a topic"""
-        # For now, return a list of sample lessons
-        lessons = []
+        # Try to load from YAML files first
+        lessons = self._load_topic_lessons_from_yaml(topic)
+        if lessons:
+            return lessons
+
+        # Fallback to sample lessons
+        sample_lessons = []
         for i in range(1, 6):  # 5 sample lessons
             lesson = self._get_sample_lesson(topic, i)
             if lesson:
+                sample_lessons.append(lesson)
+        return sample_lessons
+
+    def _load_topic_lessons_from_yaml(self, topic: str) -> List[Dict]:
+        """
+        Load all lessons for a topic from YAML files
+
+        Args:
+            topic: Topic name (e.g., 'python', 'numpy', 'pandas')
+
+        Returns:
+            List of lesson dictionaries sorted by order
+        """
+        lessons = []
+
+        # Map topic names to directory paths
+        topic_dirs = {
+            'python': self.lessons_dir / 'foundations' / 'python',
+            'numpy': self.lessons_dir / 'foundations' / 'numpy',
+            'pandas': self.lessons_dir / 'foundations' / 'pandas',
+            'matplotlib': self.lessons_dir / 'foundations' / 'matplotlib',
+            'sklearn': self.lessons_dir / 'intermediate' / 'sklearn',
+            'eda': self.lessons_dir / 'intermediate' / 'eda',
+            'preprocessing': self.lessons_dir / 'intermediate' / 'preprocessing',
+        }
+
+        topic_dir = topic_dirs.get(topic)
+        if not topic_dir or not topic_dir.exists():
+            return []
+
+        # Load all YAML files in the topic directory
+        yaml_files = sorted(topic_dir.glob('*.yaml'))
+
+        for yaml_file in yaml_files:
+            lesson = self.load_lesson_from_yaml(yaml_file)
+            if lesson:
                 lessons.append(lesson)
+
+        # Sort by order field if present
+        lessons.sort(key=lambda l: l.get('order', 999))
+
         return lessons
 
     def load_lesson_from_yaml(self, filepath: Path) -> Optional[Dict]:

@@ -1,0 +1,364 @@
+lesson:
+  id: "eda_01"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Initial Data Inspection"
+  order: 1
+
+  metadata:
+    duration: "30 min"
+    difficulty: "easy"
+    prerequisites:
+      - "pandas_01"
+      - "pandas_02"
+      - "pandas_03"
+    learning_objectives:
+      - "Use pandas methods to inspect dataset structure and properties"
+      - "Identify data types and dimensions of a dataset"
+      - "Generate summary statistics for quick data understanding"
+      - "Detect basic data quality issues during initial inspection"
+
+  content:
+    introduction: |
+      # Initial Data Inspection
+
+      The first step in any data analysis project is to understand what you're working with. Initial data inspection helps you quickly grasp the structure, size, and basic characteristics of your dataset.
+
+      **Why This Matters:**
+      - Understand dataset dimensions and memory usage
+      - Identify data types and potential type issues
+      - Spot obvious data quality problems early
+      - Plan your EDA and preprocessing strategy
+
+      **Key Questions to Answer:**
+      - How many rows and columns?
+      - What types of data do we have?
+      - Are there missing values?
+      - What's the range of values in each column?
+
+    concept: |
+      ## Essential Inspection Methods
+
+      ### 1. Basic Properties
+      - **`.shape`**: Returns (rows, columns) tuple
+      - **`.info()`**: Shows column names, types, non-null counts, memory usage
+      - **`.dtypes`**: Shows data type of each column
+      - **`.columns`**: Lists all column names
+
+      ### 2. Preview Data
+      - **`.head(n)`**: First n rows (default 5)
+      - **`.tail(n)`**: Last n rows (default 5)
+      - **`.sample(n)`**: Random n rows
+
+      ### 3. Summary Statistics
+      - **`.describe()`**: Statistical summary for numerical columns
+      - **`.describe(include='all')`**: Summary for all columns including categorical
+      - **`.value_counts()`**: Frequency distribution for a column
+
+      ### 4. Data Quality Checks
+      - **`.isnull().sum()`**: Count missing values per column
+      - **`.duplicated().sum()`**: Count duplicate rows
+      - **`.nunique()`**: Count unique values per column
+
+      ## Typical Inspection Workflow
+      ```
+      1. Load data → Check shape
+      2. Preview rows → Understand structure
+      3. Check info() → Verify types
+      4. Get describe() → Understand distributions
+      5. Check nulls → Identify missing data
+      ```
+
+    examples:
+      - title: "Example 1: Basic Dataset Inspection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create sample dataset
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 35, 28],
+              'salary': [50000, 60000, 55000, 70000, 58000],
+              'department': ['Sales', 'IT', 'Sales', 'HR', 'IT'],
+              'years': [2, 5, 3, 8, 4]
+          })
+
+          # Check dimensions
+          print("Shape:", df.shape)
+          print("\nFirst 3 rows:")
+          print(df.head(3))
+        output: |
+          Shape: (5, 4)
+
+          First 3 rows:
+             age   salary department  years
+          0  25.0  50000.0      Sales      2
+          1  30.0  60000.0         IT      5
+          2   NaN  55000.0      Sales      3
+
+      - title: "Example 2: Using info() for Data Types"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'age': [25, 30, 35],
+              'salary': [50000, 60000, 70000],
+              'name': ['Alice', 'Bob', 'Charlie'],
+              'active': [True, False, True]
+          })
+
+          print(df.info())
+        output: |
+          <class 'pandas.core.frame.DataFrame'>
+          RangeIndex: 3 entries, 0 to 2
+          Data columns (total 4 columns):
+           #   Column   Non-Null Count  Dtype
+          ---  ------   --------------  -----
+           0   age      3 non-null      int64
+           1   salary   3 non-null      int64
+           2   name     3 non-null      object
+           3   active   3 non-null      bool
+          dtypes: bool(1), int64(2), object(1)
+          memory usage: 179.0+ bytes
+          None
+
+      - title: "Example 3: Statistical Summary with describe()"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'age': [25, 30, 35, 40, 28, 32],
+              'salary': [50000, 60000, 70000, 80000, 55000, 65000]
+          })
+
+          print(df.describe())
+        output: |
+          Statistical Summary:
+                   age        salary
+          count   6.000000      6.000000
+          mean   31.666667  63333.333333
+          std     5.428255  11690.452030
+          min    25.000000  50000.000000
+          25%    28.500000  56250.000000
+          50%    31.000000  62500.000000
+          75%    33.500000  68750.000000
+          max    40.000000  80000.000000
+
+      - title: "Example 4: Checking for Missing Values"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          df = pd.DataFrame({
+              'A': [1, 2, np.nan, 4],
+              'B': [5, np.nan, np.nan, 8],
+              'C': [9, 10, 11, 12]
+          })
+
+          # Count missing values
+          print("Missing values per column:")
+          print(df.isnull().sum())
+          print("\nMissing value percentage:")
+          print((df.isnull().sum() / len(df) * 100).round(2))
+        output: |
+          Missing values per column:
+          A    1
+          B    2
+          C    0
+          dtype: int64
+
+          Missing value percentage:
+          A    25.0
+          B    50.0
+          C     0.0
+          dtype: float64
+
+      - title: "Example 5: Checking Unique Values"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'category': ['A', 'B', 'A', 'C', 'B', 'A'],
+              'status': ['active', 'inactive', 'active', 'active', 'active', 'inactive'],
+              'score': [85, 90, 85, 75, 90, 80]
+          })
+
+          print("Unique values per column:")
+          print(df.nunique())
+          print("\nValue counts for 'category':")
+          print(df['category'].value_counts())
+        output: |
+          Unique values per column:
+          category    3
+          status      2
+          score       4
+          dtype: int64
+
+          Value counts for 'category':
+          A    3
+          B    2
+          C    1
+          Name: category, dtype: int64
+
+      - title: "Example 6: Detecting Duplicates"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'id': [1, 2, 3, 2, 4],
+              'name': ['Alice', 'Bob', 'Charlie', 'Bob', 'David'],
+              'score': [85, 90, 75, 90, 88]
+          })
+
+          print("Number of duplicate rows:", df.duplicated().sum())
+          print("\nDuplicate rows:")
+          print(df[df.duplicated(keep=False)])
+        output: |
+          Number of duplicate rows: 1
+
+          Duplicate rows:
+             id name  score
+          1   2  Bob     90
+          3   2  Bob     90
+
+      - title: "Example 7: Complete Inspection Workflow"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Sample dataset
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 35, 28, 32],
+              'salary': [50000, 60000, 55000, 70000, 58000, 65000],
+              'dept': ['Sales', 'IT', 'Sales', 'HR', 'IT', 'Sales']
+          })
+
+          print("=== BASIC INFO ===")
+          print(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}")
+          print(f"\nColumn types:\n{df.dtypes}")
+          print(f"\n=== MISSING DATA ===")
+          print(df.isnull().sum())
+          print(f"\n=== SUMMARY STATS ===")
+          print(df.describe())
+        output: |
+          === BASIC INFO ===
+          Rows: 6, Columns: 3
+
+          Column types:
+          age       float64
+          salary      int64
+          dept       object
+          dtype: object
+
+          === MISSING DATA ===
+          age       1
+          salary    0
+          dept      0
+          dtype: int64
+
+          === SUMMARY STATS ===
+                   age        salary
+          count   5.000000      6.000000
+          mean   30.000000  59666.666667
+          std     4.082483   7367.900984
+          min    25.000000  50000.000000
+          25%    28.000000  55750.000000
+          50%    30.000000  59000.000000
+          75%    32.000000  63750.000000
+          max    35.000000  70000.000000
+
+  exercise:
+    title: "Inspect a Customer Dataset"
+    instruction: |
+      You have a customer dataset. Perform initial inspection and answer:
+      1. How many customers and features?
+      2. How many missing values in 'email'?
+      3. What percentage of customers are missing 'phone'?
+
+      Store your answers in a dictionary called `result` with keys:
+      - 'num_customers': number of rows
+      - 'num_features': number of columns
+      - 'missing_email': count of missing emails
+      - 'missing_phone_pct': percentage of missing phone numbers (rounded to 2 decimals)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      # Customer dataset
+      df = pd.DataFrame({
+          'customer_id': [1, 2, 3, 4, 5, 6, 7, 8],
+          'name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Henry'],
+          'email': ['alice@email.com', np.nan, 'charlie@email.com', 'david@email.com',
+                   np.nan, 'frank@email.com', 'grace@email.com', 'henry@email.com'],
+          'phone': ['555-0001', '555-0002', np.nan, '555-0004',
+                   np.nan, np.nan, '555-0007', '555-0008'],
+          'age': [25, 30, 35, 28, 32, 29, 31, 27]
+      })
+
+    starter_code: |
+      # Inspect the dataset
+      # TODO: Calculate the required values
+
+      result = {
+          'num_customers': None,  # TODO: number of rows
+          'num_features': None,   # TODO: number of columns
+          'missing_email': None,  # TODO: count of missing emails
+          'missing_phone_pct': None  # TODO: percentage of missing phones (rounded to 2 decimals)
+      }
+
+    solution: |
+      # Inspect the dataset
+      result = {
+          'num_customers': df.shape[0],
+          'num_features': df.shape[1],
+          'missing_email': df['email'].isnull().sum(),
+          'missing_phone_pct': round((df['phone'].isnull().sum() / len(df)) * 100, 2)
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          expected:
+            num_customers: 8
+            num_features: 5
+            missing_email: 2
+            missing_phone_pct: 37.5
+
+    hints:
+      - level: 1
+        text: "Use df.shape to get dimensions, and .isnull().sum() to count missing values."
+
+      - level: 2
+        text: |
+          - df.shape[0] gives rows, df.shape[1] gives columns
+          - df['column'].isnull().sum() counts missing values
+          - For percentage: (missing_count / total_count) * 100
+
+      - level: 3
+        code: |
+          result = {
+              'num_customers': df.shape[0],
+              'num_features': df.shape[1],
+              'missing_email': df['email'].isnull().sum(),
+              'missing_phone_pct': round((df['phone'].isnull().sum() / len(df)) * 100, 2)
+          }
+
+  follow_up:
+    challenges:
+      - "Use df.memory_usage() to find which column uses the most memory"
+      - "Create a function that generates a full inspection report for any DataFrame"
+      - "Find columns where more than 20% of values are missing"
+      - "Identify columns that might need type conversion (e.g., numbers stored as strings)"
+
+    resources:
+      - title: "Pandas DataFrame.info() Documentation"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.info.html"
+      - title: "Pandas DataFrame.describe() Documentation"
+        url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html"
+      - title: "Data Inspection Best Practices"
+        url: "https://realpython.com/pandas-dataframe/"
+
+    next_lesson: "eda_02"

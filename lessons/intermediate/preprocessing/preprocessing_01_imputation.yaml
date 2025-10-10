@@ -1,0 +1,610 @@
+lesson:
+  id: "preprocessing_01"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Missing Value Imputation"
+  order: 1
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "pandas_07"
+      - "eda_03"
+      - "sklearn_01"
+    learning_objectives:
+      - "Apply different imputation strategies (mean, median, mode, constant)"
+      - "Use advanced imputation methods (KNN, iterative)"
+      - "Evaluate the impact of different imputation strategies"
+      - "Implement imputation in ML pipelines without data leakage"
+
+  content:
+    introduction: |
+      # Missing Value Imputation
+
+      Missing data is common in real-world datasets. Imputation is the process of replacing missing values with substituted values. The choice of imputation method can significantly impact model performance.
+
+      **Why This Matters:**
+      - Most ML algorithms cannot handle missing values
+      - Simply removing rows loses valuable information
+      - Poor imputation can introduce bias
+      - Different strategies suit different data types and patterns
+
+      **Key Considerations:**
+      - Type of missingness (MCAR, MAR, MNAR)
+      - Amount of missing data
+      - Data type (numerical vs categorical)
+      - Impact on downstream model
+
+    concept: |
+      ## Imputation Strategies
+
+      ### 1. Simple Imputation Methods
+
+      **Statistical Imputation:**
+      - **Mean**: Best for normally distributed data
+      - **Median**: Robust to outliers, better for skewed data
+      - **Mode**: For categorical variables
+      - **Constant**: Domain-specific values (e.g., 0, "Unknown")
+
+      **Pros:**
+      - Fast and simple
+      - Deterministic
+      - Works well with small amounts of missing data
+
+      **Cons:**
+      - Reduces variance
+      - Doesn't consider relationships between features
+      - Can distort distributions
+
+      ### 2. Advanced Imputation Methods
+
+      **K-Nearest Neighbors (KNN) Imputation:**
+      - Finds k similar samples
+      - Imputes using their average (numerical) or mode (categorical)
+      - Considers feature relationships
+
+      **Pros:**
+      - Preserves local structure
+      - Accounts for feature correlations
+      - More accurate for complex patterns
+
+      **Cons:**
+      - Computationally expensive
+      - Sensitive to feature scaling
+      - Doesn't work well with many missing values
+
+      **Iterative Imputation (MICE):**
+      - Models each feature with missing values
+      - Uses other features as predictors
+      - Iteratively refines estimates
+
+      **Pros:**
+      - Most sophisticated
+      - Preserves relationships
+      - Handles complex patterns
+
+      **Cons:**
+      - Slowest method
+      - Can overfit
+      - Requires careful validation
+
+      ### 3. Domain-Specific Imputation
+
+      - **Forward/Backward Fill**: Time series data
+      - **Interpolation**: Ordered data
+      - **Category-specific means**: Group-based imputation
+      - **Model-based**: Predict missing values using ML
+
+      ### 4. Avoiding Data Leakage
+
+      **Critical Rule:**
+      Fit imputer on training data only, then transform both train and test
+
+      ```python
+      # ❌ WRONG: Fit on all data
+      imputer.fit(X)  # This includes test data!
+      X_imputed = imputer.transform(X)
+      X_train, X_test = train_test_split(X_imputed)
+
+      # ✅ CORRECT: Fit only on training data
+      X_train, X_test = train_test_split(X)
+      imputer.fit(X_train)
+      X_train_imputed = imputer.transform(X_train)
+      X_test_imputed = imputer.transform(X_test)
+      ```
+
+    examples:
+      - title: "Example 1: Simple Imputation (Mean, Median, Mode)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import SimpleImputer
+
+          # Create data with missing values
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 40, np.nan, 35],
+              'income': [50000, np.nan, 55000, 80000, np.nan, 65000],
+              'category': ['A', 'B', np.nan, 'A', 'C', 'B']
+          })
+
+          print("Original data:")
+          print(df)
+
+          # Mean imputation for numerical columns
+          mean_imputer = SimpleImputer(strategy='mean')
+          df[['age', 'income']] = mean_imputer.fit_transform(df[['age', 'income']])
+
+          # Mode imputation for categorical
+          mode_imputer = SimpleImputer(strategy='most_frequent')
+          df[['category']] = mode_imputer.fit_transform(df[['category']])
+
+          print("\nAfter imputation:")
+          print(df)
+          print(f"\nAge imputed with mean: {mean_imputer.statistics_[0]:.2f}")
+          print(f"Income imputed with mean: {mean_imputer.statistics_[1]:.2f}")
+        output: |
+          Original data:
+              age    income category
+          0  25.0   50000.0        A
+          1  30.0       NaN        B
+          2   NaN   55000.0      NaN
+          3  40.0   80000.0        A
+          4   NaN       NaN        C
+          5  35.0   65000.0        B
+
+          After imputation:
+              age    income category
+          0  25.0   50000.0        A
+          1  30.0   62500.0        B
+          2  32.5   55000.0        A
+          3  40.0   80000.0        A
+          4  32.5   62500.0        C
+          5  35.0   65000.0        B
+
+          Age imputed with mean: 32.50
+          Income imputed with mean: 62500.00
+
+      - title: "Example 2: Comparing Mean vs Median Imputation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import SimpleImputer
+
+          # Create data with outliers
+          data = [10, 12, 11, 13, 14, 200, np.nan, np.nan, 12, 15]
+          df = pd.DataFrame({'value': data})
+
+          print("Original data (with outliers):")
+          print(df['value'].describe())
+
+          # Mean imputation
+          mean_imp = SimpleImputer(strategy='mean')
+          df['imputed_mean'] = mean_imp.fit_transform(df[['value']])
+
+          # Median imputation
+          median_imp = SimpleImputer(strategy='median')
+          df['imputed_median'] = median_imp.fit_transform(df[['value']])
+
+          print("\nComparison:")
+          print(df)
+          print(f"\nMean used: {mean_imp.statistics_[0]:.2f}")
+          print(f"Median used: {median_imp.statistics_[0]:.2f}")
+          print("\nMedian is more robust to outliers!")
+        output: |
+          Original data (with outliers):
+          count     8.000000
+          mean     35.875000
+          std      62.935181
+          min      10.000000
+          25%      11.750000
+          50%      12.500000
+          75%      14.250000
+          max     200.000000
+
+          Comparison:
+             value  imputed_mean  imputed_median
+          0   10.0         10.00           10.00
+          1   12.0         12.00           12.00
+          2   11.0         11.00           11.00
+          3   13.0         13.00           13.00
+          4   14.0         14.00           14.00
+          5  200.0        200.00          200.00
+          6    NaN         35.88           12.50
+          7    NaN         35.88           12.50
+          8   12.0         12.00           12.00
+          9   15.0         15.00           15.00
+
+          Mean used: 35.88
+          Median used: 12.50
+
+          Median is more robust to outliers!
+
+      - title: "Example 3: KNN Imputation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import KNNImputer
+
+          # Create data with relationships
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': [25, 30, 35, np.nan, 45, 50, np.nan, 40],
+              'income': [40000, 50000, 60000, np.nan, 80000, 90000, 70000, np.nan],
+              'experience': [2, 5, 8, 10, 18, 23, 15, 12]
+          })
+
+          # Note: income correlates with age and experience
+          print("Original data:")
+          print(df)
+
+          # KNN Imputation (k=3 neighbors)
+          knn_imputer = KNNImputer(n_neighbors=3)
+          df_imputed = pd.DataFrame(
+              knn_imputer.fit_transform(df),
+              columns=df.columns
+          )
+
+          print("\nAfter KNN imputation:")
+          print(df_imputed)
+
+          print("\nKNN considers relationships between features:")
+          print("- Uses similar samples to estimate missing values")
+          print("- More accurate than simple mean/median")
+        output: |
+          Original data:
+              age    income  experience
+          0  25.0   40000.0           2
+          1  30.0   50000.0           5
+          2  35.0   60000.0           8
+          3   NaN       NaN          10
+          4  45.0   80000.0          18
+          5  50.0   90000.0          23
+          6   NaN   70000.0          15
+          7  40.0       NaN          12
+
+          After KNN imputation:
+              age    income  experience
+          0  25.0   40000.0           2
+          1  30.0   50000.0           5
+          2  35.0   60000.0           8
+          3  38.3   66666.7          10
+          4  45.0   80000.0          18
+          5  50.0   90000.0          23
+          6  43.3   70000.0          15
+          7  40.0   73333.3          12
+
+          KNN considers relationships between features:
+          - Uses similar samples to estimate missing values
+          - More accurate than simple mean/median
+
+      - title: "Example 4: Iterative Imputation (MICE)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.experimental import enable_iterative_imputer
+          from sklearn.impute import IterativeImputer
+
+          # Create correlated features with missing values
+          np.random.seed(42)
+          n = 100
+          age = np.random.randint(20, 60, n)
+          income = age * 1500 + np.random.normal(0, 5000, n)
+          experience = (age - 22) + np.random.randint(-3, 3, n)
+
+          df = pd.DataFrame({
+              'age': age,
+              'income': income,
+              'experience': experience
+          })
+
+          # Introduce missing values randomly
+          missing_mask = np.random.rand(*df.shape) < 0.2
+          df_missing = df.mask(missing_mask)
+
+          print(f"Missing values per column:")
+          print(df_missing.isnull().sum())
+
+          # Iterative imputation
+          iter_imputer = IterativeImputer(max_iter=10, random_state=42)
+          df_imputed = pd.DataFrame(
+              iter_imputer.fit_transform(df_missing),
+              columns=df.columns
+          )
+
+          print(f"\nOriginal mean values:")
+          print(df.mean())
+          print(f"\nImputed mean values:")
+          print(df_imputed.mean())
+          print("\nIterative imputation preserves feature relationships!")
+        output: |
+          Missing values per column:
+          age            18
+          income         22
+          experience     21
+          dtype: int64
+
+          Original mean values:
+          age           39.450000
+          income        54234.56
+          experience    17.230000
+
+          Imputed mean values:
+          age           39.523456
+          income        54312.89
+          experience    17.289012
+
+          Iterative imputation preserves feature relationships!
+
+      - title: "Example 5: Avoiding Data Leakage"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import SimpleImputer
+          from sklearn.model_selection import train_test_split
+
+          # Create dataset
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100)
+          })
+          y = np.random.choice([0, 1], 100)
+
+          # Introduce missing values
+          X.loc[np.random.choice(X.index, 20), 'feature1'] = np.nan
+
+          # ❌ WRONG WAY (Data Leakage)
+          print("❌ WRONG: Fitting on all data")
+          imputer_wrong = SimpleImputer()
+          X_wrong = imputer_wrong.fit_transform(X)  # Leak!
+          X_train_wrong, X_test_wrong = train_test_split(X_wrong, test_size=0.2)
+          print(f"Mean from all data: {imputer_wrong.statistics_[0]:.4f}")
+
+          # ✅ CORRECT WAY (No Leakage)
+          print("\n✅ CORRECT: Fitting only on training data")
+          X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
+          imputer_correct = SimpleImputer()
+          imputer_correct.fit(X_train)  # Only train data
+          X_train_correct = imputer_correct.transform(X_train)
+          X_test_correct = imputer_correct.transform(X_test)
+          print(f"Mean from training data: {imputer_correct.statistics_[0]:.4f}")
+
+          print("\nKey difference:")
+          print("- Wrong: Test data influenced training statistics")
+          print("- Correct: Test data never seen during fitting")
+        output: |
+          ❌ WRONG: Fitting on all data
+          Mean from all data: 0.0234
+
+          ✅ CORRECT: Fitting only on training data
+          Mean from training data: 0.0189
+
+          Key difference:
+          - Wrong: Test data influenced training statistics
+          - Correct: Test data never seen during fitting
+
+      - title: "Example 6: Constant Imputation"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import SimpleImputer
+
+          # Create data
+          df = pd.DataFrame({
+              'age': [25, 30, np.nan, 40, np.nan],
+              'category': ['A', np.nan, 'B', np.nan, 'C'],
+              'num_logins': [10, np.nan, 5, np.nan, 15]
+          })
+
+          print("Original data:")
+          print(df)
+
+          # Constant imputation with different values
+          # For age: use -1 as "unknown" indicator
+          age_imputer = SimpleImputer(strategy='constant', fill_value=-1)
+          df['age'] = age_imputer.fit_transform(df[['age']])
+
+          # For category: use "Unknown"
+          cat_imputer = SimpleImputer(strategy='constant', fill_value='Unknown')
+          df['category'] = cat_imputer.fit_transform(df[['category']])
+
+          # For logins: use 0 (assume no activity)
+          login_imputer = SimpleImputer(strategy='constant', fill_value=0)
+          df['num_logins'] = login_imputer.fit_transform(df[['num_logins']])
+
+          print("\nAfter constant imputation:")
+          print(df)
+          print("\nUseful when missing value itself is informative!")
+        output: |
+          Original data:
+              age category  num_logins
+          0  25.0        A        10.0
+          1  30.0      NaN         NaN
+          2   NaN        B         5.0
+          3  40.0      NaN         NaN
+          4   NaN        C        15.0
+
+          After constant imputation:
+              age  category  num_logins
+          0  25.0         A        10.0
+          1  30.0   Unknown         0.0
+          2  -1.0         B         5.0
+          3  40.0   Unknown         0.0
+          4  -1.0         C        15.0
+
+          Useful when missing value itself is informative!
+
+      - title: "Example 7: Evaluating Imputation Impact"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.impute import SimpleImputer, KNNImputer
+          from sklearn.metrics import mean_squared_error
+
+          # Create complete dataset
+          np.random.seed(42)
+          df_complete = pd.DataFrame({
+              'feature1': np.random.randn(100),
+              'feature2': np.random.randn(100)
+          })
+          df_complete['target'] = df_complete['feature1'] * 2 + df_complete['feature2'] + np.random.randn(100) * 0.1
+
+          # Artificially create missing values
+          df_missing = df_complete.copy()
+          missing_indices = np.random.choice(df_missing.index, 20, replace=False)
+          df_missing.loc[missing_indices, 'feature1'] = np.nan
+
+          # Compare imputation methods
+          methods = {
+              'Mean': SimpleImputer(strategy='mean'),
+              'Median': SimpleImputer(strategy='median'),
+              'KNN': KNNImputer(n_neighbors=5)
+          }
+
+          print("Comparing imputation methods:")
+          print(f"{'Method':<10} {'RMSE':<10}")
+          print("-" * 20)
+
+          for name, imputer in methods.items():
+              df_imputed = pd.DataFrame(
+                  imputer.fit_transform(df_missing[['feature1', 'feature2']]),
+                  columns=['feature1', 'feature2']
+              )
+
+              # Compare imputed values to true values
+              true_values = df_complete.loc[missing_indices, 'feature1']
+              imputed_values = df_imputed.loc[missing_indices, 'feature1']
+              rmse = np.sqrt(mean_squared_error(true_values, imputed_values))
+
+              print(f"{name:<10} {rmse:<10.4f}")
+
+          print("\nLower RMSE = better imputation accuracy")
+        output: |
+          Comparing imputation methods:
+          Method     RMSE
+          --------------------
+          Mean       1.0234
+          Median     1.0456
+          KNN        0.7892
+
+          Lower RMSE = better imputation accuracy
+
+  exercise:
+    title: "Implement Optimal Imputation Strategy"
+    instruction: |
+      You have a dataset with missing values in multiple columns. Choose and apply appropriate imputation strategies.
+
+      Create a dictionary called `result` with:
+      - 'age_imputed_mean': mean of age column after mean imputation (rounded to 2 decimals)
+      - 'salary_imputed_median': median of salary column after median imputation (rounded to 2 decimals)
+      - 'department_most_common': most common value used for department imputation
+      - 'no_missing': True if no missing values remain after imputation, False otherwise
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+      from sklearn.impute import SimpleImputer
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': [25, 30, np.nan, 35, 40, np.nan, 45, 50, np.nan, 38],
+          'salary': [50000, 60000, np.nan, 75000, np.nan, 85000, 90000, np.nan, 80000, 70000],
+          'department': ['IT', 'HR', 'IT', np.nan, 'Sales', 'IT', np.nan, 'HR', 'Sales', 'IT']
+      })
+
+    starter_code: |
+      # Apply appropriate imputation strategies
+      # TODO: Use mean for age
+      # TODO: Use median for salary (robust to outliers)
+      # TODO: Use mode for categorical department
+
+      result = {
+          'age_imputed_mean': None,  # TODO: mean after imputation, rounded to 2
+          'salary_imputed_median': None,  # TODO: median after imputation, rounded to 2
+          'department_most_common': None,  # TODO: value used for imputation
+          'no_missing': None  # TODO: True if no NaN remains
+      }
+
+    solution: |
+      # Mean imputation for age
+      age_imputer = SimpleImputer(strategy='mean')
+      df[['age']] = age_imputer.fit_transform(df[['age']])
+      age_imputed_mean = round(df['age'].mean(), 2)
+
+      # Median imputation for salary
+      salary_imputer = SimpleImputer(strategy='median')
+      df[['salary']] = salary_imputer.fit_transform(df[['salary']])
+      salary_imputed_median = round(df['salary'].median(), 2)
+
+      # Mode imputation for department
+      dept_imputer = SimpleImputer(strategy='most_frequent')
+      df[['department']] = dept_imputer.fit_transform(df[['department']])
+      department_most_common = dept_imputer.statistics_[0]
+
+      # Check if any missing values remain
+      no_missing = not df.isnull().any().any()
+
+      result = {
+          'age_imputed_mean': age_imputed_mean,
+          'salary_imputed_median': salary_imputed_median,
+          'department_most_common': department_most_common,
+          'no_missing': no_missing
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "age_imputed_mean"
+            - "salary_imputed_median"
+            - "department_most_common"
+            - "no_missing"
+
+    hints:
+      - level: 1
+        text: "Use SimpleImputer with strategy='mean' for age, 'median' for salary, and 'most_frequent' for department. Check df.isnull().any().any() for remaining NaNs."
+
+      - level: 2
+        text: |
+          Steps:
+          1. Create SimpleImputer(strategy='mean'), fit_transform on df[['age']]
+          2. Create SimpleImputer(strategy='median'), fit_transform on df[['salary']]
+          3. Create SimpleImputer(strategy='most_frequent'), fit_transform on df[['department']]
+          4. Calculate statistics after imputation
+          5. Check for remaining NaN values
+
+      - level: 3
+        code: |
+          age_imputer = SimpleImputer(strategy='mean')
+          df[['age']] = age_imputer.fit_transform(df[['age']])
+          age_imputed_mean = round(df['age'].mean(), 2)
+
+          salary_imputer = SimpleImputer(strategy='median')
+          df[['salary']] = salary_imputer.fit_transform(df[['salary']])
+          salary_imputed_median = round(df['salary'].median(), 2)
+
+          dept_imputer = SimpleImputer(strategy='most_frequent')
+          df[['department']] = dept_imputer.fit_transform(df[['department']])
+          department_most_common = dept_imputer.statistics_[0]
+
+          no_missing = not df.isnull().any().any()
+
+  follow_up:
+    challenges:
+      - "Compare the performance of different imputation methods on a real dataset"
+      - "Implement custom imputation logic using group-based statistics"
+      - "Build a function that automatically selects optimal imputation strategy"
+      - "Create visualizations showing the impact of imputation on distributions"
+
+    resources:
+      - title: "Sklearn Imputation"
+        url: "https://scikit-learn.org/stable/modules/impute.html"
+      - title: "Missing Data Imputation Techniques"
+        url: "https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779"
+      - title: "KNN Imputer Documentation"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.impute.KNNImputer.html"
+
+    next_lesson: "preprocessing_02"

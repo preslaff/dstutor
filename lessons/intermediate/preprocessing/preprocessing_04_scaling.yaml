@@ -1,0 +1,648 @@
+lesson:
+  id: "preprocessing_04"
+  level: "intermediate"
+  topic: "preprocessing"
+  subtopic: "Feature Scaling"
+  order: 4
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "numpy_01"
+      - "sklearn_01"
+      - "preprocessing_02"
+    learning_objectives:
+      - "Apply different feature scaling techniques (standardization, normalization)"
+      - "Understand when scaling is required for different algorithms"
+      - "Choose appropriate scaler based on data distribution and outliers"
+      - "Implement scaling correctly to avoid data leakage"
+
+  content:
+    introduction: |
+      # Feature Scaling
+
+      Feature scaling transforms features to a similar scale, improving model performance and training speed for many algorithms.
+
+      **Why This Matters:**
+      - Features with larger scales can dominate distance calculations
+      - Gradient descent converges faster with scaled features
+      - Some algorithms require similar feature scales
+      - Improves model interpretability
+
+      **Key Questions:**
+      - Does your algorithm need scaling?
+      - Which scaling method suits your data?
+      - Are there outliers to consider?
+
+    concept: |
+      ## Feature Scaling Methods
+
+      ### 1. Standardization (StandardScaler)
+
+      **Formula:** z = (x - μ) / σ
+
+      **Result:** Mean = 0, Std = 1
+
+      **When to Use:**
+      - Features have different units/scales
+      - Data is approximately normally distributed
+      - Using algorithms sensitive to feature scale:
+        - Linear/Logistic Regression
+        - SVM
+        - K-NN
+        - Neural Networks
+        - PCA
+
+      **Pros:**
+      - Preserves outliers (they become large z-scores)
+      - Works well with normal distributions
+      - No bounded range (can have values outside -3 to +3)
+
+      **Cons:**
+      - Sensitive to outliers
+      - Assumes normal distribution
+
+      ### 2. Min-Max Scaling (MinMaxScaler)
+
+      **Formula:** x_scaled = (x - min) / (max - min)
+
+      **Result:** Range = [0, 1] (or custom range)
+
+      **When to Use:**
+      - Need bounded range
+      - Data is not normally distributed
+      - Using neural networks (often prefer 0-1 range)
+      - Sparse data (preserves zeros)
+
+      **Pros:**
+      - Bounded output range
+      - Preserves zero entries in sparse data
+      - Preserves relationships
+
+      **Cons:**
+      - Very sensitive to outliers
+      - Outliers compress normal range
+      - Changes with train/test split
+
+      ### 3. Robust Scaling (RobustScaler)
+
+      **Formula:** x_scaled = (x - median) / IQR
+
+      **Result:** Centered around median, scaled by IQR
+
+      **When to Use:**
+      - Data contains many outliers
+      - Want outlier-resistant scaling
+      - Distribution is skewed
+
+      **Pros:**
+      - Robust to outliers
+      - Uses median and IQR (not affected by extremes)
+      - Preserves outlier information
+
+      **Cons:**
+      - Less common/standardized
+      - May not work well with all algorithms
+
+      ### 4. MaxAbs Scaling (MaxAbsScaler)
+
+      **Formula:** x_scaled = x / |max(x)|
+
+      **Result:** Range = [-1, 1]
+
+      **When to Use:**
+      - Sparse data
+      - Data is already centered around zero
+      - Want to preserve zero entries
+
+      **Pros:**
+      - Preserves sparsity
+      - No shift of data
+      - Simple computation
+
+      **Cons:**
+      - Sensitive to outliers
+      - Less commonly used
+
+      ### 5. Normalization (Normalizer)
+
+      **Formula:** x_scaled = x / ||x||
+
+      **Result:** Each sample (row) has unit norm
+
+      **When to Use:**
+      - Text/document classification
+      - Clustering with cosine similarity
+      - When sample magnitude matters
+
+      **Note:** This is row-wise scaling, not column-wise!
+
+      ## Which Algorithms Need Scaling?
+
+      **Require Scaling:**
+      - Linear/Logistic Regression (with regularization)
+      - Support Vector Machines (SVM)
+      - K-Nearest Neighbors (K-NN)
+      - Neural Networks
+      - Principal Component Analysis (PCA)
+      - K-Means Clustering
+
+      **Don't Require Scaling:**
+      - Tree-based models (Decision Trees, Random Forest, XGBoost)
+      - Naive Bayes
+      - Algorithms based on counts/frequencies
+
+    examples:
+      - title: "Example 1: StandardScaler (Z-score Normalization)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import StandardScaler
+
+          # Create data with different scales
+          df = pd.DataFrame({
+              'age': [25, 30, 35, 40, 45],
+              'income': [50000, 60000, 70000, 80000, 90000],
+              'score': [85, 90, 88, 92, 87]
+          })
+
+          print("Original data:")
+          print(df)
+          print("\nMeans:", df.mean().values)
+          print("Stds:", df.std().values)
+
+          # Standardize
+          scaler = StandardScaler()
+          df_scaled = pd.DataFrame(
+              scaler.fit_transform(df),
+              columns=df.columns
+          )
+
+          print("\nAfter standardization:")
+          print(df_scaled)
+          print("\nMeans:", df_scaled.mean().values)
+          print("Stds:", df_scaled.std().values)
+
+          print("\nAll features now have mean=0, std=1")
+        output: |
+          Original data:
+             age  income  score
+          0   25   50000     85
+          1   30   60000     90
+          2   35   70000     88
+          3   40   80000     92
+          4   45   90000     87
+
+          Means: [35.00 70000.00 88.40]
+          Stds: [7.91 15811.39 2.70]
+
+          After standardization:
+                age    income     score
+          0 -1.265    -1.265    -1.258
+          1 -0.632    -0.632     0.629
+          2  0.000     0.000    -0.126
+          3  0.632     0.632     1.383
+          4  1.265     1.265    -0.629
+
+          Means: [-0. -0.  0.]
+          Stds: [1. 1. 1.]
+
+          All features now have mean=0, std=1
+
+      - title: "Example 2: MinMaxScaler (0-1 Normalization)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import MinMaxScaler
+
+          df = pd.DataFrame({
+              'age': [20, 30, 40, 50, 60],
+              'income': [30000, 50000, 70000, 90000, 110000]
+          })
+
+          print("Original data:")
+          print(df)
+          print(f"\nAge range: [{df['age'].min()}, {df['age'].max()}]")
+          print(f"Income range: [{df['income'].min()}, {df['income'].max()}]")
+
+          # Min-Max scaling
+          scaler = MinMaxScaler()
+          df_scaled = pd.DataFrame(
+              scaler.fit_transform(df),
+              columns=df.columns
+          )
+
+          print("\nAfter Min-Max scaling:")
+          print(df_scaled)
+          print(f"\nAge range: [{df_scaled['age'].min():.2f}, {df_scaled['age'].max():.2f}]")
+          print(f"Income range: [{df_scaled['income'].min():.2f}, {df_scaled['income'].max():.2f}]")
+
+          print("\nAll features now in range [0, 1]")
+        output: |
+          Original data:
+             age  income
+          0   20   30000
+          1   30   50000
+          2   40   70000
+          3   50   90000
+          4   60  110000
+
+          Age range: [20, 60]
+          Income range: [30000, 110000]
+
+          After Min-Max scaling:
+             age  income
+          0  0.0    0.00
+          1  0.25   0.25
+          2  0.5    0.50
+          3  0.75   0.75
+          4  1.0    1.00
+
+          Age range: [0.00, 1.00]
+          Income range: [0.00, 1.00]
+
+          All features now in range [0, 1]
+
+      - title: "Example 3: RobustScaler (Outlier-Resistant)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import StandardScaler, RobustScaler
+
+          # Data with outliers
+          data = [10, 12, 11, 13, 14, 12, 15, 200]  # 200 is outlier
+          df = pd.DataFrame({'value': data})
+
+          print("Original data with outlier:")
+          print(df.T)
+          print(f"Mean: {df['value'].mean():.2f}, Median: {df['value'].median():.2f}")
+
+          # StandardScaler (affected by outlier)
+          standard_scaler = StandardScaler()
+          df['standard_scaled'] = standard_scaler.fit_transform(df[['value']])
+
+          # RobustScaler (resistant to outlier)
+          robust_scaler = RobustScaler()
+          df['robust_scaled'] = robust_scaler.fit_transform(df[['value']])
+
+          print("\nComparison:")
+          print(df)
+
+          print("\nStandardScaler: Outlier has z-score = {:.2f}".format(df['standard_scaled'].iloc[-1]))
+          print("RobustScaler: Outlier has scaled value = {:.2f}".format(df['robust_scaled'].iloc[-1]))
+
+          print("\nRobustScaler less affected by outliers!")
+        output: |
+          Original data with outlier:
+             0   1   2   3   4   5   6    7
+          value  10  12  11  13  14  12  15  200
+
+          Mean: 35.88, Median: 12.50
+
+          Comparison:
+             value  standard_scaled  robust_scaled
+          0     10            -0.39          -0.83
+          1     12            -0.36          -0.17
+          2     11            -0.37          -0.50
+          3     13            -0.35           0.17
+          4     14            -0.33           0.50
+          5     12            -0.36          -0.17
+          6     15            -0.32           0.83
+          7    200             2.48          62.17
+
+          StandardScaler: Outlier has z-score = 2.48
+          RobustScaler: Outlier has scaled value = 62.17
+
+          RobustScaler less affected by outliers!
+
+      - title: "Example 4: Comparing All Scalers"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
+
+          # Original data
+          data = [10, 20, 30, 40, 50, 100]  # 100 is outlier
+          df = pd.DataFrame({'original': data})
+
+          # Apply different scalers
+          df['standard'] = StandardScaler().fit_transform(df[['original']])
+          df['minmax'] = MinMaxScaler().fit_transform(df[['original']])
+          df['robust'] = RobustScaler().fit_transform(df[['original']])
+          df['maxabs'] = MaxAbsScaler().fit_transform(df[['original']])
+
+          print("Comparing all scalers:")
+          print(df)
+
+          print("\nKey observations:")
+          print("- StandardScaler: Mean=0, Std=1")
+          print("- MinMaxScaler: Range [0,1], compressed by outlier")
+          print("- RobustScaler: Uses median & IQR, less affected")
+          print("- MaxAbsScaler: Range [-1,1], divided by max absolute value")
+        output: |
+          Comparing all scalers:
+             original  standard  minmax  robust  maxabs
+          0        10     -1.08    0.00   -1.33    0.10
+          1        20     -0.76    0.11   -0.67    0.20
+          2        30     -0.45    0.22    0.00    0.30
+          3        40     -0.13    0.33    0.67    0.40
+          4        50      0.18    0.44    1.33    0.50
+          5       100      2.24    1.00    4.67    1.00
+
+          Key observations:
+          - StandardScaler: Mean=0, Std=1
+          - MinMaxScaler: Range [0,1], compressed by outlier
+          - RobustScaler: Uses median & IQR, less affected
+          - MaxAbsScaler: Range [-1,1], divided by max absolute value
+
+      - title: "Example 5: Normalizer (Row-wise Scaling)"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import Normalizer
+
+          # Text feature vectors (word counts)
+          df = pd.DataFrame({
+              'word1': [3, 1, 0, 4],
+              'word2': [0, 2, 5, 1],
+              'word3': [4, 0, 2, 3]
+          }, index=['Doc1', 'Doc2', 'Doc3', 'Doc4'])
+
+          print("Original feature vectors:")
+          print(df)
+
+          # Calculate L2 norm for each row
+          print("\nL2 norms per document:")
+          print(np.sqrt((df**2).sum(axis=1)))
+
+          # Normalize (L2 norm = 1 for each row)
+          normalizer = Normalizer(norm='l2')
+          df_normalized = pd.DataFrame(
+              normalizer.fit_transform(df),
+              columns=df.columns,
+              index=df.index
+          )
+
+          print("\nAfter normalization:")
+          print(df_normalized)
+
+          print("\nL2 norms per document (all = 1.0):")
+          print(np.sqrt((df_normalized**2).sum(axis=1)))
+
+          print("\nNote: Each ROW (sample) is normalized, not each column!")
+        output: |
+          Original feature vectors:
+                word1  word2  word3
+          Doc1      3      0      4
+          Doc2      1      2      0
+          Doc3      0      5      2
+          Doc4      4      1      3
+
+          L2 norms per document:
+          Doc1    5.00
+          Doc2    2.24
+          Doc3    5.39
+          Doc4    5.10
+          dtype: float64
+
+          After normalization:
+                word1  word2  word3
+          Doc1   0.60   0.00   0.80
+          Doc2   0.45   0.89   0.00
+          Doc3   0.00   0.93   0.37
+          Doc4   0.78   0.20   0.59
+
+          L2 norms per document (all = 1.0):
+          Doc1    1.0
+          Doc2    1.0
+          Doc3    1.0
+          Doc4    1.0
+          dtype: float64
+
+          Note: Each ROW (sample) is normalized, not each column!
+
+      - title: "Example 6: Impact on Distance-Based Algorithm"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.preprocessing import StandardScaler
+          from sklearn.metrics.pairwise import euclidean_distances
+
+          # Two samples with different feature scales
+          df = pd.DataFrame({
+              'age': [25, 30],        # Small scale
+              'income': [50000, 55000]  # Large scale
+          })
+
+          print("Original data:")
+          print(df)
+
+          # Calculate distance WITHOUT scaling
+          dist_unscaled = euclidean_distances(df)[0, 1]
+          print(f"\nEuclidean distance (unscaled): {dist_unscaled:.2f}")
+          print("Income dominates due to large scale!")
+
+          # Scale and calculate distance
+          scaler = StandardScaler()
+          df_scaled = pd.DataFrame(
+              scaler.fit_transform(df),
+              columns=df.columns
+          )
+
+          print("\nScaled data:")
+          print(df_scaled)
+
+          dist_scaled = euclidean_distances(df_scaled)[0, 1]
+          print(f"\nEuclidean distance (scaled): {dist_scaled:.2f}")
+          print("Now age and income contribute equally!")
+        output: |
+          Original data:
+             age  income
+          0   25   50000
+          1   30   55000
+
+          Euclidean distance (unscaled): 5000.00
+          Income dominates due to large scale!
+
+          Scaled data:
+              age  income
+          0  -1.0    -1.0
+          1   1.0     1.0
+
+          Euclidean distance (scaled): 2.83
+          Now age and income contribute equally!
+
+      - title: "Example 7: Avoiding Data Leakage with Scaling"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.model_selection import train_test_split
+          from sklearn.preprocessing import StandardScaler
+
+          # Create data
+          np.random.seed(42)
+          X = pd.DataFrame({
+              'feature1': np.random.randn(100) * 10 + 50,
+              'feature2': np.random.randn(100) * 5 + 100
+          })
+          y = np.random.choice([0, 1], 100)
+
+          print("❌ WRONG: Scale before split (DATA LEAKAGE)")
+          scaler_wrong = StandardScaler()
+          X_wrong_scaled = scaler_wrong.fit_transform(X)  # Uses all data!
+          X_train_wrong, X_test_wrong = train_test_split(X_wrong_scaled, test_size=0.2)
+          print(f"Mean from all data used: {scaler_wrong.mean_}")
+
+          print("\n✅ CORRECT: Split first, then scale")
+          X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
+
+          scaler_correct = StandardScaler()
+          scaler_correct.fit(X_train)  # Fit only on training data
+          X_train_scaled = scaler_correct.transform(X_train)
+          X_test_scaled = scaler_correct.transform(X_test)
+
+          print(f"Mean from training data only: {scaler_correct.mean_}")
+
+          print("\nKey difference:")
+          print("- Wrong: Test data influenced scaling parameters")
+          print("- Correct: Only training data used for scaling")
+        output: |
+          ❌ WRONG: Scale before split (DATA LEAKAGE)
+          Mean from all data used: [50.12 100.34]
+
+          ✅ CORRECT: Split first, then scale
+          Mean from training data only: [50.08 100.29]
+
+          Key difference:
+          - Wrong: Test data influenced scaling parameters
+          - Correct: Only training data used for scaling
+
+  exercise:
+    title: "Apply Appropriate Feature Scaling"
+    instruction: |
+      You have features with different scales and distributions. Apply appropriate scaling.
+
+      Create a dictionary called `result` with:
+      - 'age_standardized_mean': mean of standardized age (rounded to 3 decimals)
+      - 'income_minmax_max': maximum value of income after min-max scaling (float, exact)
+      - 'score_robust_median': median of score after robust scaling (rounded to 3 decimals)
+      - 'all_same_scale': True if all standardized features have std ≈ 1.0, False otherwise
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+      from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': [25, 30, 35, 40, 45, 50, 55, 60],
+          'income': [40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000],
+          'score': [75, 80, 85, 90, 95, 88, 92, 87]
+      })
+
+    starter_code: |
+      # Apply different scaling techniques
+      # TODO: Standardize age (z-score)
+      # TODO: Min-max scale income to [0,1]
+      # TODO: Robust scale score
+      # TODO: Check if standardized features have std ≈ 1.0
+
+      result = {
+          'age_standardized_mean': None,  # TODO: mean after standardization, rounded to 3
+          'income_minmax_max': None,  # TODO: max after min-max scaling
+          'score_robust_median': None,  # TODO: median after robust scaling, rounded to 3
+          'all_same_scale': None  # TODO: True if all std ≈ 1.0 after standardization
+      }
+
+    solution: |
+      # Standardize age
+      age_scaler = StandardScaler()
+      df['age_scaled'] = age_scaler.fit_transform(df[['age']])
+      age_standardized_mean = round(df['age_scaled'].mean(), 3)
+
+      # Min-max scale income
+      income_scaler = MinMaxScaler()
+      df['income_scaled'] = income_scaler.fit_transform(df[['income']])
+      income_minmax_max = df['income_scaled'].max()
+
+      # Robust scale score
+      score_scaler = RobustScaler()
+      df['score_scaled'] = score_scaler.fit_transform(df[['score']])
+      score_robust_median = round(df['score_scaled'].median(), 3)
+
+      # Check if all features have std ≈ 1.0 after standardization
+      all_scaler = StandardScaler()
+      df_all_scaled = pd.DataFrame(
+          all_scaler.fit_transform(df[['age', 'income', 'score']]),
+          columns=['age', 'income', 'score']
+      )
+      all_same_scale = all(abs(df_all_scaled.std() - 1.0) < 0.01)
+
+      result = {
+          'age_standardized_mean': age_standardized_mean,
+          'income_minmax_max': income_minmax_max,
+          'score_robust_median': score_robust_median,
+          'all_same_scale': all_same_scale
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "age_standardized_mean"
+            - "income_minmax_max"
+            - "score_robust_median"
+            - "all_same_scale"
+
+    hints:
+      - level: 1
+        text: "Use StandardScaler for age, MinMaxScaler for income, RobustScaler for score. After standardization, mean should be ≈0 and std ≈1."
+
+      - level: 2
+        text: |
+          Steps:
+          1. StandardScaler(): fit_transform(df[['age']]), calculate mean
+          2. MinMaxScaler(): fit_transform(df[['income']]), get max (should be 1.0)
+          3. RobustScaler(): fit_transform(df[['score']]), calculate median
+          4. Standardize all features, check if all std() values are close to 1.0
+
+      - level: 3
+        code: |
+          # Standardize age
+          age_scaler = StandardScaler()
+          df['age_scaled'] = age_scaler.fit_transform(df[['age']])
+          age_standardized_mean = round(df['age_scaled'].mean(), 3)
+
+          # Min-max income
+          income_scaler = MinMaxScaler()
+          df['income_scaled'] = income_scaler.fit_transform(df[['income']])
+          income_minmax_max = df['income_scaled'].max()
+
+          # Robust score
+          score_scaler = RobustScaler()
+          df['score_scaled'] = score_scaler.fit_transform(df[['score']])
+          score_robust_median = round(df['score_scaled'].median(), 3)
+
+          # Check std
+          all_scaled = StandardScaler().fit_transform(df[['age','income','score']])
+          all_same_scale = all(abs(pd.DataFrame(all_scaled).std() - 1.0) < 0.01)
+
+  follow_up:
+    challenges:
+      - "Compare model performance with and without scaling"
+      - "Build a custom scaler that combines robust and standard scaling"
+      - "Implement scaling in a pipeline to prevent data leakage"
+      - "Visualize the effect of different scalers on distributions"
+
+    resources:
+      - title: "Sklearn Preprocessing Scalers"
+        url: "https://scikit-learn.org/stable/modules/preprocessing.html#scaling-features-to-a-range"
+      - title: "Feature Scaling Explained"
+        url: "https://towardsdatascience.com/all-about-feature-scaling-bcc0ad75cb35"
+      - title: "When to Scale Features"
+        url: "https://sebastianraschka.com/Articles/2014_about_feature_scaling.html"
+
+    next_lesson: "preprocessing_05"

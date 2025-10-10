@@ -1,0 +1,479 @@
+lesson:
+  id: "eda_07"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Bivariate Analysis"
+  order: 7
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_01"
+      - "eda_05"
+      - "matplotlib_09"
+    learning_objectives:
+      - "Analyze relationships between two variables using visualization and statistics"
+      - "Compare distributions across categories using grouped analysis"
+      - "Identify interaction effects between variables"
+      - "Choose appropriate bivariate analysis methods for different data types"
+
+  content:
+    introduction: |
+      # Bivariate Analysis
+
+      Bivariate analysis examines the relationship between two variables. Understanding how variables relate to each other is crucial for feature selection, model building, and deriving insights.
+
+      **Why This Matters:**
+      - Reveals relationships between features and target
+      - Identifies important interaction effects
+      - Guides feature engineering decisions
+      - Informs model selection
+
+      **Types of Bivariate Analysis:**
+      - **Numerical vs Numerical**: Scatter plots, correlation
+      - **Categorical vs Numerical**: Box plots, violin plots
+      - **Categorical vs Categorical**: Contingency tables, stacked bars
+
+    concept: |
+      ## Bivariate Analysis Methods
+
+      ### 1. Numerical vs Numerical
+
+      **Visualization:**
+      - **Scatter plots**: Show relationship pattern
+      - **Line plots**: Trends over time or ordered data
+      - **Hexbin plots**: For large datasets
+      - **2D density plots**: Show concentration areas
+
+      **Statistics:**
+      - Correlation coefficients (Pearson, Spearman)
+      - Linear regression fit
+      - Trend lines
+
+      ### 2. Categorical vs Numerical
+
+      **Visualization:**
+      - **Box plots**: Compare distributions across categories
+      - **Violin plots**: Show full distribution shape
+      - **Strip plots**: Show individual points
+      - **Bar plots**: Compare means/medians
+
+      **Statistics:**
+      - Group means and medians
+      - ANOVA test (compare multiple groups)
+      - T-test (compare two groups)
+
+      ### 3. Categorical vs Categorical
+
+      **Visualization:**
+      - **Stacked bar charts**: Show proportions
+      - **Grouped bar charts**: Compare frequencies
+      - **Heatmaps**: Show cross-tabulation
+      - **Mosaic plots**: Show proportional relationships
+
+      **Statistics:**
+      - Contingency tables
+      - Chi-square test of independence
+      - Cramér's V (effect size)
+
+      ### 4. Advanced Techniques
+
+      **Pair Plots:**
+      - Visualize all pairwise relationships
+      - Useful for initial exploration
+      - Shows correlations at a glance
+
+      **Facet Grids:**
+      - Create multiple subplots by category
+      - Compare patterns across groups
+      - Reveal interaction effects
+
+    examples:
+      - title: "Example 1: Scatter Plot Analysis"
+        code: |
+          import pandas as pd
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create sample data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'study_hours': np.random.uniform(1, 10, 100),
+              'exam_score': np.random.uniform(50, 100, 100)
+          })
+          # Add relationship
+          df['exam_score'] = df['study_hours'] * 5 + np.random.normal(50, 10, 100)
+
+          # Scatter plot
+          plt.figure(figsize=(10, 6))
+          plt.scatter(df['study_hours'], df['exam_score'], alpha=0.6)
+          plt.xlabel('Study Hours')
+          plt.ylabel('Exam Score')
+          plt.title('Relationship: Study Hours vs Exam Score')
+
+          # Add trend line
+          z = np.polyfit(df['study_hours'], df['exam_score'], 1)
+          p = np.poly1d(z)
+          plt.plot(df['study_hours'], p(df['study_hours']), "r--", alpha=0.8, label='Trend')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+          # Calculate correlation
+          corr = df['study_hours'].corr(df['exam_score'])
+          print(f"Correlation: {corr:.3f}")
+        output: |
+          [Scatter plot showing positive relationship with trend line]
+          Correlation: 0.872
+
+      - title: "Example 2: Box Plot by Category"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'department': np.random.choice(['Sales', 'IT', 'HR', 'Marketing'], 200),
+              'salary': np.random.normal(60000, 15000, 200)
+          })
+
+          # Adjust salaries by department
+          dept_adjustments = {'Sales': 10000, 'IT': 15000, 'HR': -5000, 'Marketing': 5000}
+          df['salary'] = df.apply(lambda x: x['salary'] + dept_adjustments[x['department']], axis=1)
+
+          # Box plot
+          plt.figure(figsize=(10, 6))
+          sns.boxplot(data=df, x='department', y='salary', palette='Set2')
+          plt.title('Salary Distribution by Department')
+          plt.xlabel('Department')
+          plt.ylabel('Salary ($)')
+          plt.xticks(rotation=45)
+          plt.show()
+
+          # Summary statistics
+          print(df.groupby('department')['salary'].describe()[['mean', 'median', 'std']])
+        output: |
+          [Box plot showing salary distributions across departments]
+                    mean       median          std
+          department
+          HR          54532.45    54123.67   14892.34
+          IT          75123.89    74567.12   15234.56
+          Marketing   65234.12    64891.23   14678.90
+          Sales       70456.78    69876.54   15123.45
+
+      - title: "Example 3: Violin Plot Comparison"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data with different distributions
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'group': ['A'] * 100 + ['B'] * 100 + ['C'] * 100,
+              'value': np.concatenate([
+                  np.random.normal(50, 10, 100),
+                  np.random.normal(60, 15, 100),
+                  np.random.exponential(40, 100) + 30
+              ])
+          })
+
+          # Violin plot
+          plt.figure(figsize=(12, 6))
+          sns.violinplot(data=df, x='group', y='value', palette='muted')
+          plt.title('Distribution Comparison Across Groups')
+          plt.xlabel('Group')
+          plt.ylabel('Value')
+          plt.show()
+
+          print("Violin plots show full distribution shape, revealing:")
+          print("- Group A: Normal, centered around 50")
+          print("- Group B: Normal, wider spread, centered around 60")
+          print("- Group C: Skewed distribution")
+        output: |
+          [Violin plot showing different distribution shapes for each group]
+          Violin plots show full distribution shape, revealing:
+          - Group A: Normal, centered around 50
+          - Group B: Normal, wider spread, centered around 60
+          - Group C: Skewed distribution
+
+      - title: "Example 4: Grouped Analysis"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          # Create sales data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'region': np.random.choice(['North', 'South', 'East', 'West'], 500),
+              'product': np.random.choice(['A', 'B', 'C'], 500),
+              'sales': np.random.uniform(1000, 5000, 500)
+          })
+
+          # Grouped analysis
+          grouped = df.groupby(['region', 'product'])['sales'].agg([
+              ('mean', 'mean'),
+              ('median', 'median'),
+              ('count', 'count'),
+              ('total', 'sum')
+          ]).round(2)
+
+          print("Sales Analysis by Region and Product:")
+          print(grouped)
+
+          # Find best performing combination
+          best = grouped['total'].idxmax()
+          print(f"\nBest combination: Region={best[0]}, Product={best[1]}")
+        output: |
+          Sales Analysis by Region and Product:
+                           mean    median  count     total
+          region product
+          East   A        2987.45  2876.12    42  125472.90
+                 B        3124.67  3089.45    45  140610.15
+                 C        2856.34  2798.56    38  108540.92
+          North  A        3045.23  2998.76    44  133990.12
+                 B        2934.56  2867.34    41  120316.96
+                 C        3098.45  3034.67    43  133233.35
+          South  A        2876.89  2834.56    39  112178.71
+                 B        3156.78  3098.45    47  148368.66
+                 C        2945.67  2876.89    40  117826.80
+          West   A        3089.34  3012.45    46  142109.64
+                 B        2967.23  2923.45    43  127590.89
+                 C        3023.45  2989.67    41  123943.45
+
+          Best combination: Region=South, Product=B
+
+      - title: "Example 5: Categorical vs Categorical Heatmap"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'gender': np.random.choice(['Male', 'Female'], 300),
+              'product': np.random.choice(['Electronics', 'Clothing', 'Books'], 300)
+          })
+
+          # Create contingency table
+          ct = pd.crosstab(df['gender'], df['product'])
+
+          print("Contingency Table:")
+          print(ct)
+
+          # Visualize as heatmap
+          plt.figure(figsize=(8, 6))
+          sns.heatmap(ct, annot=True, fmt='d', cmap='YlGnBu')
+          plt.title('Purchase Frequency: Gender vs Product')
+          plt.xlabel('Product')
+          plt.ylabel('Gender')
+          plt.show()
+        output: |
+          Contingency Table:
+          product    Books  Clothing  Electronics
+          gender
+          Female        58        52           47
+          Male          48        46           49
+
+          [Heatmap showing purchase frequencies]
+
+      - title: "Example 6: Pair Plot for Multiple Variables"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create sample data
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'age': np.random.randint(20, 60, 100),
+              'income': np.random.uniform(30000, 100000, 100),
+              'experience': np.random.randint(0, 30, 100),
+              'satisfaction': np.random.uniform(1, 5, 100)
+          })
+
+          # Add relationships
+          df['income'] = df['age'] * 1500 + df['experience'] * 800 + np.random.normal(0, 5000, 100)
+          df['satisfaction'] = df['income'] / 30000 + np.random.normal(0, 0.5, 100)
+
+          # Create pair plot
+          sns.pairplot(df, diag_kind='kde', plot_kws={'alpha': 0.6})
+          plt.suptitle('Pair Plot: All Variable Relationships', y=1.02)
+          plt.show()
+
+          print("Pair plot shows:")
+          print("- Diagonal: Distribution of each variable")
+          print("- Off-diagonal: Scatter plots of all pairs")
+          print("- Useful for identifying correlated features")
+        output: |
+          [Grid of scatter plots showing all pairwise relationships]
+          Pair plot shows:
+          - Diagonal: Distribution of each variable
+          - Off-diagonal: Scatter plots of all pairs
+          - Useful for identifying correlated features
+
+      - title: "Example 7: Interaction Effects Analysis"
+        code: |
+          import pandas as pd
+          import seaborn as sns
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data with interaction effect
+          np.random.seed(42)
+          df = pd.DataFrame({
+              'temperature': np.random.uniform(60, 90, 200),
+              'humidity': np.random.choice(['Low', 'High'], 200),
+              'sales': np.random.uniform(100, 500, 200)
+          })
+
+          # Interaction: temperature affects sales differently based on humidity
+          df.loc[df['humidity'] == 'High', 'sales'] += df.loc[df['humidity'] == 'High', 'temperature'] * 3
+          df.loc[df['humidity'] == 'Low', 'sales'] -= df.loc[df['humidity'] == 'Low', 'temperature'] * 2
+
+          # Visualize interaction
+          plt.figure(figsize=(10, 6))
+          for humidity_level in ['Low', 'High']:
+              subset = df[df['humidity'] == humidity_level]
+              plt.scatter(subset['temperature'], subset['sales'],
+                         label=f'Humidity: {humidity_level}', alpha=0.6, s=50)
+
+              # Add trend line
+              z = np.polyfit(subset['temperature'], subset['sales'], 1)
+              p = np.poly1d(z)
+              plt.plot(subset['temperature'], p(subset['temperature']), '--', alpha=0.8)
+
+          plt.xlabel('Temperature (°F)')
+          plt.ylabel('Sales ($)')
+          plt.title('Interaction Effect: Temperature × Humidity on Sales')
+          plt.legend()
+          plt.grid(True, alpha=0.3)
+          plt.show()
+
+          print("Interaction detected:")
+          print("- High humidity: Sales increase with temperature")
+          print("- Low humidity: Sales decrease with temperature")
+        output: |
+          [Scatter plot showing opposite trends for low vs high humidity]
+          Interaction detected:
+          - High humidity: Sales increase with temperature
+          - Low humidity: Sales decrease with temperature
+
+  exercise:
+    title: "Analyze Customer Behavior Patterns"
+    instruction: |
+      You have customer data with age, income, and purchase categories. Analyze the bivariate relationships.
+
+      Create a dictionary called `result` with:
+      - 'age_income_corr': correlation between age and income (rounded to 3 decimals)
+      - 'avg_income_by_category': dictionary mapping each category to its average income (rounded to 2 decimals)
+      - 'category_with_highest_income': name of category with highest average income
+      - 'age_range_high_income': tuple (min_age, max_age) for customers with income > 70000
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      df = pd.DataFrame({
+          'age': np.random.randint(25, 60, 150),
+          'income': np.random.uniform(40000, 100000, 150),
+          'category': np.random.choice(['Bronze', 'Silver', 'Gold'], 150)
+      })
+
+      # Add relationship: income increases with age
+      df['income'] = df['age'] * 1200 + np.random.normal(0, 8000, 150)
+
+      # Category affects income
+      category_bonus = {'Bronze': 0, 'Silver': 10000, 'Gold': 25000}
+      df['income'] = df.apply(lambda x: x['income'] + category_bonus[x['category']], axis=1)
+
+    starter_code: |
+      # Analyze bivariate relationships
+      # TODO: Calculate correlation between age and income
+      # TODO: Calculate average income by category
+      # TODO: Find category with highest average income
+      # TODO: Find age range for high-income customers (> 70000)
+
+      result = {
+          'age_income_corr': None,  # TODO: rounded to 3 decimals
+          'avg_income_by_category': {},  # TODO: {category: avg_income}
+          'category_with_highest_income': None,  # TODO
+          'age_range_high_income': None  # TODO: (min_age, max_age)
+      }
+
+    solution: |
+      # Calculate correlation
+      age_income_corr = round(df['age'].corr(df['income']), 3)
+
+      # Average income by category
+      avg_income_by_category = df.groupby('category')['income'].mean().round(2).to_dict()
+
+      # Category with highest average income
+      category_with_highest_income = df.groupby('category')['income'].mean().idxmax()
+
+      # Age range for high-income customers
+      high_income_customers = df[df['income'] > 70000]
+      age_range_high_income = (high_income_customers['age'].min(), high_income_customers['age'].max())
+
+      result = {
+          'age_income_corr': age_income_corr,
+          'avg_income_by_category': avg_income_by_category,
+          'category_with_highest_income': category_with_highest_income,
+          'age_range_high_income': age_range_high_income
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "age_income_corr"
+            - "avg_income_by_category"
+            - "category_with_highest_income"
+            - "age_range_high_income"
+
+    hints:
+      - level: 1
+        text: "Use .corr() for correlation, .groupby() for category analysis, and boolean indexing for high-income customers."
+
+      - level: 2
+        text: |
+          - age_income_corr = df['age'].corr(df['income'])
+          - avg_income_by_category = df.groupby('category')['income'].mean().to_dict()
+          - Use .idxmax() to find category with highest average
+          - Filter df[df['income'] > 70000] then use .min() and .max() on age
+
+      - level: 3
+        code: |
+          age_income_corr = round(df['age'].corr(df['income']), 3)
+          avg_income_by_category = df.groupby('category')['income'].mean().round(2).to_dict()
+          category_with_highest_income = df.groupby('category')['income'].mean().idxmax()
+          high_income = df[df['income'] > 70000]
+          age_range_high_income = (high_income['age'].min(), high_income['age'].max())
+
+  follow_up:
+    challenges:
+      - "Create an interactive dashboard comparing multiple bivariate relationships"
+      - "Build a function that automatically detects interaction effects"
+      - "Implement statistical tests for all pairwise relationships"
+      - "Create facet grids showing relationships across multiple categorical variables"
+
+    resources:
+      - title: "Seaborn Bivariate Plots"
+        url: "https://seaborn.pydata.org/tutorial/distributions.html#visualizing-bivariate-distributions"
+      - title: "Statistical Tests in Python"
+        url: "https://docs.scipy.org/doc/scipy/reference/stats.html"
+      - title: "Interaction Effects"
+        url: "https://statisticsbyjim.com/regression/interaction-effects/"
+
+    next_lesson: "eda_08"

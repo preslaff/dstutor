@@ -1,0 +1,433 @@
+lesson:
+  id: "eda_04"
+  level: "intermediate"
+  topic: "eda"
+  subtopic: "Outlier Detection"
+  order: 4
+
+  metadata:
+    duration: "35 min"
+    difficulty: "medium"
+    prerequisites:
+      - "eda_02"
+      - "numpy_08"
+      - "pandas_01"
+    learning_objectives:
+      - "Identify outliers using statistical methods (IQR, Z-score)"
+      - "Visualize outliers with box plots and scatter plots"
+      - "Understand when outliers are errors vs valuable data points"
+      - "Apply appropriate outlier detection techniques for different scenarios"
+
+  content:
+    introduction: |
+      # Outlier Detection
+
+      Outliers are data points that significantly differ from other observations. They can be errors, rare events, or valuable insights.
+
+      **Why This Matters:**
+      - Outliers can skew statistical analyses
+      - May indicate data collection errors
+      - Can dramatically affect model performance
+      - Sometimes contain the most valuable information
+
+      **Key Questions:**
+      - Are outliers errors or legitimate extreme values?
+      - Should we remove, cap, or keep them?
+      - Do outliers occur in one variable or multiple?
+
+    concept: |
+      ## Outlier Detection Methods
+
+      ### 1. Visual Methods
+
+      **Box Plot:**
+      - Shows median, quartiles, and outliers
+      - Points beyond 1.5 * IQR from Q1/Q3 are outliers
+      - Quick visualization method
+
+      **Scatter Plot:**
+      - Reveals outliers in bivariate relationships
+      - Useful for multivariate outliers
+
+      ### 2. Statistical Methods
+
+      **IQR (Interquartile Range) Method:**
+      ```
+      Q1 = 25th percentile
+      Q3 = 75th percentile
+      IQR = Q3 - Q1
+      Lower bound = Q1 - 1.5 * IQR
+      Upper bound = Q3 + 1.5 * IQR
+      Outliers: values outside bounds
+      ```
+
+      **Z-Score Method:**
+      ```
+      z = (x - mean) / std
+      Typically |z| > 3 indicates outlier
+      Assumes normal distribution
+      ```
+
+      **Modified Z-Score (Robust):**
+      ```
+      Uses median instead of mean
+      Better for skewed distributions
+      ```
+
+      ### 3. Machine Learning Methods
+
+      **Isolation Forest:**
+      - Detects outliers in multivariate data
+      - No assumptions about distribution
+      - Works well for high dimensions
+
+      **DBSCAN:**
+      - Density-based clustering
+      - Points in low-density regions are outliers
+
+      ### 4. Domain-Specific Rules
+
+      - Age cannot be negative or > 150
+      - Prices must be positive
+      - Percentages must be 0-100
+
+      ## When to Remove vs Keep Outliers
+
+      **Remove if:**
+      - Clear data entry error
+      - Measurement error
+      - Not part of target population
+
+      **Keep if:**
+      - Legitimate extreme value
+      - Rare but real event
+      - Part of phenomenon being studied
+
+    examples:
+      - title: "Example 1: IQR Method for Outlier Detection"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          data = [10, 12, 12, 13, 12, 11, 14, 13, 15, 10, 10, 13, 12, 100]
+          df = pd.DataFrame({'values': data})
+
+          # Calculate IQR
+          Q1 = df['values'].quantile(0.25)
+          Q3 = df['values'].quantile(0.75)
+          IQR = Q3 - Q1
+
+          # Define bounds
+          lower_bound = Q1 - 1.5 * IQR
+          upper_bound = Q3 + 1.5 * IQR
+
+          print(f"Q1: {Q1}, Q3: {Q3}, IQR: {IQR}")
+          print(f"Bounds: [{lower_bound}, {upper_bound}]")
+
+          # Identify outliers
+          outliers = df[(df['values'] < lower_bound) | (df['values'] > upper_bound)]
+          print(f"\nOutliers:\n{outliers}")
+        output: |
+          Q1: 11.0, Q3: 13.5, IQR: 2.5
+          Bounds: [7.25, 17.25]
+
+          Outliers:
+              values
+          13     100
+
+      - title: "Example 2: Z-Score Method"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from scipy import stats
+
+          data = [10, 12, 12, 13, 12, 11, 14, 13, 15, 10, 10, 13, 12, 100]
+          df = pd.DataFrame({'values': data})
+
+          # Calculate Z-scores
+          df['z_score'] = np.abs(stats.zscore(df['values']))
+
+          # Identify outliers (|z| > 3)
+          outliers = df[df['z_score'] > 3]
+
+          print("Data with Z-scores:")
+          print(df)
+          print(f"\nOutliers (|z| > 3):\n{outliers}")
+        output: |
+          Data with Z-scores:
+              values   z_score
+          0       10  0.251682
+          1       12  0.172029
+          2       12  0.172029
+          ...
+          13     100  3.895431
+
+          Outliers (|z| > 3):
+              values   z_score
+          13     100  3.895431
+
+      - title: "Example 3: Visualizing Outliers with Box Plot"
+        code: |
+          import pandas as pd
+          import matplotlib.pyplot as plt
+          import numpy as np
+
+          # Create data with outliers
+          normal_data = np.random.normal(50, 10, 100)
+          outliers = [10, 90, 95]
+          data = np.concatenate([normal_data, outliers])
+
+          df = pd.DataFrame({'values': data})
+
+          # Box plot
+          plt.figure(figsize=(10, 6))
+          plt.boxplot(df['values'], vert=False)
+          plt.xlabel('Values')
+          plt.title('Box Plot Showing Outliers')
+          plt.grid(True, alpha=0.3)
+          plt.show()
+        output: |
+          [Box plot with outliers marked as individual points]
+
+      - title: "Example 4: Multivariate Outlier Detection"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from sklearn.ensemble import IsolationForest
+
+          # Create data with multivariate outlier
+          np.random.seed(42)
+          normal = np.random.multivariate_normal([50, 50], [[10, 2], [2, 10]], 100)
+          outlier = np.array([[10, 90], [90, 10]])
+          data = np.vstack([normal, outlier])
+
+          df = pd.DataFrame(data, columns=['X', 'Y'])
+
+          # Isolation Forest
+          iso_forest = IsolationForest(contamination=0.02, random_state=42)
+          df['outlier'] = iso_forest.fit_predict(df[['X', 'Y']])
+
+          # -1 indicates outlier
+          outliers = df[df['outlier'] == -1]
+          print(f"Detected {len(outliers)} outliers:")
+          print(outliers[['X', 'Y']])
+        output: |
+          Detected 2 outliers:
+                   X     Y
+          100  10.0  90.0
+          101  90.0  10.0
+
+      - title: "Example 5: Outlier Detection Function"
+        code: |
+          import pandas as pd
+          import numpy as np
+
+          def detect_outliers_iqr(df, column):
+              """Detect outliers using IQR method"""
+              Q1 = df[column].quantile(0.25)
+              Q3 = df[column].quantile(0.75)
+              IQR = Q3 - Q1
+
+              lower = Q1 - 1.5 * IQR
+              upper = Q3 + 1.5 * IQR
+
+              outliers = df[(df[column] < lower) | (df[column] > upper)]
+
+              return {
+                  'outliers': outliers,
+                  'n_outliers': len(outliers),
+                  'pct_outliers': len(outliers) / len(df) * 100,
+                  'bounds': (lower, upper)
+              }
+
+          # Test
+          df = pd.DataFrame({'age': [25, 30, 35, 28, 150, 32, 29, 31]})
+          result = detect_outliers_iqr(df, 'age')
+
+          print(f"Found {result['n_outliers']} outliers ({result['pct_outliers']:.1f}%)")
+          print(f"Bounds: {result['bounds']}")
+          print(result['outliers'])
+        output: |
+          Found 1 outliers (12.5%)
+          Bounds: (17.5, 45.5)
+             age
+          4  150
+
+      - title: "Example 6: Comparing Detection Methods"
+        code: |
+          import pandas as pd
+          import numpy as np
+          from scipy import stats
+
+          data = [10, 12, 12, 13, 12, 11, 14, 13, 15, 10, 10, 13, 12, 100]
+          df = pd.DataFrame({'values': data})
+
+          # IQR method
+          Q1, Q3 = df['values'].quantile([0.25, 0.75])
+          IQR = Q3 - Q1
+          iqr_outliers = df[(df['values'] < Q1 - 1.5*IQR) | (df['values'] > Q3 + 1.5*IQR)]
+
+          # Z-score method
+          z_scores = np.abs(stats.zscore(df['values']))
+          z_outliers = df[z_scores > 3]
+
+          print("IQR Method:")
+          print(f"  Outliers: {iqr_outliers['values'].tolist()}")
+          print(f"  Count: {len(iqr_outliers)}")
+
+          print("\nZ-Score Method:")
+          print(f"  Outliers: {z_outliers['values'].tolist()}")
+          print(f"  Count: {len(z_outliers)}")
+        output: |
+          IQR Method:
+            Outliers: [100]
+            Count: 1
+
+          Z-Score Method:
+            Outliers: [100]
+            Count: 1
+
+      - title: "Example 7: Domain-Specific Validation"
+        code: |
+          import pandas as pd
+
+          df = pd.DataFrame({
+              'age': [25, 30, -5, 200, 35],
+              'salary': [50000, 60000, -10000, 70000, 80000],
+              'satisfaction': [4.5, 3.2, 7.8, 4.1, 3.9]
+          })
+
+          # Domain rules
+          outliers = pd.DataFrame()
+
+          # Age: 0-120
+          outliers['invalid_age'] = (df['age'] < 0) | (df['age'] > 120)
+
+          # Salary: positive
+          outliers['invalid_salary'] = df['salary'] < 0
+
+          # Satisfaction: 1-5
+          outliers['invalid_satisfaction'] = (df['satisfaction'] < 1) | (df['satisfaction'] > 5)
+
+          # Show invalid rows
+          invalid_rows = outliers.any(axis=1)
+          print("Rows with domain violations:")
+          print(df[invalid_rows])
+          print("\nViolation types:")
+          print(outliers[invalid_rows])
+        output: |
+          Rows with domain violations:
+             age  salary  satisfaction
+          2   -5  -10000           7.8
+          3  200   70000           4.1
+
+          Violation types:
+             invalid_age  invalid_salary  invalid_satisfaction
+          2         True            True                  True
+          3         True           False                 False
+
+  exercise:
+    title: "Detect Outliers in Sales Data"
+    instruction: |
+      You have sales data with potential outliers. Use the IQR method to detect them.
+
+      Create a dictionary called `result` with:
+      - 'n_outliers': number of outliers detected
+      - 'outlier_indices': list of indices where outliers occur (sorted)
+      - 'lower_bound': lower bound for outlier detection (rounded to 2 decimals)
+      - 'upper_bound': upper bound for outlier detection (rounded to 2 decimals)
+
+    setup_code: |
+      import pandas as pd
+      import numpy as np
+
+      np.random.seed(42)
+      normal_sales = np.random.normal(5000, 1000, 20)
+      outlier_sales = [15000, 20000]
+      sales = np.concatenate([normal_sales, outlier_sales])
+
+      df = pd.DataFrame({'sales': sales})
+
+    starter_code: |
+      # Detect outliers using IQR method
+      # TODO: Calculate Q1, Q3, IQR, and bounds
+      # TODO: Identify outliers
+
+      result = {
+          'n_outliers': None,  # TODO
+          'outlier_indices': [],  # TODO: sorted list
+          'lower_bound': None,  # TODO: rounded to 2 decimals
+          'upper_bound': None  # TODO: rounded to 2 decimals
+      }
+
+    solution: |
+      # Calculate IQR bounds
+      Q1 = df['sales'].quantile(0.25)
+      Q3 = df['sales'].quantile(0.75)
+      IQR = Q3 - Q1
+
+      lower_bound = Q1 - 1.5 * IQR
+      upper_bound = Q3 + 1.5 * IQR
+
+      # Detect outliers
+      outlier_mask = (df['sales'] < lower_bound) | (df['sales'] > upper_bound)
+      outlier_indices = df[outlier_mask].index.tolist()
+
+      result = {
+          'n_outliers': len(outlier_indices),
+          'outlier_indices': sorted(outlier_indices),
+          'lower_bound': round(lower_bound, 2),
+          'upper_bound': round(upper_bound, 2)
+      }
+
+    validation:
+      type: "value_check"
+      checks:
+        - variable: "result"
+          type: "dict"
+          keys:
+            - "n_outliers"
+            - "outlier_indices"
+            - "lower_bound"
+            - "upper_bound"
+
+    hints:
+      - level: 1
+        text: "Use .quantile(0.25) and .quantile(0.75) for Q1 and Q3. Calculate IQR = Q3 - Q1, then bounds = Q ± 1.5*IQR."
+
+      - level: 2
+        text: |
+          Steps:
+          1. Q1 = df['sales'].quantile(0.25)
+          2. Q3 = df['sales'].quantile(0.75)
+          3. IQR = Q3 - Q1
+          4. lower = Q1 - 1.5 * IQR
+          5. upper = Q3 + 1.5 * IQR
+          6. Find indices where sales < lower OR sales > upper
+
+      - level: 3
+        code: |
+          Q1 = df['sales'].quantile(0.25)
+          Q3 = df['sales'].quantile(0.75)
+          IQR = Q3 - Q1
+          lower_bound = Q1 - 1.5 * IQR
+          upper_bound = Q3 + 1.5 * IQR
+          outlier_mask = (df['sales'] < lower_bound) | (df['sales'] > upper_bound)
+          outlier_indices = df[outlier_mask].index.tolist()
+
+  follow_up:
+    challenges:
+      - "Implement Modified Z-score for more robust outlier detection"
+      - "Create a visualization comparing IQR, Z-score, and Isolation Forest methods"
+      - "Build an outlier detection pipeline that handles multivariate outliers"
+      - "Write a function that recommends whether to remove or keep outliers based on context"
+
+    resources:
+      - title: "Outlier Detection Methods"
+        url: "https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba"
+      - title: "Isolation Forest"
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html"
+      - title: "Understanding Box Plots"
+        url: "https://www.khanacademy.org/math/statistics-probability/summarizing-quantitative-data/box-whisker-plots/a/box-plot-review"
+
+    next_lesson: "eda_05"
