@@ -20,10 +20,10 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 - ✅ **Structured Content**: YAML-based lesson format for easy integration
 
 **🚧 What's In Development:**
-- 🔲 Jupyter notebook extension (magic commands like `%dstutor start`)
-- 🔲 Auto-validation system for exercises
-- 🔲 AI-powered feedback integration
-- 🔲 Interactive widgets and progress tracking
+- ✅ Jupyter notebook extension (magic commands like `%dstutor start`) - **Working!**
+- ✅ Auto-validation system for exercises - **Working!**
+- ✅ AI-powered feedback integration (Claude API) - **Working!**
+- 🔲 Interactive widgets and progress tracking - In Progress
 
 **📅 Timeline:**
 - **Now**: All educational content ready for review and contribution
@@ -63,13 +63,13 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 - Estimated time for each lesson
 - Clear learning objectives
 
-### 🚧 **Platform Features (Coming Soon)**
-These features are planned for the Jupyter extension:
-- 🔲 **Magic Commands**: `%dstutor start`, `%dstutor hint`, etc.
-- 🔲 **Auto-Validation**: Instant feedback on exercise completion
-- 🔲 **AI-Powered Hints**: Contextual help from Claude AI
-- 🔲 **Progress Tracking**: Visual dashboard and statistics
-- 🔲 **Interactive Widgets**: Beautiful UI in Jupyter notebooks
+### ✅ **Platform Features (Active Development)**
+The Jupyter extension is functional with these features:
+- ✅ **Magic Commands**: `%dstutor start`, `%dstutor hint`, `%dstutor check`, etc. - **Working!**
+- ✅ **Auto-Validation**: Instant feedback on exercise completion - **Working!**
+- ✅ **AI-Powered Hints**: Optional contextual help from Claude AI - **Working!**
+- ✅ **Progress Tracking**: Track completed lessons and attempts - **Working!**
+- 🔲 **Interactive Widgets**: Beautiful UI in Jupyter notebooks - In Progress
 
 ---
 
@@ -568,23 +568,81 @@ result = df.loc[df['A'] > 1, 'B']
 
 ## 🛠️ Configuration
 
-### API Keys
+### 🤖 AI-Powered Features (Optional)
 
-DS-Tutor uses Claude AI for intelligent feedback. Set up your API key:
+DS-Tutor integrates with **Claude AI** (by Anthropic) to provide intelligent, personalized learning assistance. AI features are **completely optional** – the extension works perfectly without them using predefined hints and validation.
 
-```python
-# Option 1: In your notebook
-%dstutor config --api-key YOUR_ANTHROPIC_API_KEY
+#### What AI Provides
 
-# Option 2: Environment variable
-export ANTHROPIC_API_KEY=your_key_here
+**1. Intelligent Hints** (3 progressive levels)
+- Level 1: Gentle guidance with guiding questions
+- Level 2: More specific advice, mentions relevant functions
+- Level 3: Detailed help showing structure without giving away the answer
 
-# Option 3: .env file in your project
-# Create .env file with:
-ANTHROPIC_API_KEY=your_key_here
+**2. Personalized Feedback** (on incorrect solutions only)
+- Explains what went wrong in simple terms
+- Guides you toward the correct approach
+- Encourages you to keep learning
+
+**3. Smart Behavior**
+- ✅ Uses free predefined hints from lessons first
+- ✅ Only calls AI if no predefined hint exists
+- ✅ AI feedback only triggers on incorrect answers
+- ✅ Correct answers get instant validation (no API call!)
+
+#### Cost Information
+
+AI features are very affordable:
+- **Per lesson**: ~$0.006 typical ($0.00-$0.026 range)
+- **Full curriculum** (57 lessons): ~$0.34 typical ($0.00-$1.48 range)
+- Most lessons have predefined hints, so **many lessons cost $0.00**
+
+#### Setting Up AI (Optional)
+
+**Step 1: Get Your API Key**
+
+Visit [Anthropic Console](https://console.anthropic.com/) → Settings → API Keys → Create Key
+
+**Step 2: Configure the API Key**
+
+Choose one of three methods:
+
+```bash
+# Method A: Environment variable (recommended for development)
+export ANTHROPIC_API_KEY='sk-ant-api03-...'
+
+# Method B: .env file (recommended for projects)
+echo "ANTHROPIC_API_KEY=sk-ant-api03-..." > .env
+
+# Method C: Jupyter config (future feature)
+%dstutor config --api-key sk-ant-api03-...
 ```
 
-Get your API key at: [Anthropic Console](https://console.anthropic.com/)
+**Step 3: Verify AI is Enabled**
+
+```python
+%load_ext dstutor
+%dstutor init
+%dstutor config  # Check for "llm_enabled: True"
+```
+
+**Note**: After adding your API key, **restart your Jupyter kernel** for changes to take effect.
+
+#### Disabling AI Features
+
+To disable AI and use only predefined hints:
+
+```bash
+# Comment out the API key in .env
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# Or remove the environment variable
+unset ANTHROPIC_API_KEY
+
+# Then restart Jupyter kernel
+```
+
+The extension will work perfectly with fallback messages!
 
 ### Preferences
 

@@ -6,6 +6,14 @@ from IPython.core.magic import Magics, line_magic, magics_class
 from IPython.display import display, HTML
 from .tutor_engine import TutorEngine
 import sys
+import os
+
+# Load environment variables from .env file if it exists
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, skip
 
 
 @magics_class
