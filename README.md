@@ -1,4 +1,4 @@
-# 🎓 DS-Tutor: AI-Powered Data Science Learning in Jupyter
+# DS-Tutor: AI-Powered Data Science Learning in Jupyter
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -15,22 +15,22 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 ## 📢 Project Status
 
 **🎯 What's Complete:**
-- ✅ **Full Curriculum**: All 57 lessons written and ready (Python, NumPy, Pandas, Matplotlib, Scikit-Learn)
-- ✅ **Learning Materials**: Concepts, examples, exercises, solutions, and hints
-- ✅ **Structured Content**: YAML-based lesson format for easy integration
+- **Full Curriculum**: All 57 lessons written and ready (Python, NumPy, Pandas, Matplotlib, Scikit-Learn)
+- **Learning Materials**: Concepts, examples, exercises, solutions, and hints
+- **Structured Content**: YAML-based lesson format for easy integration
 
-**🚧 What's In Development:**
-- ✅ Jupyter notebook extension (magic commands like `%dstutor start`) - **Working!**
-- ✅ Auto-validation system for exercises - **Working!**
-- ✅ AI-powered feedback integration (Claude API) - **Working!**
-- 🔲 Interactive widgets and progress tracking - In Progress
+**What's In Development:**
+- Jupyter notebook extension (magic commands like `%dstutor start`) - **Working!**
+- Auto-validation system for exercises - **Working!**
+- AI-powered feedback integration (Claude API) - **Working!**
+- Interactive widgets and progress tracking - In Progress
 
-**📅 Timeline:**
+**Timeline:**
 - **Now**: All educational content ready for review and contribution
 - **Q2 2025**: Beta release with working Jupyter extension
 - **Q3 2025**: Public v1.0 release on PyPI
 
-**💡 How You Can Help:**
+**How You Can Help:**
 - Review lesson content and provide feedback
 - Report issues or suggest improvements
 - Contribute to the platform development
@@ -38,9 +38,9 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 
 ---
 
-## ✨ Features
+## Features
 
-### 🎓 **Comprehensive Curriculum (100% Complete)** ✅
+### **Comprehensive Curriculum (100% Complete)**
 - **57 lessons** covering Python fundamentals through intermediate ML
 - **Foundations**: Python (10), NumPy (10), Pandas (15), Matplotlib (10)
 - **Intermediate**: Scikit-Learn (12) - complete ML pipeline
@@ -48,7 +48,7 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 - **Real-world examples** in every lesson
 - **Progressive difficulty** that grows with you
 
-### 📖 **Rich Learning Materials** ✅
+### **Rich Learning Materials**
 - Clear concept explanations for every topic
 - 5-7 code examples per lesson with expected outputs
 - Hands-on exercises to practice skills
@@ -56,24 +56,24 @@ DS-Tutor is an interactive Jupyter notebook extension that provides personalized
 - Follow-up challenges to deepen understanding
 - Additional resources and documentation links
 
-### 🎯 **Structured Learning Path** ✅
+### **Structured Learning Path**
 - Prerequisites tracked between lessons
 - Recommended learning sequences
 - Module-based organization (5 modules)
 - Estimated time for each lesson
 - Clear learning objectives
 
-### ✅ **Platform Features (Active Development)**
+### **Platform Features (Active Development)**
 The Jupyter extension is functional with these features:
-- ✅ **Magic Commands**: `%dstutor start`, `%dstutor hint`, `%dstutor check`, etc. - **Working!**
-- ✅ **Auto-Validation**: Instant feedback on exercise completion - **Working!**
-- ✅ **AI-Powered Hints**: Optional contextual help from Claude AI - **Working!**
-- ✅ **Progress Tracking**: Track completed lessons and attempts - **Working!**
-- 🔲 **Interactive Widgets**: Beautiful UI in Jupyter notebooks - In Progress
+- **Magic Commands**: `%dstutor start`, `%dstutor hint`, `%dstutor check`, etc. - **Working!**
+- **Auto-Validation**: Instant feedback on exercise completion - **Working!**
+- **AI-Powered Hints**: Optional contextual help from Claude AI - **Working!**
+- **Progress Tracking**: Track completed lessons and attempts - **Working!**
+- **Interactive Widgets**: Beautiful UI in Jupyter notebooks - In Progress
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -421,9 +421,9 @@ print(f"Test score: {grid_search.score(X_test, y_test)}")
 
 ---
 
-## 🎯 How to Use This Curriculum
+## How to Use This Curriculum
 
-### 📅 Recommended Learning Schedule
+### Recommended Learning Schedule
 
 **Option 1: Intensive (4-6 weeks)**
 - **Week 1**: Python + NumPy fundamentals
@@ -444,50 +444,50 @@ print(f"Test score: {grid_search.score(X_test, y_test)}")
 - Focus on one module at a time
 - Complete practice projects between modules
 
-### 🎓 Learning Tips
+### Learning Tips
 
 #### Before Starting
-1. ✅ Install Jupyter Notebook and DS-Tutor extension
-2. ✅ Set up your Claude API key for AI assistance
-3. ✅ Create a dedicated notebook for notes and experiments
-4. ✅ Set realistic goals (consistency > intensity)
+1. Install Jupyter Notebook and DS-Tutor extension
+2. Set up your Claude API key for AI assistance
+3. Create a dedicated notebook for notes and experiments
+4. Set realistic goals (consistency > intensity)
 
 #### During Lessons
-1. 📖 **Read the concept explanation** before coding
-2. 💻 **Type the code** yourself (don't copy-paste)
-3. 🔬 **Experiment** - modify examples to test your understanding
-4. 📝 **Take notes** in markdown cells
-5. 🤔 **Try before hints** - struggle is part of learning
-6. ✅ **Complete exercises** before moving on
+1. **Read the concept explanation** before coding
+2. **Type the code** yourself (don't copy-paste)
+3. **Experiment** - modify examples to test your understanding
+4. **Take notes** in markdown cells
+5. **Try before hints** - struggle is part of learning
+6. **Complete exercises** before moving on
 
 #### After Each Module
-1. 📊 **Build a mini-project** using the skills learned
-2. 📚 **Review previous lessons** if concepts feel shaky
-3. 🎯 **Practice with real datasets** from Kaggle or UCI
-4. 📖 **Read documentation** to go deeper
-5. 💬 **Explain concepts** to someone (or your rubber duck)
+1. **Build a mini-project** using the skills learned
+2. **Review previous lessons** if concepts feel shaky
+3. **Practice with real datasets** from Kaggle or UCI
+4. **Read documentation** to go deeper
+5. **Explain concepts** to someone (or your rubber duck)
 
-### 🚫 Common Pitfalls to Avoid
+### Common Pitfalls to Avoid
 
-1. ❌ **Skipping Python fundamentals** - Even if you know Python, review Module 1
-2. ❌ **Rushing through NumPy** - It's the foundation; take your time
-3. ❌ **Not practicing Pandas enough** - You'll use this 80% of the time
-4. ❌ **Ignoring visualizations** - Matplotlib seems tedious but is essential
-5. ❌ **Jumping to models too quickly** - Master preprocessing first
-6. ❌ **Only reading, not coding** - You must write code to learn
-7. ❌ **Skipping exercises** - Exercises solidify understanding
+1. **Skipping Python fundamentals** - Even if you know Python, review Module 1
+2. **Rushing through NumPy** - It's the foundation; take your time
+3. **Not practicing Pandas enough** - You'll use this 80% of the time
+4. **Ignoring visualizations** - Matplotlib seems tedious but is essential
+5. **Jumping to models too quickly** - Master preprocessing first
+6. **Only reading, not coding** - You must write code to learn
+7. **Skipping exercises** - Exercises solidify understanding
 
-### ✅ Success Indicators
+### Success Indicators
 
 You're ready to move on when:
-- ✅ You can complete exercises without hints
-- ✅ You can modify examples to solve new problems
-- ✅ You understand WHY the code works, not just HOW
-- ✅ You can explain concepts in your own words
+- You can complete exercises without hints
+- You can modify examples to solve new problems
+- You understand WHY the code works, not just HOW
+- You can explain concepts in your own words
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 > **Note**: The magic commands shown below are the planned interface for the Jupyter extension (currently in development). For now, you can explore all lesson content in the `/lessons/` directory.
 
@@ -554,7 +554,7 @@ You're ready to move on when:
 df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
 result = df.loc[df['A'] > 1, 'B']
 
-# ✅ Automatic validation happens when you run the cell
+# Automatic validation happens when you run the cell
 # Feedback widget appears with results
 
 # 4. Need help?
@@ -566,9 +566,9 @@ result = df.loc[df['A'] > 1, 'B']
 
 ---
 
-## 🛠️ Configuration
+## Configuration
 
-### 🤖 AI-Powered Features (Optional)
+### AI-Powered Features (Optional)
 
 DS-Tutor integrates with **Claude AI** (by Anthropic) to provide intelligent, personalized learning assistance. AI features are **completely optional** – the extension works perfectly without them using predefined hints and validation.
 
@@ -585,10 +585,10 @@ DS-Tutor integrates with **Claude AI** (by Anthropic) to provide intelligent, pe
 - Encourages you to keep learning
 
 **3. Smart Behavior**
-- ✅ Uses free predefined hints from lessons first
-- ✅ Only calls AI if no predefined hint exists
-- ✅ AI feedback only triggers on incorrect answers
-- ✅ Correct answers get instant validation (no API call!)
+- Uses free predefined hints from lessons first
+- Only calls AI if no predefined hint exists
+- AI feedback only triggers on incorrect answers
+- Correct answers get instant validation (no API call!)
 
 #### Cost Information
 
@@ -664,7 +664,7 @@ Customize your learning experience:
 
 ---
 
-## 📊 Example Lesson Flow
+## Example Lesson Flow
 
 Here's what a typical lesson looks like:
 
@@ -725,19 +725,19 @@ result =
 
 **If Correct:**
 ```
-✅ Perfect! Well done!
+Perfect! Well done!
 
 Your solution efficiently uses .loc[] for both filtering and column
 selection. This is the idiomatic pandas approach.
 
-💡 Pro tip: You can also chain multiple conditions with & and |
+Pro tip: You can also chain multiple conditions with & and |
 
-🎯 Ready for the next challenge!
+Ready for the next challenge!
 ```
 
 **If Incorrect:**
 ```
-⚠️ Almost there!
+Almost there!
 
 Your filtering condition is correct, but check your column selection.
 
@@ -750,7 +750,7 @@ Need a hint? Use: %dstutor hint
 %dstutor hint  # First hint
 ```
 ```
-💡 Hint 1/3:
+Hint 1/3:
 Think about the structure: df.loc[rows, columns]
 Your row condition looks good!
 ```
@@ -759,7 +759,7 @@ Your row condition looks good!
 %dstutor hint 2  # More specific
 ```
 ```
-💡 Hint 2/3:
+Hint 2/3:
 Use a list ['name', 'city'] for the columns parameter
 Structure: df.loc[df['age'] >= 30, ['name', 'city']]
 ```
@@ -768,7 +768,7 @@ Structure: df.loc[df['age'] >= 30, ['name', 'city']]
 %dstutor solution  # Complete solution
 ```
 ```
-💡 Solution:
+Solution:
 result = df.loc[df['age'] >= 30, ['name', 'city']]
 
 This filters rows where age >= 30 and selects only name and city columns.
@@ -776,34 +776,34 @@ This filters rows where age >= 30 and selects only name and city columns.
 
 ---
 
-## 🎯 Practice Projects
+## Practice Projects
 
 After completing each module, reinforce your learning with these projects:
 
 ### After Python Fundamentals
-- 📝 **Text Analyzer**: Count words, find patterns, analyze frequency
-- 🎲 **Game Simulator**: Build a dice game with functions and loops
+- **Text Analyzer**: Count words, find patterns, analyze frequency
+- **Game Simulator**: Build a dice game with functions and loops
 
 ### After NumPy
-- 📊 **Statistical Calculator**: Compute stats on numerical arrays
-- 🎨 **Image Manipulation**: Basic operations on image arrays
+- **Statistical Calculator**: Compute stats on numerical arrays
+- **Image Manipulation**: Basic operations on image arrays
 
 ### After Pandas
-- 📈 **Sales Dashboard**: Analyze sales data with groupby and pivots
-- 🧹 **Data Cleaner**: Clean messy CSV files automatically
+- **Sales Dashboard**: Analyze sales data with groupby and pivots
+- **Data Cleaner**: Clean messy CSV files automatically
 
 ### After Matplotlib
-- 📊 **Visualization Suite**: Create a dashboard with multiple plot types
-- 📉 **Stock Tracker**: Visualize stock price trends
+- **Visualization Suite**: Create a dashboard with multiple plot types
+- **Stock Tracker**: Visualize stock price trends
 
 ### After Scikit-Learn
-- 🏠 **House Price Predictor**: Regression project with feature engineering
-- 🎯 **Customer Churn Predictor**: Classification with model tuning
-- 📊 **Complete ML Pipeline**: End-to-end project from data to deployment
+- **House Price Predictor**: Regression project with feature engineering
+- **Customer Churn Predictor**: Classification with model tuning
+- **Complete ML Pipeline**: End-to-end project from data to deployment
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how you can help:
 
@@ -879,7 +879,7 @@ black src/
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 ### Minimum Requirements
 - Python 3.8+
@@ -903,44 +903,44 @@ pyyaml>=6.0
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-### 🚧 Current Status (v0.1.0-dev) - IN DEVELOPMENT
-**Curriculum: 100% Complete** ✅
-- ✅ Python fundamentals (10 lessons)
-- ✅ NumPy complete curriculum (10 lessons)
-- ✅ Pandas complete curriculum (15 lessons)
-- ✅ Matplotlib complete curriculum (10 lessons)
-- ✅ Scikit-learn complete curriculum (12 lessons)
-- ✅ **57 total lessons - fully written and ready!**
+### Current Status (v0.1.0-dev) - IN DEVELOPMENT
+**Curriculum: 100% Complete**
+- Python fundamentals (10 lessons)
+- NumPy complete curriculum (10 lessons)
+- Pandas complete curriculum (15 lessons)
+- Matplotlib complete curriculum (10 lessons)
+- Scikit-learn complete curriculum (12 lessons)
+- **57 total lessons - fully written and ready!**
 
-**Platform: In Development** 🚧
-- 🔲 Jupyter notebook extension framework
-- 🔲 Magic command system (%dstutor)
-- 🔲 Auto-validation engine
-- 🔲 AI feedback integration (Claude API)
-- 🔲 Progress tracking system
-- 🔲 Interactive widgets
+**Platform: In Development**
+- Jupyter notebook extension framework
+- Magic command system (%dstutor)
+- Auto-validation engine
+- AI feedback integration (Claude API)
+- Progress tracking system
+- Interactive widgets
 
 **Target**: Public beta release Q2 2025
 
 ### Coming Soon (v0.2.0)
-- 🔲 Advanced widgets and improved UI
-- 🔲 Practice mode with random exercises
-- 🔲 Project templates and guided projects
-- 🔲 Performance improvements
-- 🔲 Extended datasets library
-- 🔲 Community lesson sharing
+- Advanced widgets and improved UI
+- Practice mode with random exercises
+- Project templates and guided projects
+- Performance improvements
+- Extended datasets library
+- Community lesson sharing
 
 ### Future (v0.3.0+)
-- 🔲 Deep learning lessons (Keras, PyTorch)
-- 🔲 Advanced ML topics (NLP, Computer Vision)
-- 🔲 Time series forecasting module
-- 🔲 MLOps and deployment lessons
-- 🔲 JupyterLab sidebar extension
-- 🔲 Collaborative learning features
-- 🔲 Certificate generation
-- 🔲 Google Colab support
+- Deep learning lessons (Keras, PyTorch)
+- Advanced ML topics (NLP, Computer Vision)
+- Time series forecasting module
+- MLOps and deployment lessons
+- JupyterLab sidebar extension
+- Collaborative learning features
+- Certificate generation
+- Google Colab support
 
 ---
 
@@ -987,7 +987,7 @@ All lessons use real datasets including:
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 DS-Tutor is built on the shoulders of giants:
 
@@ -1001,7 +1001,7 @@ Special thanks to the open-source Data Science community for inspiration and bes
 
 ---
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
@@ -1024,7 +1024,7 @@ Your support helps us continue developing free educational resources.
 
 ---
 
-## 🚀 Get Started Now!
+## Get Started Now!
 
 ```bash
 # Clone and install
@@ -1043,4 +1043,4 @@ Then in your notebook:
 %dstutor start python
 ```
 
-**Ready to become a Data Scientist? Start your journey today! 🎓📊🤖**
+**Start your journey today!**
